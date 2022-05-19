@@ -22,7 +22,7 @@ class AddrObj extends ConcreteTable implements QueryModel
 				'BIGINT UNSIGNED NOT NULL',
 			],
 			'objectid_addr' => [
-				'BIGINT UNSIGNED PRIMARY KEY NOT NULL',
+				'BIGINT UNSIGNED NOT NULL',
 			],
 			'objectguid_addr' => [
 				'CHAR(50) NOT NULL',
@@ -36,9 +36,9 @@ class AddrObj extends ConcreteTable implements QueryModel
 			'typename_addr' => [
 				'VARCHAR(100) NOT NULL',
 			],
-      'FOREIGN KEY (level_addr)' => [
-        'REFERENCES obj_levels (id)'
-      ]
+//      'FOREIGN KEY (level_addr)' => [
+//        'REFERENCES obj_levels (id)'
+//      ]
 		];
 	}
 }

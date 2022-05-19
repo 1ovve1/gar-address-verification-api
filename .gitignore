@@ -1,6 +1,7 @@
 vendor/
 .idea/
 
+cache/*
 logs/*
 resources/archive/*
 

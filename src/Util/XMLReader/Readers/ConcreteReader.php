@@ -7,14 +7,14 @@ use Exception;
 use GAR\Database\Table\SQL\QueryModel;
 use GAR\Logger\Log;
 use GAR\Logger\Msg;
-use GAR\Util\XMLReader\Readers\AbstractReaders\AbstractXMLReader;
-use GAR\Util\XMLReader\Readers\AbstractReaders\CustomReader;
-use GAR\Util\XMLReader\Readers\AbstractReaders\IteratorXML;
-use GAR\Util\XMLReader\Readers\AbstractReaders\OpenXMLFromZip;
-use GAR\Util\XMLReader\Readers\AbstractReaders\SchedulerObject;
+use GAR\Util\XMLReader\Readers\AbstractReaders\{AbstractXMLReader,
+  CustomReader,
+  IteratorXML,
+  OpenXMLFromZip,
+  SchedulerObject};
 
-define('ZIP_PATH', __DIR__ . '/../../../resources/archive/' . $_SERVER['GAR_ZIP_NAME']);
-define('CACHE_PATH', __DIR__ . '/../../../cache/');
+define('ZIP_PATH', __DIR__ . '/../../../../resources/archive/' . $_SERVER['GAR_ZIP_NAME']);
+define('CACHE_PATH', __DIR__ . '/../../../../cache');
 
 abstract class ConcreteReader
   extends
@@ -39,7 +39,7 @@ abstract class ConcreteReader
 	{
 		parent::__construct(ZIP_PATH, $fileName, CACHE_PATH);
 
-		// task reporting
+    // task reporting
 		Log::addTask(1);
 	}
 
@@ -109,8 +109,8 @@ abstract class ConcreteReader
 			return;
 		}
 
-		// extract if its none
-		if (is_null($this->pathToXml) || file_exists($this->pathToXml)) {
+    // extract if its none
+		if (is_null($this->pathToXml) || !file_exists($this->pathToXml)) {
 			try{
 				Log::write(Msg::LOG_XML_EXTRACT->value, $this->fileName);
 				$this->init();

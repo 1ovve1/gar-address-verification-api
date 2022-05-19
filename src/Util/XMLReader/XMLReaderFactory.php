@@ -3,25 +3,27 @@
 namespace GAR\Util\XMLReader;
 
 
-use GAR\Util\XMLReader\Models\AsAddressObject;
-use GAR\Util\XMLReader\Models\AsAddressObjectParams;
-use GAR\Util\XMLReader\Models\AsAdminHierarchy;
-use GAR\Util\XMLReader\Models\AsHouses;
-use GAR\Util\XMLReader\Models\AsMunHierarchy;
-use GAR\Util\XMLReader\Models\AsObjectLevels;
+use GAR\Util\XMLReader\Models\{AsAddressObject,
+  AsAddressObjectParams,
+  AsAdminHierarchy,
+  AsHouses,
+  AsMunHierarchy,
+  AsObjectLevels};
 use GAR\Util\XMLReader\Readers\ConcreteReader;
 
-const FILES = [
-	'AS_HOUSES' => 'AS_HOUSES', 
-	'ADDR_OBJ' => 'AS_ADDR_OBJ',
-	'ADMIN_HIERARCHI' => 'AS_ADM_HIERARCHY',
-	'MUN_HIERARCHI' => 'AS_MUN_HIERARCHY',
-	'ADDR_OBJ_PARAMS' => 'AS_ADDR_OBJ_PARAMS',
-  'OBJECT_LEVELS' => 'AS_OBJECT_LEVELS',
-];
+
 
 class XMLReaderFactory
 {
+  const FILES = [
+    'AS_HOUSES' => 'AS_HOUSES',
+    'ADDR_OBJ' => 'AS_ADDR_OBJ',
+    'ADMIN_HIERARCHI' => 'AS_ADM_HIERARCHY',
+    'MUN_HIERARCHI' => 'AS_MUN_HIERARCHY',
+    'ADDR_OBJ_PARAMS' => 'AS_ADDR_OBJ_PARAMS',
+    'OBJECT_LEVELS' => 'AS_OBJECT_LEVELS',
+  ];
+
 //	const regions = [
 //		'1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
 //		'11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
@@ -42,37 +44,37 @@ class XMLReaderFactory
 
   public static function execAddrObj() : ConcreteReader
 	{
-		return self::prepare(new AsAddressObject(), FILES['ADDR_OBJ']);
+		return self::prepare(new AsAddressObject(), self::FILES['ADDR_OBJ']);
 
 	}
 
 	public static function execAddressObjParams() : ConcreteReader
 	{
-		return self::prepare(new AsAddressObjectParams(), FILES['ADDR_OBJ_PARAMS']);
+		return self::prepare(new AsAddressObjectParams(), self::FILES['ADDR_OBJ_PARAMS']);
 
 	}
-	
+
 	public static function execHouses() : ConcreteReader
 	{
-		return self::prepare(new AsHouses(), FILES['AS_HOUSES']);
+		return self::prepare(new AsHouses(), self::FILES['AS_HOUSES']);
 
 	}
 
 	public static function execAdminHierarchi() : ConcreteReader
 	{
-		return self::prepare(new AsAdminHierarchy(), FILES['ADMIN_HIERARCHI']);
+		return self::prepare(new AsAdminHierarchy(), self::FILES['ADMIN_HIERARCHI']);
 
 	}
 
 	public static function execMunHierachi() : ConcreteReader
 	{
-		return self::prepare(new AsMunHierarchy(), FILES['MUN_HIERARCHI']);
+		return self::prepare(new AsMunHierarchy(), self::FILES['MUN_HIERARCHI']);
 
 	}
 
   public static function execObjectLevels() : ConcreteReader
   {
-    return new AsObjectLevels(FILES['OBJECT_LEVELS']);
+    return new AsObjectLevels(self::FILES['OBJECT_LEVELS']);
   }
 
 	private static function prepare(ConcreteReader $reader, string $file) : ConcreteReader

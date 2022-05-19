@@ -85,7 +85,7 @@ abstract class AbstractXMLReader implements Iterator
       // extracting xml from zip
 			$this->pathToXml = $this->extractFileFromZip($this->pathToZip, $this->fileName, $this->cachePath);
 
-			// getting some paths
+      // getting some paths
 			$dropPath = explode('/', $this->pathToXml);
 			$this->fileName = array_pop($dropPath);
 			$this->cachePath = implode('/', $dropPath);
