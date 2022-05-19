@@ -1,0 +1,27 @@
+{
+    "name": "tpo/lab2",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "GAR\\": "src/",
+            "Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Andrey Bulavskiy",
+            "email": "iandrey00@mail.ru"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "require": {
+        "ext-pdo": "*",
+        "ext-xmlreader": "*",
+        "ext-readline": "*",
+        "ext-zip": "*",
+        "slim/slim": "4.*",
+        "slim/psr7": "^1.5"
+    }
+}

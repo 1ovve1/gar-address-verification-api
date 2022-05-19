@@ -1,0 +1,9 @@
+vendor/
+.idea/
+
+logs/*
+resources/archive/*
+
+composer.lock
+composer.phar
+.env
