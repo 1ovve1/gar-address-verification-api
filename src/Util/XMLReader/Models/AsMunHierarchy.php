@@ -17,10 +17,16 @@ class AsMunHierarchy extends ConcreteReader
 
 	public function execDoWork(QueryModel $model, array $value) : void
 	{
-    $value['id'] = intval($value['id']);
-    $value['objectid'] = intval($value['objectid']);
-    $value['parentobjid'] = intval($value['parentobjid']);
-    $value['oktmo'] = intval($value['oktmo']);
-		$model->forceInsert($value);
+    if (
+      !empty($model->select(['level_addr'], ['addr_obj'])
+        ->where('objectid_addr', '=', (int)$value['parentobjid'])
+        ->save())
+      ) {
+      $value['id'] = intval($value['id']);
+      $value['objectid'] = intval($value['objectid']);
+      $value['parentobjid'] = intval($value['parentobjid']);
+      $value['oktmo'] = intval($value['oktmo']);
+      $model->forceInsert($value);
+    }
 	}
 }

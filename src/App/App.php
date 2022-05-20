@@ -18,4 +18,5 @@ $dotenv->required([
 
 $app = AppFactory::create();
 
-return (require __DIR__ . '/Routes.php')($app);
+(require __DIR__ . '/Middleware.php')($app);
+(require __DIR__ . '/Routes.php')($app);

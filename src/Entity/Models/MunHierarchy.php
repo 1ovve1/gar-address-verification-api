@@ -34,6 +34,9 @@ class MunHierarchy extends ConcreteTable implements QueryModel
       'oktmo_mun' => [
         'BIGINT UNSIGNED NOT NULL',
 			],
+      'FOREIGN KEY (parentobjid_mun)' => [
+        'REFERENCES addr_obj (objectid_addr)'
+      ],
 		];
 	}
 }

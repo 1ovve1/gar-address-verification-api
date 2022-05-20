@@ -22,7 +22,7 @@ class AddrObj extends ConcreteTable implements QueryModel
 				'BIGINT UNSIGNED NOT NULL',
 			],
 			'objectid_addr' => [
-				'BIGINT UNSIGNED NOT NULL',
+				'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
 			],
 			'objectguid_addr' => [
 				'CHAR(50) NOT NULL',

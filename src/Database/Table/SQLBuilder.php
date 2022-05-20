@@ -152,7 +152,7 @@ class SQLBuilder
       "WHERE %s %s (%s) ",
       $field,
       $sign,
-      $value
+      $this->withQuotesIfString($value)
     ));
     return $this;
   }
@@ -171,7 +171,7 @@ class SQLBuilder
       "AND %s %s (%s) ",
       $field,
       $sign,
-      $value
+      $this->withQuotesIfString($value)
     ));
     return $this;
   }
@@ -190,7 +190,7 @@ class SQLBuilder
       "OR %s %s (%s) ",
       $field,
       $sign,
-      $value
+      $this->withQuotesIfString($value)
     ));
     return $this;
   }
@@ -277,7 +277,6 @@ class SQLBuilder
       $this->getInsTemple()->save($this->getDb());
     }
 
-    $this->reset();
     return $this->getDb()->fetchAll();
   }
 
@@ -347,5 +346,9 @@ class SQLBuilder
       }
     }
     return implode($deepSeparator, $formatted);
+  }
+
+  protected function withQuotesIfString(string|int $value) : string {
+    return (is_string($value)) ? "'".$value."'": (string)$value;
   }
 }
