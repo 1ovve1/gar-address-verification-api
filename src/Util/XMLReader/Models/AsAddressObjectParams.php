@@ -17,24 +17,40 @@ class AsAddressObjectParams extends ConcreteReader
 
 	public function execDoWork(QueryModel $model, array $value) : void
 	{
-    if (in_array($value['typeid'], ['6', '7', '11'])) {
+    $formatted = [
+      'id' => (int)$value['id'],
+      'objectid_addr' => (int)$value['objectid'],
+    ];
 
-      if ($value['typeid'] === '6') {
-        $type = 'OKATO';
-      } else if ($value['typeid'] === '7') {
-        $type = 'OKTMO';
-      } else {
-        $type = 'KLADR';
+    if (empty($model->findFirst('objectid', $formatted['objectid_addr'], 'addr_obj'))) {
+      return;
+    }
+
+    if (in_array($value['typeid'], ['6', '7', '11'])) {
+      $type = '';
+
+      switch($value['typeid']) {
+        case '6':
+          $type = 'OKATO';
+          $formatted[$type] = (int)$value['value'];
+          break;
+        case '7':
+          $type = 'OKTMO';
+          $formatted[$type] = (int)$value['value'];
+          break;
+        case '11':
+          $type = 'KLADR';
+          $formatted[$type] = (int)$value['value'];
+          break;
       }
 
-
-      $value['typeid'] = $type;
-
-      $value['id'] = intval($value['id']);
-      $value['objectid'] = intval($value['objectid']);
-      $value['value'] = intval($value['value']);
-
-      $model->forceInsert($value);
+      if (empty($model->findFirst('objectid_addr', $formatted['objectid_addr']))) {
+        $model->insert($formatted)->save();
+      } else {
+        $model->update($type, $formatted[$type])
+          ->where('objectid_addr', '=', $formatted['objectid_addr'])
+          ->save();
+      }
     }
 	}
 }

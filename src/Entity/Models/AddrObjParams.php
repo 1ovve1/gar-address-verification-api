@@ -22,18 +22,24 @@ class AddrObjParams extends ConcreteTable implements QueryModel
   public function fieldsToCreate() : ?array
 	{
 		return [
-			'id_addr_params' => [
+			'id' => [
+        'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
+			],
+			'objectid_addr' => [
         'BIGINT UNSIGNED NOT NULL',
 			],
-			'objectid_addr_params' => [
-        'BIGINT UNSIGNED NOT NULL',
+			'OKATO' => [
+        'BIGINT UNSIGNED',
 			],
-			'TYPE' => [
-				'CHAR(5) NOT NULL',
-			],
-			'VALUE' => [
-        'BIGINT UNSIGNED NOT NULL',
-			],
+      'OKTMO' => [
+        'BIGINT UNSIGNED',
+      ],
+      'KLADR' => [
+        'BIGINT UNSIGNED',
+      ],
+      'FOREIGN KEY (objectid_addr)' => [
+        'REFERENCES addr_obj (objectid)'
+      ]
 		];
 	}
 }

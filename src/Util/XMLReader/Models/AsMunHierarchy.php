@@ -18,8 +18,8 @@ class AsMunHierarchy extends ConcreteReader
 	public function execDoWork(QueryModel $model, array $value) : void
 	{
     if (
-      !empty($model->select(['level_addr'], ['addr_obj'])
-        ->where('objectid_addr', '=', (int)$value['parentobjid'])
+      !empty($model->select(['id_level'], ['addr_obj'])
+        ->where('objectid', '=', (int)$value['parentobjid'])
         ->save())
       ) {
       $value['id'] = intval($value['id']);

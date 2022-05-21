@@ -18,27 +18,27 @@ class AddrObj extends ConcreteTable implements QueryModel
   public function fieldsToCreate() : ?array
 	{
 		return [
-			'id_addr' => [
+			'id' => [
 				'BIGINT UNSIGNED NOT NULL',
 			],
-			'objectid_addr' => [
+			'objectid' => [
 				'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
 			],
-			'objectguid_addr' => [
+			'objectguid' => [
 				'CHAR(50) NOT NULL',
 			],
-      'level_addr' => [
+      'id_level' => [
         'TINYINT UNSIGNED NOT NULL'
       ],
-			'name_addr' => [
+			'name' => [
 				'VARCHAR(100) NOT NULL',
 			],
-			'typename_addr' => [
+			'typename' => [
 				'VARCHAR(100) NOT NULL',
 			],
-//      'FOREIGN KEY (level_addr)' => [
-//        'REFERENCES obj_levels (id)'
-//      ]
+      'FOREIGN KEY (id_level)' => [
+        'REFERENCES obj_levels (id)'
+      ]
 		];
 	}
 }

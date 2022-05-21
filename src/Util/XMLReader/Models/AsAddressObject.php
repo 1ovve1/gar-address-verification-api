@@ -18,7 +18,7 @@ class AsAddressObject extends ConcreteReader
 	public function execDoWork(QueryModel $model, array $value) : void
 	{
 		if ($value['isactive'] === "1" && $value['isactual'] === "1") {
-      if (!empty($model->select(['level_addr'])->where('objectid_addr', '=', (int)$value))) {
+      if (empty($model->findFirst('objectid', $value['objectid']))) {
         $model->forceInsert([
           (int)$value['id'],
           (int)$value['objectid'],

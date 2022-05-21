@@ -23,21 +23,33 @@ class Houses extends ConcreteTable implements QueryModel
   public function fieldsToCreate() : ?array
 	{
 		return [
-			'id_houses' => [
+			'id' => [
         'BIGINT UNSIGNED NOT NULL',
 			],
-			'objectid_houses' => [
-        'BIGINT UNSIGNED NOT NULL',
+			'objectid' => [
+        'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
 			],
-			'objectguid_houses' => [
+			'objectguid' => [
         'CHAR(50) NOT NULL',
 			],
-			'housenum_houses' => [
-				'CHAR(100)',
+			'housenum' => [
+				'VARCHAR(50)',
 			],
-			'housetype_houses' => [
-				'CHAR(50)',
+      'addnum1' => [
+        'VARCHAR(50)',
+      ],
+      'addnum2' => [
+        'VARCHAR(50)',
+      ],
+			'housetype' => [
+				'VARCHAR(50)',
 			],
+      'addtype1' => [
+        'VARCHAR(50)',
+      ],
+      'addtype2' => [
+        'VARCHAR(50)',
+      ],
 		];
 	}
 }

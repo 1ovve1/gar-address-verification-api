@@ -85,17 +85,17 @@ class SQLBuilder
    * Update statement
    *
    * @param string $field - concrete field
-   * @param string $value - concrete value
+   * @param string|int $value - concrete value
    * @return UpdateQuery
    */
-  function update(string $field, string $value): UpdateQuery
+  function update(string $field, string|int $value): UpdateQuery
   {
     $this->reset();
     $this->setQuery(sprintf(
       "UPDATE %s \nSET %s = (%s)\n",
       $this->getTableName(),
       $field,
-      $value
+      (is_int($value)) ? $value: "'".$value."'"
     ));
 
     return $this;
@@ -137,6 +137,22 @@ class SQLBuilder
     ));
     return $this;
   }
+
+  /**
+   * Find concrete value in field
+   *
+   * @param string $field - field
+   * @param int|string $value - value to find
+   * @param string|null $anotherTable - another tables
+   * @return array - found value (limit 1) or empty if non
+   */
+  function findFirst(string $field, int|string $value, ?string $anotherTable = null): array
+  {
+    return $this->select([$field], (is_null($anotherTable)) ? null: [$anotherTable])
+      ->where($field, '=', $value)
+      ->limit(1)->save();
+  }
+
 
   /**
    * Where state

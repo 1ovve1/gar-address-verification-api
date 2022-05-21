@@ -13,7 +13,7 @@ class ObjLevels extends ConcreteTable implements QueryModel
   {
     return [
       'id' => [
-        'TINYINT UNSIGNED NOT NULL'
+        'TINYINT UNSIGNED NOT NULL PRIMARY KEY'
       ],
       'disc' => [
         'CHAR(70)'

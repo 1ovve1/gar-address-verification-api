@@ -32,10 +32,10 @@ class GarRepository
     foreach (array_reverse($halfAddress) as $parent) {
       if (empty($fullAddress)) {
         $fullAddress[$chiled] = $this->getTrueChiled($parent, $chiled);
-        $chiled = end($fullAddress)[0]['name_addr'];
+        $chiled = end($fullAddress)[0]['name'];
       }
       $fullAddress[$parent] = $this->getTrueParent($parent, $chiled);
-      $chiled = end($fullAddress)[0]['name_addr'];
+      $chiled = end($fullAddress)[0]['name'];
     }
     $fullAddress['full'] = $this->getFullAddressByArray($fullAddress);
     return $fullAddress;
@@ -69,9 +69,9 @@ class GarRepository
       }
       foreach ($contains as $elem) {
         if (
-          array_key_exists('name_addr', $elem) && array_key_exists('typename_addr', $elem)
+          array_key_exists('name', $elem) && array_key_exists('typename', $elem)
         ) {
-          $formatted[] = implode(' ', [$elem['typename_addr'], $elem['name_addr']]);
+          $formatted[] = implode(' ', [$elem['name'], $elem['typename']]);
         }
       }
     }
@@ -84,11 +84,11 @@ class GarRepository
     $hierarchy = $this->getTable('mun');
 
     return $hierarchy
-      ->select(['chiled.name_addr', 'chiled.typename_addr', 'chiled.level_addr'], ['mun' => 'mun_hierarchy'])
-      ->innerJoin('addr_obj as parent', ['parent.objectid_addr' => 'mun.parentobjid_mun'])
-      ->innerJoin('addr_obj as chiled', ['chiled.objectid_addr' => 'mun.objectid_mun'])
-      ->where('chiled.name_addr', 'LIKE', $chiled . '%')
-      ->andWhere('parent.name_addr', 'LIKE', $parent . '%')
+      ->select(['chiled.name', 'chiled.typename', 'chiled.id_level'], ['mun' => 'mun_hierarchy'])
+      ->innerJoin('addr_obj as parent', ['parent.objectid' => 'mun.parentobjid_addr'])
+      ->innerJoin('addr_obj as chiled', ['chiled.objectid' => 'mun.objectid'])
+      ->where('chiled.name', 'LIKE', $chiled . '%')
+      ->andWhere('parent.name', 'LIKE', $parent . '%')
       ->save();
   }
 
@@ -97,11 +97,11 @@ class GarRepository
     $hierarchy = $this->getTable('mun');
 
     return $hierarchy
-      ->select(['parent.name_addr', 'chiled.typename_addr', 'parent.level_addr'], ['mun' => 'mun_hierarchy'])
-      ->innerJoin('addr_obj as parent', ['parent.objectid_addr' => 'mun.parentobjid_mun'])
-      ->innerJoin('addr_obj as chiled', ['chiled.objectid_addr' => 'mun.objectid_mun'])
-      ->where('chiled.name_addr', '=', $trueChiled)
-      ->andWhere('parent.name_addr', 'LIKE', $parent . '%')
+      ->select(['parent.name', 'chiled.typename', 'parent.id_level'], ['mun' => 'mun_hierarchy'])
+      ->innerJoin('addr_obj as parent', ['parent.objectid' => 'mun.parentobjid_addr'])
+      ->innerJoin('addr_obj as chiled', ['chiled.objectid' => 'mun.objectid'])
+      ->where('chiled.name', '=', $trueChiled)
+      ->andWhere('parent.name', 'LIKE', $parent . '%')
       ->save();
   }
 }
