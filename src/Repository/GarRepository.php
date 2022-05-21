@@ -86,7 +86,7 @@ class GarRepository
     return $hierarchy
       ->select(['chiled.name', 'chiled.typename', 'chiled.id_level'], ['mun' => 'mun_hierarchy'])
       ->innerJoin('addr_obj as parent', ['parent.objectid' => 'mun.parentobjid_addr'])
-      ->innerJoin('addr_obj as chiled', ['chiled.objectid' => 'mun.objectid'])
+      ->innerJoin('addr_obj as chiled', ['chiled.objectid' => 'mun.chiledobjid_addr'])
       ->where('chiled.name', 'LIKE', $chiled . '%')
       ->andWhere('parent.name', 'LIKE', $parent . '%')
       ->save();
@@ -99,7 +99,7 @@ class GarRepository
     return $hierarchy
       ->select(['parent.name', 'chiled.typename', 'parent.id_level'], ['mun' => 'mun_hierarchy'])
       ->innerJoin('addr_obj as parent', ['parent.objectid' => 'mun.parentobjid_addr'])
-      ->innerJoin('addr_obj as chiled', ['chiled.objectid' => 'mun.objectid'])
+      ->innerJoin('addr_obj as chiled', ['chiled.objectid' => 'mun.chiledobjid_addr'])
       ->where('chiled.name', '=', $trueChiled)
       ->andWhere('parent.name', 'LIKE', $parent . '%')
       ->save();

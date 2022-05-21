@@ -12,21 +12,27 @@ class AsMunHierarchy extends ConcreteReader
 	}
 
 	public static function getAttributes() : array {
-		return ['ID', 'OBJECTID', 'PARENTOBJID', 'OKTMO'];
+		return ['ID', 'OBJECTID', 'PARENTOBJID'];
 	}
 
 	public function execDoWork(QueryModel $model, array $value) : void
 	{
-    if (
-      !empty($model->select(['id_level'], ['addr_obj'])
-        ->where('objectid', '=', (int)$value['parentobjid'])
-        ->save())
-      ) {
-      $value['id'] = intval($value['id']);
-      $value['objectid'] = intval($value['objectid']);
-      $value['parentobjid'] = intval($value['parentobjid']);
-      $value['oktmo'] = intval($value['oktmo']);
-      $model->forceInsert($value);
+    if (!empty($model->findFirst('objectid', (int)$value['parentobjid'], 'addr_obj'))) {
+      if (!empty($model->findFirst('objectid', (int)$value['objectid'], 'addr_obj'))) {
+        $model->forceInsert([
+          (int)$value['id'],
+          (int)$value['parentobjid'],
+          (int)$value['objectid'],
+          null,
+        ]);
+      } else if (!empty($model->findFirst('objectid', (int)$value['objectid'], 'houses'))) {
+        $model->forceInsert([
+          (int)$value['id'],
+          (int)$value['parentobjid'],
+          null,
+          (int)$value['objectid'],
+        ]);
+      }
     }
 	}
 }
