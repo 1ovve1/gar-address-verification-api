@@ -27,7 +27,7 @@ class AsHouses extends ConcreteReader
           (int)$value['id'],
           (int)$value['objectid'],
           $value['objectguid'],
-          $value['housemum'],
+          $value['housenum'],
           $value['addnum1'],
           $value['addnum2'],
           $value['housetype'],

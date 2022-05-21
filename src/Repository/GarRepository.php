@@ -22,21 +22,35 @@ class GarRepository
     ];
   }
 
-  public function getLikeAddress(array $halfAddress) : array
+  public function getFullAddress(array $halfAddress,
+                                 bool $withParent = false,
+                                 bool $onlyFullAddress = true) : array
   {
-    $hierarchy = $this->getTable('mun');
     $chiled = array_pop($halfAddress);
-
     $fullAddress = [];
 
-    foreach (array_reverse($halfAddress) as $parent) {
-      if (empty($fullAddress)) {
-        $fullAddress[$chiled] = $this->getTrueChiled($parent, $chiled);
+    if (!empty($halfAddress)) {
+      foreach (array_reverse($halfAddress) as $parent) {
+        if (empty($fullAddress)) {
+//          $houses = $this->getHouses($chiled);
+          $fullAddress[(!empty($chiled)) ?: 'variants'] = $this->getTrueChiled($parent, $chiled);
+          $chiled = end($fullAddress)[0]['name'];
+        }
+        $fullAddress[$parent] = $this->getTrueParent($parent, $chiled);
         $chiled = end($fullAddress)[0]['name'];
       }
-      $fullAddress[$parent] = $this->getTrueParent($parent, $chiled);
-      $chiled = end($fullAddress)[0]['name'];
+    } else {
+      $fullAddress[$chiled] = $this->getLikeAddress($chiled, $onlyFullAddress);
     }
+
+    if ($withParent) {
+      $parentId = 1;
+      while(count(end($fullAddress)) === 1) {
+        $chiled = end($fullAddress)[0]['name'];
+        $fullAddress['parent_'.$parentId++] = $this->getLikeParent($chiled);
+      }
+    }
+
     $fullAddress['full'] = $this->getFullAddressByArray($fullAddress);
     return $fullAddress;
   }
@@ -59,6 +73,17 @@ class GarRepository
   {
     return $this->tables[$name];
   }
+
+  protected function getHouses(string $parentAddress) {
+    $hierarchy = $this->getTable('mun');
+    return $hierarchy
+      ->select(["CONCAT(chiled.housenum,' ',chiled.addnum1,", 'chiled', 'chiled.housetype', 'chiled.addtype1', 'chiled.addtype2'], ['mun' => 'mun_hierarchy'])
+      ->innerJoin('addr_obj as parent', ['parent.objectid' => 'mun.parentobjid_addr'])
+      ->innerJoin('houses as chiled', ['chiled.objectid' => 'mun.chiledobjid_houses'])
+      ->andWhere('parent.name', 'LIKE', $parentAddress . '%')
+      ->save();
+  }
+
 
   protected function getFullAddressByArray(array $address) : string
   {
@@ -97,11 +122,38 @@ class GarRepository
     $hierarchy = $this->getTable('mun');
 
     return $hierarchy
-      ->select(['parent.name', 'chiled.typename', 'parent.id_level'], ['mun' => 'mun_hierarchy'])
+      ->select(['parent.name', 'parent.typename', 'parent.id_level'], ['mun' => 'mun_hierarchy'])
       ->innerJoin('addr_obj as parent', ['parent.objectid' => 'mun.parentobjid_addr'])
       ->innerJoin('addr_obj as chiled', ['chiled.objectid' => 'mun.chiledobjid_addr'])
       ->where('chiled.name', '=', $trueChiled)
       ->andWhere('parent.name', 'LIKE', $parent . '%')
+      ->save();
+  }
+
+  protected function getLikeParent(string $chiledName) : array
+  {
+    $hierarchy = $this->getTable('mun');
+
+    return $hierarchy
+      ->select(['parent.name', 'parent.typename', 'parent.id_level'], ['mun' => 'mun_hierarchy'])
+      ->innerJoin('addr_obj as parent', ['parent.objectid' => 'mun.parentobjid_addr'])
+      ->innerJoin('addr_obj as chiled', ['chiled.objectid' => 'mun.chiledobjid_addr'])
+      ->where('chiled.name', '=', $chiledName)
+      ->save();
+  }
+  protected function getLikeAddress(string $halfAddress, bool $onlyTopLevels = true) : array
+  {
+    $hierarchy = $this->getTable('addrObj');
+    $condition = $hierarchy
+      ->select(['name', 'typename', 'id_level'])
+      ->where('name', 'LIKE', $halfAddress . '%');
+
+    if ($onlyTopLevels) {
+      $condition = $condition->andWhere('id_level', '=', '1');
+    }
+
+    return $condition
+      ->limit(100)
       ->save();
   }
 }

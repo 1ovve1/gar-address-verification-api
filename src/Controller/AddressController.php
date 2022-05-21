@@ -20,7 +20,18 @@ class AddressController
   public function getAddress(Request $request, Response $response, $args): Response
   {
     $halfAddress = explode(',', $_GET['address']);
-    $likeAddress = $this->repo->getLikeAddress($halfAddress);
+    $withParentOption = false;
+    $onlyFullAddressOption = true;
+
+    if (array_key_exists('withParent', $_GET)) {
+      $withParentOption = $_GET['withParent'] === 'true';
+    }
+    if (array_key_exists('onlyFullAddress', $_GET)) {
+      $onlyFullAddressOption = $_GET['onlyFullAddress'] === 'true';
+    }
+
+    $likeAddress = $this->repo->getFullAddress($halfAddress, $withParentOption, $onlyFullAddressOption);
+
     $response->getBody()->write(json_encode($likeAddress));
     return $response;
   }
