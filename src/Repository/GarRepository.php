@@ -13,12 +13,12 @@ class GarRepository
   public function __construct(EntityFactory $tableFactory)
   {
     $this->tables = [
-      'levelObj' => $tableFactory::getObjectLevels(),
-      'housetype' => $tableFactory::getHousetype(),
-      'addhousetype' => $tableFactory::getAddhousetype(),
+//      'levelObj' => $tableFactory::getObjectLevels(),
+//      'housetype' => $tableFactory::getHousetype(),
+//      'addhousetype' => $tableFactory::getAddhousetype(),
       'addrObj' => $tableFactory::getAddressObjectTable(),
-      'addrObjParams' => $tableFactory::getAddressObjectParamsTable(),
-      'houses' => $tableFactory::getHousesTable(),
+//      'addrObjParams' => $tableFactory::getAddressObjectParamsTable(),
+//      'houses' => $tableFactory::getHousesTable(),
 //      'admin' => $tableFactory::getAdminTable(),
       'mun' => $tableFactory::getMunTable(),
     ];
@@ -109,7 +109,6 @@ class GarRepository
   protected function getHouses(string $parentName, string $chiledName) {
     $hierarchy = $this->getTable('mun');
 
-
     $objectid = $hierarchy
       ->select(["chiled.objectid"], ['mun' => 'mun_hierarchy'])
       ->innerJoin('addr_obj as parent', ['parent.objectid' => 'mun.parentobjid_addr'])
@@ -173,13 +172,15 @@ class GarRepository
   {
     $hierarchy = $this->getTable('mun');
 
-    return $hierarchy
-      ->select(['parent.name', 'parent.typename', 'parent.id_level'], ['mun' => 'mun_hierarchy'])
-      ->innerJoin('addr_obj as parent', ['parent.objectid' => 'mun.parentobjid_addr'])
-      ->innerJoin('addr_obj as chiled', ['chiled.objectid' => 'mun.chiledobjid_addr'])
-      ->where('chiled.name', '=', $trueChiled)
-      ->andWhere('parent.name', 'LIKE', $parent . '%')
-      ->save();
+    if (!$hierarchy->nameExist('getTrueParent')) {
+      $hierarchy->select(['parent.name', 'parent.typename', 'parent.id_level'], ['mun' => 'mun_hierarchy'])
+        ->innerJoin('addr_obj as parent', ['parent.objectid' => 'mun.parentobjid_addr'])
+        ->innerJoin('addr_obj as chiled', ['chiled.objectid' => 'mun.chiledobjid_addr'])
+        ->where('chiled.name', '=', $trueChiled)
+        ->andWhere('parent.name', 'LIKE', $parent . '%')->name('getTrueParent');
+    }
+
+    return $hierarchy->execute([$trueChiled, $parent], 'getTrueParent');
   }
 
   protected function getLikeParent(string $chiledName) : array

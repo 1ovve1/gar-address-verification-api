@@ -10,4 +10,7 @@ interface QueryModel
   function delete() : DeleteQuery;
   function select(array $fields, ?array $anotherTables = null) : SelectQuery;
   function findFirst(string $field, string|int $value, ?string $anotherTable = null): array;
+
+  function nameExist(string $checkName) : bool;
+  function execute(array $values, ?string $templateName = null) : array;
 }

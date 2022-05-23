@@ -84,26 +84,51 @@ class PDOObject implements DBAdapter
 
   /**
    * Prepare template
+   *
    * @param string $template - string template query
-   * @return PDOStatement - pdo object
+   * @return self - pdo object
    */
-  function prepare(string $template): PDOStatement
+  function prepare(string $template): self
   {
-    return $this->getInstance()->prepare($template);
+    $template = $this->getInstance()->prepare($template);
+    $this->setLastQuery($template);
+    return $this;
   }
+
+  /**
+   * Execute prepare statement
+   *
+   * @param array - values to execute
+   * @return DBAdapter - self
+   */
+  function execute(array $values): DBAdapter
+  {
+    $this->getLastQuery()->execute($values);
+    return $this;
+  }
+
+  /**
+   * Return last template statement
+   * @return PDOStatement
+   */
+  function getTemplate(): QueryTemplate
+  {
+    return new PDOTemplate($this->lastQuery);
+  }
+
 
   /**
    * Return prepared object InsertTemplate
    * @param string $tableName - name of table
    * @param array $fields - fields to prepare
    * @param int $stagesCount - buffer size
-   * @return InsertTemplate - prepare object
+   * @return QueryTemplate - prepare object
    */
   function getInsertTemplate(string $tableName,
                              array $fields,
-                             int $stagesCount = 1) : InsertTemplate
+                             int $stagesCount = 1) : QueryTemplate
   {
-    return new PDOTemplate($tableName, $fields, $stagesCount);
+    return new PDOLazyInsertTemplate($this, $tableName, $fields, $stagesCount);
   }
 
 

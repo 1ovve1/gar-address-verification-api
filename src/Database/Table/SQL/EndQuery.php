@@ -4,6 +4,9 @@ namespace GAR\Database\Table\SQL;
 
 interface EndQuery
 {
+  function nameExist(string $checkName) : bool;
+  function name(string $name) : string;
   function save(): array;
+  function execute(array $values, ?string $templateName = null) : array;
   function reset(): QueryModel;
 }
