@@ -14,6 +14,8 @@ class GarRepository
   {
     $this->tables = [
       'levelObj' => $tableFactory::getObjectLevels(),
+      'housetype' => $tableFactory::getHousetype(),
+      'addhousetype' => $tableFactory::getAddhousetype(),
       'addrObj' => $tableFactory::getAddressObjectTable(),
       'addrObjParams' => $tableFactory::getAddressObjectParamsTable(),
       'houses' => $tableFactory::getHousesTable(),
@@ -32,32 +34,62 @@ class GarRepository
     if (!empty($halfAddress)) {
       foreach (array_reverse($halfAddress) as $parent) {
         if (empty($fullAddress)) {
-//          $houses = $this->getHouses($chiled);
-          $fullAddress[(!empty($chiled)) ?: 'variants'] = $this->getTrueChiled($parent, $chiled);
-          $chiled = end($fullAddress)[0]['name'];
+          $chiledCheck = $this->getTrueChiled($parent, $chiled);
+          if (empty($chiledCheck)) {
+            $chiled = $parent;
+            continue;
+          }
+          $fullAddress[(!empty($chiled)) ? $chiled: 'variants'] = $this->getTrueChiled($parent, $chiled);
+
+          $fullAddress[$parent] = $this->getTrueParent($parent, end($fullAddress)[0]['name']);
+
+          if (!array_key_exists('variants', $fullAddress)) {
+            $houseCheck = $this->getHouses($fullAddress[$parent][0]['name'], $fullAddress[$chiled][0]['name']);
+            if (!empty($houseCheck)) {
+              $tmp = [
+                'houses' => $houseCheck,
+                $chiled => $fullAddress[$chiled],
+                $parent => $fullAddress[$parent],
+              ];
+              $fullAddress = $tmp;
+            }
+          }
+        } else {
+          $fullAddress[$parent] = $this->getTrueParent($parent, $chiled);
         }
-        $fullAddress[$parent] = $this->getTrueParent($parent, $chiled);
         $chiled = end($fullAddress)[0]['name'];
       }
     } else {
-      $fullAddress[$chiled] = $this->getLikeAddress($chiled, $onlyFullAddress);
+      $chiledCheck = $this->getLikeAddress($chiled, $onlyFullAddress);
+      if (!empty($chiledCheck)) {
+        $fullAddress[$chiled] = $chiledCheck;
+      }
     }
 
     if ($withParent) {
       $parentId = 1;
       while(count(end($fullAddress)) === 1) {
         $chiled = end($fullAddress)[0]['name'];
-        $fullAddress['parent_'.$parentId++] = $this->getLikeParent($chiled);
+        $parent = $this->getLikeParent($chiled);
+        if (empty($parent)) {
+          break;
+        } else {
+          $fullAddress['parent_'.$parentId++] = $this->getLikeParent($chiled);
+        }
       }
     }
 
-    $fullAddress['full'] = $this->getFullAddressByArray($fullAddress);
+    if (!empty($fullAddress)) {
+      $fullAddress['full'] = $this->getFullAddressByArray($fullAddress);
+    }
     return $fullAddress;
   }
 
   public function upload(XMLReaderFactory $readerFactory) : void {
     $readerGroup = [
       'levelObj' => $readerFactory::execObjectLevels(),
+      'housetype' => $readerFactory::execHousetype(),
+      'addhousetype' => $readerFactory::execAddhousetype(),
       'addrObj' => $readerFactory::execAddrObj(),
       'addrObjParams' => $readerFactory::execAddressObjParams(),
       'houses' => $readerFactory::execHouses(),
@@ -74,13 +106,33 @@ class GarRepository
     return $this->tables[$name];
   }
 
-  protected function getHouses(string $parentAddress) {
+  protected function getHouses(string $parentName, string $chiledName) {
     $hierarchy = $this->getTable('mun');
-    return $hierarchy
-      ->select(["CONCAT(chiled.housenum,' ',chiled.addnum1,", 'chiled', 'chiled.housetype', 'chiled.addtype1', 'chiled.addtype2'], ['mun' => 'mun_hierarchy'])
+
+
+    $objectid = $hierarchy
+      ->select(["chiled.objectid"], ['mun' => 'mun_hierarchy'])
       ->innerJoin('addr_obj as parent', ['parent.objectid' => 'mun.parentobjid_addr'])
+      ->innerJoin('addr_obj as chiled', ['chiled.objectid' => 'mun.chiledobjid_addr'])
+      ->where('parent.name', '=', $parentName)
+      ->andWhere('chiled.name', '=', $chiledName)
+      ->save();
+//    var_dump($objectid); die();
+
+    // devil write these lines forward
+    return $hierarchy
+      ->select([
+        "TRIM(' ' FROM CONCAT(
+          COALESCE(ht.short, ''), ' ', COALESCE(chiled.housenum, ''), ' ',
+          COALESCE(addht1.short, ''), ' ', COALESCE(chiled.addnum1, ''), ' ',
+          COALESCE(addht2.short, ''), ' ', COALESCE(chiled.addnum2, '')
+        )) as house"
+      ], ['mun' => 'mun_hierarchy'])
       ->innerJoin('houses as chiled', ['chiled.objectid' => 'mun.chiledobjid_houses'])
-      ->andWhere('parent.name', 'LIKE', $parentAddress . '%')
+      ->leftJoin('housetype as ht', ['ht.id' => 'chiled.id_housetype'])
+      ->leftJoin('addhousetype as addht1', ['addht1.id' => 'chiled.id_addtype1'])
+      ->leftJoin('addhousetype as addht2', ['addht2.id' => 'chiled.id_addtype2'])
+      ->where('mun.parentobjid_addr', '=', $objectid[0]['objectid'])
       ->save();
   }
 

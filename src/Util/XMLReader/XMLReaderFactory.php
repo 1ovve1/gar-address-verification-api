@@ -3,10 +3,12 @@
 namespace GAR\Util\XMLReader;
 
 
-use GAR\Util\XMLReader\Models\{AsAddressObject,
+use GAR\Util\XMLReader\Models\{AsAddhousetype,
+  AsAddressObject,
   AsAddressObjectParams,
   AsAdminHierarchy,
   AsHouses,
+  AsHousetype,
   AsMunHierarchy,
   AsObjectLevels};
 use GAR\Util\XMLReader\Readers\ConcreteReader;
@@ -22,6 +24,8 @@ class XMLReaderFactory
     'MUN_HIERARCHI' => 'AS_MUN_HIERARCHY',
     'ADDR_OBJ_PARAMS' => 'AS_ADDR_OBJ_PARAMS',
     'OBJECT_LEVELS' => 'AS_OBJECT_LEVELS',
+    'HOUSETYPE' => 'AS_HOUSE_TYPES',
+    'ADDHOUSETYPE' => 'AS_ADDHOUSE_TYPES',
   ];
 
 //	const regions = [
@@ -75,6 +79,16 @@ class XMLReaderFactory
   public static function execObjectLevels() : ConcreteReader
   {
     return new AsObjectLevels(self::FILES['OBJECT_LEVELS']);
+  }
+
+  public static function execHousetype() : ConcreteReader
+  {
+    return new AsHousetype(self::FILES['HOUSETYPE']);
+  }
+
+  public static function execAddhousetype() : ConcreteReader
+  {
+    return new AsAddhousetype(self::FILES['ADDHOUSETYPE']);
   }
 
 	private static function prepare(ConcreteReader $reader, string $file) : ConcreteReader

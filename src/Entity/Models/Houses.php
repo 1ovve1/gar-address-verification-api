@@ -41,14 +41,23 @@ class Houses extends ConcreteTable implements QueryModel
       'addnum2' => [
         'VARCHAR(50)',
       ],
-			'housetype' => [
-				'VARCHAR(50)',
+			'id_housetype' => [
+				'TINYINT UNSIGNED',
 			],
-      'addtype1' => [
-        'VARCHAR(50)',
+      'id_addtype1' => [
+        'TINYINT UNSIGNED',
       ],
-      'addtype2' => [
-        'VARCHAR(50)',
+      'id_addtype2' => [
+        'TINYINT UNSIGNED',
+      ],
+      'FOREIGN KEY (id_housetype)' => [
+        'REFERENCES housetype (id)'
+      ],
+      'FOREIGN KEY (id_addtype1)' => [
+        'REFERENCES addhousetype (id)'
+      ],
+      'FOREIGN KEY (id_addtype2)' => [
+        'REFERENCES addhousetype (id)'
       ],
 		];
 	}

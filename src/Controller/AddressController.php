@@ -32,7 +32,12 @@ class AddressController
 
     $likeAddress = $this->repo->getFullAddress($halfAddress, $withParentOption, $onlyFullAddressOption);
 
-    $response->getBody()->write(json_encode($likeAddress));
+    if (empty($likeAddress)) {
+      $response = $this->errorMessage($response, 'address not found');
+    } else {
+      $response->getBody()->write(json_encode($likeAddress));
+    }
+
     return $response;
   }
 
@@ -41,6 +46,13 @@ class AddressController
     $model = EntityFactory::getAddressObjectTable();
 
     $response->getBody()->write(json_encode($model->select(['name_addr'])->save()));
+    return $response;
+  }
+
+  protected function errorMessage(Response $response, string $message, int $status = 401) : Response
+  {
+    $response = $response->withStatus($status);
+    $response->getBody()->write(json_encode(['error' => $message]));
     return $response;
   }
 }

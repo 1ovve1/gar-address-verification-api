@@ -4,12 +4,12 @@ namespace GAR\Entity;
 
 use GAR\Database\DBFacade;
 use GAR\Database\Table\SQL\QueryModel;
-use GAR\Entity\Models\AddrObj;
-use GAR\Entity\Models\AddrObjParams;
-use GAR\Entity\Models\AdminHierarchy;
-use GAR\Entity\Models\Houses;
-use GAR\Entity\Models\MunHierarchy;
-use GAR\Entity\Models\ObjLevels;
+use GAR\Entity\Models\{
+  AddrObj, AddrObjParams,
+  AdminHierarchy, Houses,
+  MunHierarchy, ObjLevels,
+  Housetype, Addhousetype,
+};
 
 /**
  * BD FACTORY CLASS
@@ -48,5 +48,15 @@ class EntityFactory
   public static function getObjectLevels() : QueryModel
   {
     return new ObjLevels(DBFacade::getInstance());
+  }
+
+  public static function getHousetype() : QueryModel
+  {
+    return new Housetype(DBFacade::getInstance());
+  }
+
+  public static function getAddhousetype() : QueryModel
+  {
+    return new Addhousetype(DBFacade::getInstance());
   }
 }
