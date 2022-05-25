@@ -12,9 +12,9 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
    */
   private readonly DBAdapter $db;
   /**
-   * @var PDOStatement|null - prepared statement for PDO exec
+   * @var QueryTemplate|null - prepared statement for PDO exec
    */
-  private ?PDOStatement $state = null;
+  private ?QueryTemplate $state = null;
   /**
    * @var string - template code
    */
@@ -113,7 +113,7 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
 
       }
 
-      $this->getState()->execute($this->getStageBuffer());
+      $this->getState()->exec($this->getStageBuffer());
 
       $this->setStageBuffer(null);
       $this->incCurrStage(null);
@@ -123,9 +123,9 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
 
 
   /**
-   * @return PDOStatement|null
+   * @return Querytemplate|null
    */
-  public function getState(): ?PDOStatement
+  public function getState(): ?QueryTemplate
   {
     return $this->state;
   }

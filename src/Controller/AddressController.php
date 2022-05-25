@@ -21,19 +21,17 @@ class AddressController
 
   public function getAddressByName(Request $request, Response $response, $args): Response
   {
-    if (array_key_exists('address', $_GET)) {
-      $halfAddress = explode(',', $_GET['address']);
-      $likeAddress = $this->addressByNameRepo->getFullAddress($halfAddress);
+    $likeAddress['time'] = microtime();
 
-      if (empty($likeAddress)) {
-        $response = $this->errorMessage($response, 'address not found');
-      } else {
-        $response->getBody()->write(json_encode($likeAddress, JSON_FORCE_OBJECT));
-      }
+    $halfAddress = explode(',', $request->getQueryParams()['address']);
+    $likeAddress[] = $this->addressByNameRepo->getFullAddress($halfAddress);
+    $likeAddress['time'] = microtime() - $likeAddress['time'];
+
+    if (empty($likeAddress)) {
+      $response = $this->errorMessage($response, 'address not found');
     } else {
-      $response = $this->errorMessage($response, 'require address variable');
+      $response->getBody()->write(json_encode($likeAddress, JSON_FORCE_OBJECT));
     }
-
 
     return $response;
   }

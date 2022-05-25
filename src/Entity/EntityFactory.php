@@ -25,42 +25,42 @@ class EntityFactory
 	
 	public static function getAddressObjectTable() : QueryModel
 	{
-		 return AddrObj::getInstance(DBFacade::getInstance());
+		 return new AddrObj(DBFacade::getInstance());
 	}
 
 	public static function getAddressObjectParamsTable() : QueryModel
 	{
-			return AddrObjParams::getInstance(DBFacade::getInstance());
+			return new AddrObjParams(DBFacade::getInstance());
 	}
 
 	public static function getHousesTable() : QueryModel
 	{
-		return Houses::getInstance(DBFacade::getInstance());
+		return new Houses(DBFacade::getInstance());
 	}
 
 	public static function getAdminTable() : QueryModel
 	{
-		return AdminHierarchy::getInstance(DBFacade::getInstance());
+		return new AdminHierarchy(DBFacade::getInstance());
 	}
 
 	public static function getMunTable() : QueryModel
 	{
-		return MunHierarchy::getInstance(DBFacade::getInstance());
+		return new MunHierarchy(DBFacade::getInstance());
 	}
 
   public static function getObjectLevels() : QueryModel
   {
-    return ObjLevels::getInstance(DBFacade::getInstance());
+    return new ObjLevels(DBFacade::getInstance());
   }
 
   public static function getHousetype() : QueryModel
   {
-    return Housetype::getInstance(DBFacade::getInstance());
+    return new Housetype(DBFacade::getInstance());
   }
 
   public static function getAddhousetype() : QueryModel
   {
-    return Addhousetype::getInstance(DBFacade::getInstance());
+    return new Addhousetype(DBFacade::getInstance());
   }
 
   public static function getProductionDB() : QueryModel
