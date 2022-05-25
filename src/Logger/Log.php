@@ -92,7 +92,7 @@ class Log
 	 */
 	private static function put(string $message) : void 
 	{
-	
+//	  echo $message . PHP_EOL;
 //		if (count($_SERVER['argv']) >= 2 &&
 //			in_array($_SERVER['argv'][1], ['-l', '--log'])) {
 //      file_put_contents(CURR_LOG_FILE, $message, FILE_APPEND);

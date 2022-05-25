@@ -1,23 +1,24 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace GAR\Entity\Models;
 
 use GAR\Database\ConcreteTable;
 use GAR\Database\Table\SQL\QueryModel;
-use JetBrains\PhpStorm\ArrayShape;
 
-class ObjLevels extends ConcreteTable implements QueryModel
+class Addhousetype extends ConcreteTable implements QueryModel
 {
-  #[ArrayShape(['id' => "string[]", 'disc' => "string[]"])]
   public function fieldsToCreate(): ?array
   {
     return [
       'id' => [
         'TINYINT UNSIGNED NOT NULL PRIMARY KEY'
       ],
+      'short' => [
+        'CHAR(15)'
+      ],
       'disc' => [
-        'CHAR(70)'
-      ]
+        'CHAR(50)'
+      ],
     ];
   }
 }

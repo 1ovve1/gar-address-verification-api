@@ -23,13 +23,13 @@ class AdminHierarchy extends ConcreteTable implements QueryModel
   public function fieldsToCreate() : ?array
 	{
 		return [
-			'id_admin' => [
+			'id' => [
         'BIGINT UNSIGNED NOT NULL',
 			],
-			'objectid_admin' => [
+			'objectid' => [
         'BIGINT UNSIGNED NOT NULL',
 			],
-			'parentobjid_admin' => [
+			'parentobjid_addr' => [
         'BIGINT UNSIGNED NOT NULL',
 			],
 //      'FOREIGN KEY (objectid_admin)' => [

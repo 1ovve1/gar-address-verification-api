@@ -23,6 +23,8 @@
         "ext-zip": "*",
         "slim/slim": "4.*",
         "slim/psr7": "^1.5",
-        "vlucas/phpdotenv": "*"
+        "vlucas/phpdotenv": "*",
+        "imefisto/psr-swoole-native": "^1.1",
+        "nyholm/psr7": "^1.5"
     }
 }

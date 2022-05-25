@@ -22,18 +22,27 @@ class MunHierarchy extends ConcreteTable implements QueryModel
   public function fieldsToCreate() : ?array
 	{
 		return [
-			'id_mun' => [
-        'BIGINT UNSIGNED NOT NULL',
+			'id' => [
+        'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
 			],
-			'objectid_mun' => [
+			'parentobjid_addr' => [
         'BIGINT UNSIGNED NOT NULL',
-			],
-			'parentobjid_mun' => [
-        'BIGINT UNSIGNED NOT NULL',
-			],
-      'oktmo_mun' => [
-        'BIGINT UNSIGNED NOT NULL',
-			],
+      ],
+      'chiledobjid_addr' => [
+        'BIGINT UNSIGNED',
+      ],
+      'chiledobjid_houses' => [
+        'BIGINT UNSIGNED',
+      ],
+      'FOREIGN KEY (parentobjid_addr)' => [
+        'REFERENCES addr_obj (objectid)'
+      ],
+      'FOREIGN KEY (chiledobjid_addr)' => [
+        'REFERENCES addr_obj (objectid)'
+      ],
+      'FOREIGN KEY (chiledobjid_houses)' => [
+        'REFERENCES houses (objectid)'
+      ],
 		];
 	}
 }

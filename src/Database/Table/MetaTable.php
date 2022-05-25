@@ -8,7 +8,7 @@ use GAR\Database\Table\Container\QueryFactory;
 use GAR\Database\Table\Container\QueryGenerator;
 use JetBrains\PhpStorm\ArrayShape;
 
-abstract class MetaTable
+class MetaTable
 {
   /**
    * @var DBAdapter - PDO object
@@ -120,7 +120,7 @@ abstract class MetaTable
    * Return fields for curr table
    * @return array|null - fields
    */
-  protected function getFields(): ?array
+  public function getFields(): ?array
   {
     return $this->fields;
   }
