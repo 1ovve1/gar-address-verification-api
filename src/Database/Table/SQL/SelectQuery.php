@@ -9,6 +9,7 @@ interface SelectQuery
   function leftJoin(string $table, array $condition) : SelectQuery;
   function rightJoin(string $table, array $condition) : SelectQuery;
   function limit(int $count) : EndQuery;
+  function orderBy(string $field, bool $asc = true) : endQuery;
 
   function nameExist(string $checkName) : bool;
   function name(string $name) : string;

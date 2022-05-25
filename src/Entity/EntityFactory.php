@@ -4,12 +4,15 @@ namespace GAR\Entity;
 
 use GAR\Database\DBFacade;
 use GAR\Database\Table\SQL\QueryModel;
-use GAR\Entity\Models\{
-  AddrObj, AddrObjParams,
-  AdminHierarchy, Houses,
-  MunHierarchy, ObjLevels,
-  Housetype, Addhousetype,
-};
+use GAR\Entity\Models\{AddrObj,
+  AddrObjParams,
+  AdminHierarchy,
+  Houses,
+  MunHierarchy,
+  ObjLevels,
+  Housetype,
+  Addhousetype,
+  Production};
 
 /**
  * BD FACTORY CLASS
@@ -22,41 +25,46 @@ class EntityFactory
 	
 	public static function getAddressObjectTable() : QueryModel
 	{
-		 return new AddrObj(DBFacade::getInstance());
+		 return AddrObj::getInstance(DBFacade::getInstance());
 	}
 
 	public static function getAddressObjectParamsTable() : QueryModel
 	{
-			return new AddrObjParams(DBFacade::getInstance());
+			return AddrObjParams::getInstance(DBFacade::getInstance());
 	}
 
 	public static function getHousesTable() : QueryModel
 	{
-		return new Houses(DBFacade::getInstance());
+		return Houses::getInstance(DBFacade::getInstance());
 	}
 
 	public static function getAdminTable() : QueryModel
 	{
-		return new AdminHierarchy(DBFacade::getInstance());
+		return AdminHierarchy::getInstance(DBFacade::getInstance());
 	}
 
 	public static function getMunTable() : QueryModel
 	{
-		return new MunHierarchy(DBFacade::getInstance());
+		return MunHierarchy::getInstance(DBFacade::getInstance());
 	}
 
   public static function getObjectLevels() : QueryModel
   {
-    return new ObjLevels(DBFacade::getInstance());
+    return ObjLevels::getInstance(DBFacade::getInstance());
   }
 
   public static function getHousetype() : QueryModel
   {
-    return new Housetype(DBFacade::getInstance());
+    return Housetype::getInstance(DBFacade::getInstance());
   }
 
   public static function getAddhousetype() : QueryModel
   {
-    return new Addhousetype(DBFacade::getInstance());
+    return Addhousetype::getInstance(DBFacade::getInstance());
+  }
+
+  public static function getProductionDB() : QueryModel
+  {
+    return Production::getInstance(DBFacade::getInstance());
   }
 }

@@ -19,11 +19,17 @@ use GAR\Database\Table\SQL\UpdateQuery;
  * Contains all main sql-operations
  */
 class SQLBuilder
-  extends
-    MetaTable
   implements
     QueryModel, SelectQuery, EndQuery, UpdateQuery, DeleteQuery, ContinueWhere
 {
+  /**
+   * @var MetaTable|null - Meta table object
+   */
+  protected readonly ?MetaTable $metaTable;
+  /**
+   * @var DBAdapter - database
+   */
+  private readonly DBAdapter $db;
   /**
    * @var string - query string
    */
@@ -48,19 +54,24 @@ class SQLBuilder
   /**
    * Create object of query table
    * @param DBAdapter $db
-   * @param string $tableName
-   * @param int $maxInsStages
-   * @param array|null $createOption
+   * @param MetaTable|null $metaTable
+   * @param int|null $maxInsStages
    */
   public function __construct(DBAdapter $db,
-                              string $tableName,
-                              int $maxInsStages,
-                              ?array $createOption = null)
+                              ?MetaTable $metaTable = null,
+                              int $maxInsStages = null)
   {
-    parent::__construct($db, $tableName, $createOption);
+    $this->db = $db;
+    $this->metaTable = $metaTable;
 
-    $this->insTemple = $this->getDb()
-      ->getInsertTemplate($tableName, $this->getFields(), $maxInsStages);
+    if (!is_null($metaTable)) {
+      $this->insTemple = $this->getDb()
+        ->getInsertTemplate(
+          $metaTable->getTableName(),
+          $metaTable->getFields(),
+          $maxInsStages
+        );
+    }
   }
 
   /**
@@ -68,16 +79,19 @@ class SQLBuilder
    *
    * @param $values - array values in format [field => value]
    * @return EndQuery
+   * @throws Exception
    */
-  function insert(array $values): EndQuery
+  function insert(array $values, ?string $tableName = null): EndQuery
   {
     $this->reset();
 
     $this->setVarStack($values);
 
+    $this->checkTableName($tableName);
+
     $this->setQuery(sprintf(
       "INSERT INTO %s(%s) \nVALUES (%s)\n",
-      $this->getTableName(),
+      $tableName ?? $this->metaTable->getTableName(),
       implode(', ', array_keys($values)),
       implode(', ', array_fill(0, count($values), '?')),
     ));
@@ -89,10 +103,16 @@ class SQLBuilder
    *
    * @param array $values - values to insert
    * @return EndQuery
+   * @throws Exception
    */
   function forceInsert(array $values): EndQuery
   {
     $this->reset();
+    if (is_null($this->metaTable) || is_null($this->insTemple)) {
+      throw new Exception(
+        'SQLBuilder: forceInsert are not supported in this table (check meta table)'
+      );
+    }
     $this->insTemple->exec($values);
     return $this;
   }
@@ -103,16 +123,19 @@ class SQLBuilder
    * @param string $field - concrete field
    * @param string|int $value - concrete value
    * @return UpdateQuery
+   * @throws Exception
    */
-  function update(string $field, string|int $value): UpdateQuery
+  function update(string $field, string|int $value, ?string $tableName = null): UpdateQuery
   {
     $this->reset();
 
     $this->setVarStack($value);
 
+    $this->checkTableName($tableName);
+
     $this->setQuery(sprintf(
       "UPDATE %s \nSET %s = (%s)\n",
-      $this->getTableName(),
+      $tableName ?? $this->metaTable->getTableName(),
       $field,
       '?'
     ));
@@ -124,13 +147,16 @@ class SQLBuilder
    * Delete statement
    *
    * @return DeleteQuery
+   * @throws Exception
    */
-  function delete(): DeleteQuery
+  function delete(?string $tableName = null): DeleteQuery
   {
+    $this->checkTableName($tableName);
+
     $this->reset();
     $this->setQuery(sprintf(
       "DELETE FROM %s\n",
-      $this->getTableName(),
+      $tableName ?? $this->metaTable->getTableName(),
     ));
     return $this;
   }
@@ -141,10 +167,14 @@ class SQLBuilder
    * @param array $fields - fields to select in array
    * @param array|null $anotherTables - tables name array (may use [tableName => pseudonym])
    * @return SelectQuery
+   * @throws Exception
    */
   function select(array $fields, array $anotherTables = null): SelectQuery
   {
     $this->reset();
+
+    $this->checkTableName($anotherTables);
+
     $formattedTables = null;
     if (!is_null($anotherTables)) {
       $formattedTables = $this->implodeWithKeys($anotherTables, ' as ');
@@ -152,7 +182,7 @@ class SQLBuilder
     $this->setQuery(sprintf(
       "SELECT %s \nFROM %s\n",
       $this->implodeWithKeys($fields),
-      $formattedTables ?? $this->getTableName()
+      $formattedTables ?? $this->metaTable->getTableName()
     ));
     return $this;
   }
@@ -164,10 +194,13 @@ class SQLBuilder
    * @param int|string $value - value to find
    * @param string|null $anotherTable - another tables
    * @return array - found value (limit 1) or empty if non
+   * @throws Exception
    */
   function findFirst(string $field, int|string $value, ?string $anotherTable = null): array
   {
     $this->reset();
+
+    $this->checkTableName($anotherTable);
 
     return $this->select([$field], (is_null($anotherTable)) ? null: [$anotherTable])
       ->where($field, '=', $value)
@@ -307,7 +340,26 @@ class SQLBuilder
   }
 
   /**
-   * Execute query chain or forceInsert
+   * Order by desc or asc
+   *
+   * @param string $field - field to order
+   * @param bool $asc - method of ordered (false to desc)
+   * @return EndQuery
+   */
+  function orderBy(string $field, bool $asc = true): endQuery
+  {
+    $this->setQuery(sprintf(
+      "ORDER BY %s %s\n",
+      $field,
+      ($asc) ? 'ASC' : 'DESC'
+    ));
+
+    return $this;
+  }
+
+
+  /**
+   * Execute query chain or forceInsert (work only if used MetaTable)
    *
    * @return array - result of fetch
    */
@@ -315,7 +367,7 @@ class SQLBuilder
   {
     if (!empty($this->getQuery())) {
       $this->getDb()->prepare($this->query)->execute($this->valueStack);
-    } else {
+    } else if (!is_null($this->metaTable)){
       $this->insTemple->save();
     }
 
@@ -407,6 +459,22 @@ class SQLBuilder
     return $this->query;
   }
 
+  /**
+   * Return curr database
+   *
+   * @return DBAdapter - database adapter
+   */
+  protected function getDb() : DBAdapter
+  {
+    return $this->db;
+  }
+
+  /**
+   * Return user template by name
+   *
+   * @param string $name
+   * @return QueryTemplate|null
+   */
   private function getTemplate(string $name) : ?QueryTemplate
   {
     return $this->userTemplates[$name];
@@ -432,6 +500,19 @@ class SQLBuilder
     }
   }
 
+  /**
+   * Check if table name are exist and return create exception if non
+   *
+   * @param string|array|null $tableName - name of table
+   * @return void
+   * @throws Exception - if tableName not exists
+   */
+  public function checkTableName(string|array|null $tableName) : void
+  {
+    if (is_null($tableName) && is_null($this->metaTable)) {
+      throw new Exception('SQLBuilder exception: require table name');
+    }
+  }
 
   /**
    * Implode arrays with addition separator
@@ -454,9 +535,5 @@ class SQLBuilder
       }
     }
     return implode($deepSeparator, $formatted);
-  }
-
-  protected function withQuotesIfString(string|int $value) : string {
-    return (is_string($value)) ? "'".$value."'": (string)$value;
   }
 }

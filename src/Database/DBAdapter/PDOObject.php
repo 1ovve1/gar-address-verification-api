@@ -47,20 +47,19 @@ class PDOObject implements DBAdapter
    */
   public function connect(string $dbUsername, string $dbPass) : void
   {
-    if (is_null($this->getInstance())) {
-      $dsn = sprintf(
-        '%s:host=%s;dbname=%s;port=%s;charset=utf8',
-        $this->dbType,
-        $this->dbHost,
-        $this->dbName,
-        $this->dbPort,
-      );
+    $dsn = sprintf(
+      '%s:host=%s;dbname=%s;port=%s;charset=utf8',
+      $this->dbType,
+      $this->dbHost,
+      $this->dbName,
+      $this->dbPort,
+    );
 
-      $this->setInstance(new PDO(
-        $dsn,
-        $dbUsername, $dbPass,
-      ));
-    }
+    $this->setInstance(new PDO(
+      $dsn,
+      $dbUsername, $dbPass,
+      [PDO::ATTR_PERSISTENT => true, PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true]
+    ));
   }
 
   /**
@@ -109,7 +108,7 @@ class PDOObject implements DBAdapter
 
   /**
    * Return last template statement
-   * @return PDOStatement
+   * @return QueryTemplate
    */
   function getTemplate(): QueryTemplate
   {

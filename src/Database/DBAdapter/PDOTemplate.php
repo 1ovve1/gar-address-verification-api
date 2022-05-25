@@ -11,7 +11,7 @@ class PDOTemplate implements QueryTemplate
     $this->template = $template;
   }
 
-  function exec(array $values): mixed
+  function exec(array $values): array|bool
   {
     $this->template->execute($values);
     return $this->template->fetchAll(PDOObject::F_ALL);
