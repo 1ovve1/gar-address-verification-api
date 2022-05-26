@@ -3,35 +3,51 @@
 namespace GAR\Repository;
 
 
+use GAR\Database\Table\SQL\QueryModel;
+use GAR\Repository\Codes;
+
 class AddressByCodeRepository extends BaseRepo
 {
-  const OKATO = 1;
-  const OKTMO = 2;
-  CONST KLADR = 3;
 
-  public function getAddressByCode(int $code, int $type) : array
+  public function getCode(int $objectId, string $type) : ?array
   {
-    $fullAddress = [];
+    $code = null;
 
-    $fullAddress = $this->getAllAddressesByCode($code, $type);
-    return $fullAddress;
+    if (Codes::tryFrom($type)) {
+      if (Codes::from($type) === Codes::ALL) {
+        $code = $this->getAllCodesByObjectId($objectId);
+      } else {
+        $code = $this->getCodeByObjectId($objectId, $type);
+      }
+    }
+    return $code;
   }
 
-  public function getAllAddressesByCode(int $code, int $type) {
+  public function getCodeByObjectId(int $objectId, string $type) : array
+  {
     $params = $this->getDatabase();
 
-
-    $params = $params->select(['addr.name', 'addr.typename', 'addr.id_level'], ['addr' => 'addr_obj'])
-      ->innerJoin('addr_obj_params as param', ['param.objectid_addr' => 'addr.objectid']);
-    if ($type == self::OKATO) {
-      $params = $params->where('param.OKATO', '=', $code);
-    } else if ($type == self::OKTMO) {
-      $params = $params->where('param.OKTMO', '=', $code);
-    } else if ($type == self::KLADR) {
-      $params = $params->where('param.KLADR', '=', $code);
+    if (!$params->nameExist('getCode' . $type)) {
+      $fmt = strtoupper($type);
+      $params->select(["params.{$fmt}"], ['params' => 'addr_obj_params'])
+        ->where('params.objectid_addr', '=', $objectId)
+        ->name('getCode' . $type);
     }
 
-    return $params->orderBy('addr.id_level')->save();
+    return $params->execute([$objectId], 'getCode' . $type);
+  }
+
+  public function getAllCodesByObjectId(int $objectId) : array
+  {
+    $params = $this->getDatabase();
+
+    if (!$params->nameExist('getCodeAll')) {
+      $params->select(['params.OKATO', 'params.OKTMO', 'params.KLADR'], ['params' => 'addr_obj_params'])
+        ->where('params.objectid_addr', '=', $objectId)
+        ->name('getCodeAll');
+    }
+
+    return $params->execute([$objectId], 'getCodeAll');
   }
 }
 

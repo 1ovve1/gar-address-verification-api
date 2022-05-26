@@ -21,39 +21,54 @@ class AddressController
 
   public function getAddressByName(Request $request, Response $response, $args): Response
   {
-    $halfAddress = explode(',', $request->getQueryParams()['address']);
-    $likeAddress[] = $this->addressByNameRepo->getFullAddress($halfAddress);
+    $param = $request->getQueryParams();
+    if (array_key_exists('address', $param)) {
+      $halfAddress = explode(',', $param['address']);
+      $likeAddress[] = $this->addressByNameRepo->getFullAddress($halfAddress);
 
-    if (empty($likeAddress)) {
-      $response = $this->errorMessage($response, 'address not found');
+      if (empty($likeAddress)) {
+        $response = $this->errorMessage($response, 'address not found');
+      } else {
+        $response->getBody()->write(json_encode($likeAddress, JSON_FORCE_OBJECT));
+      }
     } else {
-      $response->getBody()->write(json_encode($likeAddress, JSON_FORCE_OBJECT));
+      $response = $this->errorMessage($response, "require 'address' param");
     }
 
     return $response;
   }
 
-  public function getAddressByOkato(Request $request, Response $response, $args) : Response
+  public function getCodeByType(Request $request, Response $response, $args) : Response
   {
-    $response->getBody()->write('okato');
-    return $response;
-  }
+    $param = $request->getQueryParams();
+    $objectId = null;
 
-  public function getAddressByOktmo(Request $request, Response $response, $args) : Response
-  {
-    if (array_key_exists('code', $_GET)) {
-      $code = intval($_GET['code']);
+    if (key_exists('objectid', $param)) {
+      $objectId = intval($param['objectid']);
+    } else if (key_exists('address', $param)) {
+      $fullAddress = $this->addressByNameRepo->getFullAddress(
+        explode(',', $param['address'])
+      );
+
+      while($lastElem = array_pop($fullAddress)) {
+        if (count($lastElem) === 1) {
+          $objectId = $lastElem[0]['objectid'];
+          break;
+        }
+      }
+    } else {
+      $response = $this->errorMessage($response, "require 'objectid' or 'address' param");
     }
 
-    $data = $this->addressByCodeRepo->getAddressByCode($code, $this->addressByCodeRepo::OKATO);
+    if (!is_null($objectId)) {
+      $data = $this->addressByCodeRepo->getCode(
+        $objectId, $args['type']
+      );
+      $response->getBody()->write(json_encode($data, JSON_PRETTY_PRINT));
+    } else {
+      $response = $this->errorMessage($response, "address not found");
+    }
 
-    $response->getBody()->write(json_encode($data, JSON_PRETTY_PRINT));
-    return $response;
-  }
-
-  public function getAddressByKladr(Request $request, Response $response, $args) : Response
-  {
-    $response->getBody()->write('kladr');
     return $response;
   }
 

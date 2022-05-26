@@ -6,12 +6,7 @@ return function (Slim\App $app) {
   $app->get('/address',[\GAR\Controller\AddressController::class, 'getAddressByName']);
 
   $app->group('/code', function(\Slim\Routing\RouteCollectorProxy $group){
-    $group->get('/okato', [\GAR\Controller\AddressController::class, 'getAddressByOkato']);
-
-    $group->get('/oktmo', [\GAR\Controller\AddressController::class, 'getAddressByOktmo']);
-
-    $group->get('/kladr', [\GAR\Controller\AddressController::class, 'getAddressByKladr']);
-
+    $group->get('/{type}', [\GAR\Controller\AddressController::class, 'getCodeByType']);
   });
 
   return $app;
