@@ -1,8 +1,6 @@
 vendor/
 .idea/
 
-cache/*
-logs/*
 resources/archive/*
 
 composer.lock

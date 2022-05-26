@@ -21,11 +21,8 @@ class AddressController
 
   public function getAddressByName(Request $request, Response $response, $args): Response
   {
-    $likeAddress['time'] = microtime();
-
     $halfAddress = explode(',', $request->getQueryParams()['address']);
     $likeAddress[] = $this->addressByNameRepo->getFullAddress($halfAddress);
-    $likeAddress['time'] = microtime() - $likeAddress['time'];
 
     if (empty($likeAddress)) {
       $response = $this->errorMessage($response, 'address not found');
