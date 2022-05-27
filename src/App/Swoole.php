@@ -8,12 +8,19 @@ use Swoole\Http\Response;
 
 return function ($app) 
 {
-	$http = new swoole_http_server("0.0.0.0", 9501);
+	
+	$http = new swoole_http_server($_ENV['SWOOLE_HOST'], intval($_ENV['SWOOLE_PORT']));
 	$uriFactory = new Psr17Factory;
 	$streamFactory = new Psr17Factory;
 	$responseFactory = new Psr17Factory;
 	$uploadedFileFactory = new Psr17Factory;
 	$responseMerger = new ResponseMerger;
+
+	$http->on('start', function (
+			Swoole\Http\Server $swooleRequest
+	    ) {
+		echo 'server started at ' . $_ENV['SWOOLE_HOST'] . ':' . $_ENV['SWOOLE_PORT'] . PHP_EOL;
+	});
 
 	$http->on(
 	    'request',

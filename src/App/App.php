@@ -21,4 +21,6 @@ $app = AppFactory::create();
 
 (require __DIR__ . '/Middleware.php')($app);
 (require __DIR__ . '/Routes.php')($app);
-// (require __DIR__ . '/Swoole.php')($app);
+if($_ENV['SWOOLE_ENABLE'] === 'true') {
+  (require __DIR__ . '/Swoole.php')($app);
+}

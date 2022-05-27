@@ -5,6 +5,10 @@ namespace GAR\Logger;
 
 use PDOException;
 use Throwable;
+use Monolog\Logger;
+use Monolog\Level;
+use Monolog\Handler\RotatingFileHandler;
+
 
 define('LOG_PATH', __DIR__ . '/../../logs');
 set_exception_handler([Log::class, 'error']);
@@ -14,6 +18,7 @@ set_exception_handler([Log::class, 'error']);
  */
 class Log
 {
+	static ?Logger $logger = null;
 
     /**
      *  getting message to log and additional params (strings)
@@ -23,9 +28,12 @@ class Log
      */
 	public static function write(string $message, ?string ...$params) : void
 	{
-//		if (!defined('CURR_LOG_FILE')) {
-//			self::launch();
-//		}
+		if ($_ENV['SWOOLE_ENABLE'] === 'true') {
+			return;
+		}
+		if (is_null(self::$logger)) {
+			self::launch();
+		}
 
 		self::put(sprintf("[%s]: %s %s %s", 
 			self::currTime(),
@@ -42,7 +50,6 @@ class Log
 	 */
 	public static function warning(string $message) : void
 	{
-
 	}
 
   /**
@@ -53,17 +60,26 @@ class Log
    */
 	public static function error(Throwable $exception, array $params = []) : void
 	{
+		if ($_ENV['SWOOLE_ENABLE'] === 'true') {
+			return;
+		}
 
 		if ($exception instanceof PDOException) {
 			$msg = Msg::LOG_DB_BAD->value;
 		}
 
-		self::put(sprintf("[%s]: %s\n%s\n%s\n",
+		if (is_null(self::$logger)) {
+			self::launch();
+		}
+
+		$message = sprintf("[%s]: %s\n%s\n%s\n",
 			self::currTime(), 
 			Msg::LOG_BAD->value,
 			$exception,
 			http_build_query($params, '', ', ')
-		));
+		);
+
+		self::$logger->error($message);
 	}
 
 	/**
@@ -72,14 +88,10 @@ class Log
 	 */
 	private static function launch() : void
 	{
-		if (!file_exists(LOG_PATH)) {
-      mkdir(LOG_PATH);
-    }
-
-    define('CURR_LOG_FILE', sprintf("%s/log_%s.txt",
-			LOG_PATH, 
-			str_replace(' ', '_', self::currTime())
-		));
+		self::$logger = new Logger('runtime');
+		self::$logger->pushHandler(new RotatingFileHandler(LOG_PATH . '/my', 2, Level::Notice));
+		
+		self::$logger->notice(PHP_EOL . "url: " . urldecode($_SERVER['REQUEST_URI'] ?? '') . PHP_EOL);
 
 		self::put(Msg::LOG_LAUNCH->value . PHP_EOL);
 	} 
@@ -92,20 +104,22 @@ class Log
 	 */
 	private static function put(string $message) : void 
 	{
-//	  echo $message . PHP_EOL;
-//		if (count($_SERVER['argv']) >= 2 &&
-//			in_array($_SERVER['argv'][1], ['-l', '--log'])) {
-//      file_put_contents(CURR_LOG_FILE, $message, FILE_APPEND);
-//			echo "\r" . $message;
-//
-//			if (self::addTask() > self::removeTask()) {
-//				echo sprintf("Прогресс: %d%% (%d из %d)",
-//					self::removeTask() * 100 / (self::addTask()),
-//					self::removeTask(),
-//					self::addTask()
-//				);
-//			}
-//		}
+
+		self::$logger->info(PHP_EOL . $message);
+
+		if (key_exists('argv', $_SERVER) &&
+			count($_SERVER['argv']) >= 2 &&
+			in_array($_SERVER['argv'][1], ['-l', '--log'])) {
+			echo "\r" . $message;
+
+			if (self::addTask() > self::removeTask()) {
+				echo sprintf("Прогресс: %d%% (%d из %d)",
+					self::removeTask() * 100 / (self::addTask()),
+					self::removeTask(),
+					self::addTask()
+				);
+			}
+		}
 	}
 
 	/**
