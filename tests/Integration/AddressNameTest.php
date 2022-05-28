@@ -55,7 +55,7 @@ class AddressNameTest extends BaseTestSetup
 
 	public function testAddressNotFound() 
 	{
-		$response = $this->runApp('GET', '/address', 'address=America,Texas');
+		$response = $this->runApp('GET', '/address', 'address=Пушкино,Колотушкино');
 		$data = (string) $response->getBody();
 
 		$data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
