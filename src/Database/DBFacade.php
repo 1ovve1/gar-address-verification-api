@@ -54,7 +54,7 @@ class DBFacade
 
 		try {
 			Log::write(Msg::LOG_DB_INIT->value);
-      $PDO->connect($_SERVER['DB_USERNAME'], $_SERVER['DB_PASS']);
+      $PDO->connect($_SERVER['DB_USER'], $_SERVER['DB_PASS']);
 			Log::write(Msg::LOG_COMPLETE->value);
 		} catch (PDOException $exception) {
 			Log::error(

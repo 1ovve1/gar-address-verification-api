@@ -8,7 +8,7 @@ use Throwable;
 use Monolog\Logger;
 use Monolog\Level;
 use Monolog\Handler\RotatingFileHandler;
-
+use Psr\Log\LoggerInterface;
 
 define('LOG_PATH', __DIR__ . '/../../logs');
 set_exception_handler([Log::class, 'error']);
@@ -35,8 +35,7 @@ class Log
 			self::launch();
 		}
 
-		self::put(sprintf("[%s]: %s %s %s", 
-			self::currTime(),
+		self::put(sprintf("%s %s %s", 
 			$message,
 			implode(' ', $params), 
 			PHP_EOL
@@ -72,8 +71,7 @@ class Log
 			self::launch();
 		}
 
-		$message = sprintf("[%s]: %s\n%s\n%s\n",
-			self::currTime(), 
+		$message = sprintf("%s\n%s\n%s\n",
 			Msg::LOG_BAD->value,
 			$exception,
 			http_build_query($params, '', ', ')
@@ -158,12 +156,11 @@ class Log
 		return $taskRemoved;
 	}
 
-	/**
-	 * return curr message format
-	 * @return string
-	 */
-	private static function currTime() : string
+	public static function getInstance() : LoggerInterface
 	{
-		return date('Y-m-d H:i:s');
+		if (is_null(self::$logger)) {
+			self::launch();
+		}
+		return self::$logger;		
 	}
 }

@@ -18,7 +18,7 @@ class AddressByNameRepository extends BaseRepo
       $singleName = $halfAddress[0];
       $checkLikeAddress = $this->getLikeAddress($singleName);
       if (!empty($checkLikeAddress)) {
-        $fullAddress[$singleName] = $checkLikeAddress;
+        $fullAddress[(empty($singleName)) ? 'variants': $singleName] = $checkLikeAddress;
       }
 
     } else {
@@ -37,16 +37,22 @@ class AddressByNameRepository extends BaseRepo
         $objectIdCursor = $objectId[0]['objectid'];
         $upperChiledObjectId = $objectIdCursor;
         for(; ; --$parent) {
-          if ($parent >= 0) {
-            $parentName = $halfAddress[$parent];
-          } else {
-            static $id = 1;
-            $parentName = 'parent_' . $id++;
-          }
           $parentCheck = $this->getParentNameByObjectId($upperChiledObjectId);
 
+          if ($parent >= 0) {
+            $parentName = $halfAddress[$parent];
+          } else if (count($parentCheck) === 1){
+            static $id = 1;
+            $parentName = 'parent_' . $id++;
+          } 
+
           if (!empty($parentCheck)) {
-            $fullAddress = array_merge([$parentName => $parentCheck], $fullAddress);
+            if (count($parentCheck) === 1) {
+              $fullAddress = array_merge([$parentName => $parentCheck], $fullAddress);
+            } else {
+              $fullAddress = array_merge(['parent_variants' => $parentCheck], $fullAddress);
+              break;
+            }
           } else {
             break;
           }

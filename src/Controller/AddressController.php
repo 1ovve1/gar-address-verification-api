@@ -21,18 +21,12 @@ class AddressController
 
   public function getAddressByName(Request $request, Response $response, $args): Response
   {
-    $param = $request->getQueryParams();
-    if (array_key_exists('address', $param)) {
-      $halfAddress = explode(',', $param['address']);
-      $likeAddress[] = $this->addressByNameRepo->getFullAddress($halfAddress);
+    $address = $request->getQueryParams()['address'];
 
-      if (empty($likeAddress)) {
-        $response = $this->errorMessage($response, 'address not found');
-      } else {
-        $response->getBody()->write(json_encode($likeAddress, JSON_FORCE_OBJECT));
-      }
-    } else {
-      $response = $this->errorMessage($response, "require 'address' param");
+    $likeAddress[] = $this->addressByNameRepo->getFullAddress($address);
+
+    if (!empty($likeAddress[0])) {
+      $response->getBody()->write(json_encode($likeAddress, JSON_FORCE_OBJECT));
     }
 
     return $response;
@@ -40,42 +34,34 @@ class AddressController
 
   public function getCodeByType(Request $request, Response $response, $args) : Response
   {
-    $param = $request->getQueryParams();
-    $objectId = null;
+    $params = $request->getQueryParams();
 
-    if (key_exists('objectid', $param)) {
-      $objectId = intval($param['objectid']);
-    } else if (key_exists('address', $param)) {
-      $fullAddress = $this->addressByNameRepo->getFullAddress(
-        explode(',', $param['address'])
-      );
+    if (is_null($params['objectid'])) {
+      $likeAddress = $this->addressByNameRepo->getFullAddress($params['address']);
 
-      while($lastElem = array_pop($fullAddress)) {
-        if (count($lastElem) === 1) {
-          $objectId = $lastElem[0]['objectid'];
+      foreach ($likeAddress as $key => $value) {
+        if (
+          count($value) === 1 && 
+          $key !== 'houses' && 
+          $key !== 'variant' &&
+          $key !== 'parent_variants'
+        ) {
+          $params['objectid'] = $value[0]['objectid'];
           break;
         }
+      } 
+
+    }
+
+    if (!is_null($params['objectid'])) {
+      $data = $this->addressByCodeRepo->getCode($params['objectid'], $args['type']);
+
+      if (!empty($data)) {
+        $response->getBody()->write(json_encode($data, JSON_FORCE_OBJECT));
       }
-    } else {
-      $response = $this->errorMessage($response, "require 'objectid' or 'address' param");
     }
 
-    if (!is_null($objectId)) {
-      $data = $this->addressByCodeRepo->getCode(
-        $objectId, $args['type']
-      );
-      $response->getBody()->write(json_encode($data, JSON_PRETTY_PRINT));
-    } else {
-      $response = $this->errorMessage($response, "address not found");
-    }
-
-    return $response;
+    return $response; 
   }
 
-  protected function errorMessage(Response $response, string $message, int $status = 401) : Response
-  {
-    $response = $response->withStatus($status);
-    $response->getBody()->write(json_encode(['error' => $message]));
-    return $response;
-  }
 }
