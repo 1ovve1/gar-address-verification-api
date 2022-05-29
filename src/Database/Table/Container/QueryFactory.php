@@ -2,6 +2,9 @@
 
 namespace GAR\Database\Table\Container;
 
+/**
+ * Commot query factory interface that return Query containers
+ */
 interface QueryFactory
 {
   /**
@@ -16,6 +19,7 @@ interface QueryFactory
 
   /**
    * Generate describe query (probably work only in mysql?)
+   * 
    * @param string $tableName - name of table
    * @return Query - query object
    */
@@ -23,8 +27,9 @@ interface QueryFactory
 
   /**
    * Generate create table if exists query
+   * 
    * @param string $tableName - name of table
-   * @param array $fieldsWithParams - fields and their params
+   * @param array<string,string> $fieldsWithParams - fields and their params
    * @return Query - query object
    */
   static function genCreateTableQuery(string $tableName,
@@ -32,6 +37,7 @@ interface QueryFactory
 
   /**
    * Return show tables query
+   * 
    * @return Query - query object
    */
   static function genShowTableQuery() : Query;

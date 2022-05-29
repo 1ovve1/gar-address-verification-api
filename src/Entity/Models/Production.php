@@ -8,8 +8,5 @@ use GAR\Database\Table\SQL\QueryModel;
 
 class Production extends ConcreteTable implements QueryModel
 {
-  function __construct(DBAdapter $db)
-  {
-    parent::__construct($db, false);
-  }
+  
 }

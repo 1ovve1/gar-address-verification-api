@@ -11,21 +11,19 @@ use InvalidArgumentException;
 use PDOException;
 
 /**
- * DB FACADE CLASS
- * 
- * SINGLETON, FULL-STATIC FACADE
- * USE FOR GETTING ACTUAL BD CONNECTION
+ * Database facade static class
  */
 class DBFacade
 {
 	/**
-	 * @var DBAdapter|null - PDO object
+	 * @var DBAdapter|null $instance - database static object
    */
 	public static ?DBAdapter $instance = null;
 
   /**
-   *  Get curr instance of database
-   * @return DBAdapter - PDO-object with curr db connection
+   * Get curr instance of database
+   * 
+   * @return DBAdapter
    */
 	public static function getInstance() : DBAdapter
   {
@@ -39,9 +37,9 @@ class DBFacade
 
 
   /**
-   *  Method to connection with database using
-   *  Env.php file
-   * @return PDOObject connected PDO-object
+   * Connection via PDO
+   * 
+   * @return PDOObject
    */
 	public static function connectViaPDO() : PDOObject
 	{
@@ -66,6 +64,11 @@ class DBFacade
     return $PDO;
 	}
 
+  /**
+   * Generate table name in snake_case
+   * @param  string $className - full class name namespace
+   * @return string
+   */
   public static function genTableNameByClassName(string $className) : string
   {
     // remove some ..\\..\\..\\ClassName prefix

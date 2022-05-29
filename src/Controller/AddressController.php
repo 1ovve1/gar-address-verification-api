@@ -19,7 +19,7 @@ class AddressController
     $this->addressByCodeRepo = new AddressByCodeRepository(EntityFactory::getProductionDB());
   }
 
-  public function getAddressByName(Request $request, Response $response, $args): Response
+  public function getAddressByName(Request $request, Response $response): Response
   {
     $address = $request->getQueryParams()['address'];
 
@@ -32,7 +32,7 @@ class AddressController
     return $response;
   }
 
-  public function getCodeByType(Request $request, Response $response, $args) : Response
+  public function getCodeByType(Request $request, Response $response, array $args) : Response
   {
     $params = $request->getQueryParams();
 

@@ -2,6 +2,9 @@
 
 namespace GAR\Database\Table\Container;
 
+/**
+ * Query types enum
+ */
 enum QueryTypes
 {
   case INSERT;

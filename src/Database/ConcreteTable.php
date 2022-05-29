@@ -9,14 +9,15 @@ use GAR\Logger\Log;
 use GAR\Logger\Msg;
 
 /**
- * CONCRETE TABLE CLASS
- *
- * IMPLEMENTS ABSTRACTNESS METHODS
- * (OR MODIFIED THEM)
+ * Concrete table classs
  */
 abstract class ConcreteTable extends SQLBuilder
 {
-  public function __construct(DBAdapter $db, bool $createMetaTable = true)
+  /**
+   * @param DBAdapter $db - database object
+   * @param bool $createMetaTable - create table model option
+   */
+  final public function __construct(DBAdapter $db, bool $createMetaTable = true)
   {
     if ($createMetaTable) {
       $metaTable = new MetaTable(
@@ -37,16 +38,28 @@ abstract class ConcreteTable extends SQLBuilder
     );
   }
 
-  public static function getInstance(DBAdapter $db) : static
+  /**
+   * Return singleton instance of static object
+   * 
+   * @param  DBAdapter $db - database connection
+   * @param  bool $createMetaTable - create table model option
+   * @return static
+   */
+  public static function getInstance(DBAdapter $db, bool $createMetaTable = true) : static
   {
     static $instance = null;
     if (is_null($instance)) {
-      $instance = new static($db);
+      $instance = new static($db, $createMetaTable);
     }
 
     return $instance;
   }
 
+  /**
+   * return fields thath need to create in new table model 
+   * 
+   * @return ?array<string, string>
+   */
   protected function fieldsToCreate() : ?array
   {
     return null;

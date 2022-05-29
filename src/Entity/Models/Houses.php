@@ -4,7 +4,6 @@ namespace GAR\Entity\Models;
 
 use GAR\Database\ConcreteTable;
 use GAR\Database\Table\SQL\QueryModel;
-use JetBrains\PhpStorm\ArrayShape;
 
 
 /**
@@ -15,11 +14,6 @@ use JetBrains\PhpStorm\ArrayShape;
  */
 class Houses extends ConcreteTable implements QueryModel
 {
-	#[ArrayShape(['id_houses' => "string[]",
-    'objectid_houses' => "string[]",
-    'objectguid_houses' => "string[]",
-    'housenum_houses' => "string[]",
-    'housetype_houses' => "string[]"])]
   public function fieldsToCreate() : ?array
 	{
 		return [

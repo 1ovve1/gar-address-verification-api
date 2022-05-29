@@ -4,33 +4,38 @@ namespace GAR\Database\DBAdapter;
 
 use RuntimeException;
 
+/**
+ * Lazy insert abstract class
+ *
+ * @phpstan-import-type DatabaseContract from DBAdapter
+ */
 abstract class LazyInsert
 {
   /**
-   * @var string - name of table
+   * @var string $tableName - name of table
    */
   private readonly string $tableName;
   /**
-   * @var array - template fields
+   * @var array<string> $fields - template fields
    */
   private readonly array $fields;
   /**
-   * @var int - stages count
+   * @var int $stagesCount - stages count
    */
   private readonly int $stagesCount;
   /**
-   * @var int - current stages in template
+   * @var int $currStage - current stages in template
    */
   private int $currStage = 0;
   /**
-   * @var array - buffer of stage values
+   * @var array<DatabaseContract> $stageBuffer - buffer of stage values
    */
   private array $stageBuffer = [];
 
   /**
-   * @param string $tableName
-   * @param array $fields
-   * @param int $stagesCount
+   * @param string $tableName - name of table
+   * @param array<string> $fields - fields in table
+   * @param int $stagesCount - stage buffer size
    */
   public function __construct(string $tableName, array $fields, int $stagesCount)
   {
@@ -42,10 +47,12 @@ abstract class LazyInsert
 
   /**
    * Create exception if input is incorrect
+   * 
    * @param string $tableName - name of table
-   * @param array $fields - fields to create
+   * @param array<string> $fields - fields to create
    * @param int $stagesCount - stage count
    * @return void
+   * @throws RuntimeException
    */
   public static function isValid(string $tableName, array $fields, int $stagesCount) : void
   {
@@ -65,6 +72,7 @@ abstract class LazyInsert
   }
 
   /**
+   * Return table name
    * @return string
    */
   public function getTableName(): string
@@ -73,6 +81,7 @@ abstract class LazyInsert
   }
 
   /**
+   * Return max stage buffer count
    * @return int
    */
   public function getStagesCount(): int
@@ -81,7 +90,8 @@ abstract class LazyInsert
   }
 
   /**
-   * @return array
+   * Return fields in table template
+   * @return array<string>
    */
   public function getFields(): array
   {
@@ -89,6 +99,7 @@ abstract class LazyInsert
   }
 
   /**
+   * Return curr stage count
    * @return int
    */
   public function getCurrStage(): int
@@ -97,7 +108,8 @@ abstract class LazyInsert
   }
 
   /**
-   * @param int|null $value
+   * Increment curr stage by $value (set by default) or clear if $value = null
+   * @param int|null $value - value to increment
    */
   public function incCurrStage(?int $value = 1): void
   {
@@ -109,7 +121,8 @@ abstract class LazyInsert
   }
 
   /**
-   * @return array
+   * Return curr stage buffer
+   * @return array<DatabaseContract>
    */
   public function getStageBuffer(): array
   {
@@ -117,7 +130,8 @@ abstract class LazyInsert
   }
 
   /**
-   * @param array|null $stageBuffer
+   * Set stage buffer by $stageBuffer or reset it by $stageBuffer = null
+   * @param array<DatabaseContract>|null $stageBuffer - values that need add in $stageBuffer 
    */
   public function setStageBuffer(?array $stageBuffer): void
   {

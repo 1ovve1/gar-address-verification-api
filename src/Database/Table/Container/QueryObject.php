@@ -2,19 +2,21 @@
 
 namespace GAR\Database\Table\Container;
 
-
+/**
+ * Query object container, implements Query
+ */
 class QueryObject implements Query
 {
   /**
-   * @var QueryTypes - type of sql query
+   * @var QueryTypes $type - type of sql query
    */
   private QueryTypes $type;
   /**
-   * @var string - raw sql code
+   * @var string $rawSql - raw sql code
    */
   private string $rawSql = '';
   /**
-   * @var bool - result of validation
+   * @var bool $valid - result of validation
    */
   private bool $valid = false;
 

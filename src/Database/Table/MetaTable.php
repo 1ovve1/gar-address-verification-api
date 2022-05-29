@@ -6,36 +6,39 @@ namespace GAR\Database\Table;
 use GAR\Database\DBAdapter\DBAdapter;
 use GAR\Database\Table\Container\QueryFactory;
 use GAR\Database\Table\Container\QueryGenerator;
-use JetBrains\PhpStorm\ArrayShape;
 
+/**
+ * Meta table object, that doing all manipulation like creating table, get meta data and other
+ *
+ * @phpstan-type MysqlMetaContract array<array{Field: string, Type: string, Null: string, Key: string, Default: string|null, Extra: string}>
+ */
 class MetaTable
 {
   /**
-   * @var DBAdapter - PDO object
+   * @var DBAdapter $db - database object
    */
   private readonly DBAdapter $db;
   /**
-   * @var string - name of table
+   * @var string $tableName - name of table
    */
   private readonly string $tableName;
   /**
-   * @var array - table fields
+   * @var array<string> $fields - table fields
    */
   private array $fields;
   /**
-   * @var array - full information about table
+   * @var MysqlMetaContract $metaInfo - full information about table
    */
   private readonly array $metaInfo;
   /**
-   * @var QueryFactory - factory of sql queries
+   * @var QueryFactory $factory - factory of sql queries
    */
   private readonly QueryFactory $factory;
 
   /**
-   * Create meta table object
    * @param DBAdapter $db - database adapter connection
    * @param string $tableName - name of table
-   * @param array|null $createOption - option for create table
+   * @param array<string, string>|null $createOption - option for create table
    */
   public function __construct(DBAdapter $db,
                               string $tableName,
@@ -48,29 +51,32 @@ class MetaTable
       $this->createTable($tableName, $createOption);
     }
 
-    [$this->metaInfo, $this->fields] = $this->getMetaInfoAndFields($tableName);
+    $meta = $this->getMetaInfoAndFields($tableName);
+    $this->metaInfo = $meta['metaInfo'];
+    $this->fields = $meta['fields'];
   }
 
   /**
-   *  getting meta info from table meta (only for mysql)
-   * @param string $tableName name of table (probably $this->name)
-   * @return array
+   * Getting meta info from table meta (only for mysql)
+   * 
+   * @param string $tableName - name of table
+   * @return array{metaInfo: mixed, fields: mixed}
    */
-  #[ArrayShape(['metaInfo' => "array|false", 'fields' => "array|false"])]
   private function getMetaInfoAndFields(string $tableName) : array
   {
     $query = $this->getFactory()->genMetaQuery($tableName);
 
-    $metaInfo = $this->getDb()->rawQuery($query)->fetchAll($this->getDb()::F_ALL);
-    $tableFields = $this->getDb()->rawQuery($query)->fetchAll($this->getDb()::F_COL);
+    $metaInfo = $this->getDb()->rawQuery($query)->fetchAll($this->getDb()::PDO_F_ALL);
+    $tableFields = $this->getDb()->rawQuery($query)->fetchAll($this->getDb()::PDO_F_COL);
 
-    return [$metaInfo, $tableFields];
+    return ['metaInfo' => $metaInfo, 'fields' => $tableFields];
   }
 
   /**
    * Create table using curr connected, name of table and fields
+   * 
    * @param string $tableName - name of table
-   * @param array $fieldsToCreate - fields and their params
+   * @param array<string, string> $fieldsToCreate - fields and their params
    * @return void
    */
   private function createTable(string $tableName, array $fieldsToCreate) : void
@@ -86,15 +92,22 @@ class MetaTable
 
   /**
    * Check table existing and ask user to drop it if exist
+   * 
    * @param string $tableName - name of table
-   * @return bool - user decision
+   * @return bool
+   * @@throws RuntimeException
    */
   protected function tableExistsAndDropCheck(string $tableName) : bool
   {
     $connection = $this->getDb();
-    $tableList = $connection->rawQuery($this->getFactory()->genShowTableQuery())
-                            ->fetchAll($this->getDb()::F_COL);
+    $tableList = $connection
+      ->rawQuery($this->getFactory()->genShowTableQuery())
+      ->fetchAll($this->getDb()::PDO_F_COL);
 
+    if (!is_array($tableList)) {
+      throw new RuntimeException('MetaTable error: $tableList should return array, ' . gettype($tableList) . " given");
+    }
+    
     return in_array($tableName, $tableList);
   }
 
@@ -109,7 +122,8 @@ class MetaTable
 
   /**
    * Return mta info about table
-   * @return array|null - meta info about table
+   * 
+   * @return MysqlMetaContract|null - meta info about table
    */
   protected function getMetaInfo(): ?array
   {
@@ -118,14 +132,15 @@ class MetaTable
 
   /**
    * Return fields for curr table
-   * @return array|null - fields
+   * @return array<string> - fields
    */
-  public function getFields(): ?array
+  public function getFields(): array
   {
     return $this->fields;
   }
 
   /**
+   * Return database connection
    * @return DBAdapter
    */
   protected function getDb(): DBAdapter
@@ -133,6 +148,10 @@ class MetaTable
     return $this->db;
   }
 
+  /**
+   * Return SQLGenerator
+   * @return QueryFactory
+   */
   protected function getFactory() : QueryFactory
   {
     return $this->factory;

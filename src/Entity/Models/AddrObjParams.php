@@ -4,7 +4,6 @@ namespace GAR\Entity\Models;
 
 use GAR\Database\ConcreteTable;
 use GAR\Database\Table\SQL\QueryModel;
-use JetBrains\PhpStorm\ArrayShape;
 
 
 /**
@@ -15,10 +14,6 @@ use JetBrains\PhpStorm\ArrayShape;
  */
 class AddrObjParams extends ConcreteTable implements QueryModel
 {
-	#[ArrayShape(['id_addr_params' => "string[]",
-    'objectid_addr_params' => "string[]",
-      'TYPE' => "string[]",
-      'VALUE' => "string[]"])]
   public function fieldsToCreate() : ?array
 	{
 		return [

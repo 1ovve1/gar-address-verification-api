@@ -11,7 +11,7 @@ class BeforeMiddleware {
 	{
 		$params = $request->getQueryParams();
 		foreach ($params as $value) {
-			if (!preg_match('/^[A-ЯЁа-яё\,. \d]*$/', $value)) {
+			if (!preg_match('/^[A-ЯЁа-яё\,\-. \d]*$/', $value)) {
 				return $this->errorResponse("supports only rus characters, digits, '.' and ',' symbols", 415);
 			}
 		}

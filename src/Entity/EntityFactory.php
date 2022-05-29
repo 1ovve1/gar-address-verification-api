@@ -65,6 +65,9 @@ class EntityFactory
 
   public static function getProductionDB() : QueryModel
   {
-    return Production::getInstance(DBFacade::getInstance());
+    return Production::getInstance(
+      db: DBFacade::getInstance(), 
+      createMetaTable: false
+    );
   }
 }

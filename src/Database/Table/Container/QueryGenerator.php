@@ -4,6 +4,9 @@ namespace GAR\Database\Table\Container;
 
 use InvalidArgumentException;
 
+/**
+ * Generator, that implements QueryFactory
+ */
 class QueryGenerator implements QueryFactory
 {
   /**
@@ -37,7 +40,7 @@ class QueryGenerator implements QueryFactory
    * Generate create table if exists query
    *
    * @param string $tableName - name of table
-   * @param array $fieldsWithParams - fields and their params
+   * @param array<string, string> $fieldsWithParams - fields and their params
    * @return Query - query object
    */
   static function genCreateTableQuery(string $tableName,
@@ -77,7 +80,7 @@ class QueryGenerator implements QueryFactory
   /**
    * Make create table if exists query string
    * @param string $tableName - name of table
-   * @param array $fieldsWithParams - fields with params
+   * @param array<string, string> $fieldsWithParams - fields with params
    * @return string - query string
    */
   public static function makeCreateTableQuery(string $tableName, array $fieldsWithParams) : string
@@ -94,7 +97,7 @@ class QueryGenerator implements QueryFactory
       $formattedFields[] = sprintf(
         "%s %s",
         $field,
-        implode(' ', $params)
+        $params
       );
     }
     return sprintf(

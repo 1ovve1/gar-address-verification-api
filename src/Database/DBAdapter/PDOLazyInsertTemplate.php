@@ -4,27 +4,40 @@ namespace GAR\Database\DBAdapter;
 
 use PDOStatement;
 
-
+/**
+ * Lazy Insert Template object Using PDO
+ *
+ * That is the simple decarator that implements QueryTemplate and contains
+ * simple QueryTemplate state inside. Then you call exec method of this class
+ * this PDOLazyInsertTemplate object fill values into self stageBuffer.
+ * If you call exec method and stageBuffer is full off, object automaticly call save() method,
+ * creating template and execute it, also calling reset() method to clear buffers.
+ * You can also call save() method when you need it, but notice that
+ * class creating new template any time then you call save() with stageBuffer 
+ * that have random count of values
+ * 
+ * @phpstan-import-type DatabaseContract from DBAdapter
+ */
 class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
 {
   /**
-   * @var PDOObject - database
+   * @var DBAdapter $db - curr database connection
    */
   private readonly DBAdapter $db;
   /**
-   * @var QueryTemplate|null - prepared statement for PDO exec
+   * @var QueryTemplate - prepared insert statement
    */
-  private ?QueryTemplate $state = null;
+  private QueryTemplate $state;
   /**
-   * @var string - template code
+   * @var string $template - default string template (by default stages count)
    */
   private string $template;
 
   /**
-   * @param DBAdapter $db - database
-   * @param string $tableName - name of table
-   * @param array $fields - fields to insert
-   * @param int $stagesCount - stage count
+   * @param DBAdapter $db - database connection
+   * @param string $tableName - name of prepared table
+   * @param array<string> $fields - fields of preapred table
+   * @param int $stagesCount - default stages count
    */
   public function __construct(DBAdapter $db,
                               string $tableName,
@@ -38,9 +51,10 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
   }
 
   /**
-   * Prepare statement to execute
+   * Generate template using $stageCount and create new statement
+   * 
    * @param int $stageCount - count of stages vars
-   * @return void - string PDO template
+   * @return void
    */
   public function genTemplate(int $stageCount) : void
   {
@@ -55,8 +69,10 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
   }
 
   /**
-   * Return vars in string view (?, ?, ..., ?)
-   * @return string - vars in string view
+   * Generate vars for prepared statement (in PDO: '?')
+   * Return example: (?, ..., ?) ... (?, ... , ?) multiple by $stageCount times
+   * 
+   * @return string - string of vars
    */
   public function genVars(int $stageCount) : string
   {
@@ -74,9 +90,10 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
   }
 
   /**
-   * Execute template with bind values (use lazy method)
-   * @param array $values -
-   * @return PDOLazyInsertTemplate
+   * Update buffer (or execute query if buffer full) by $values 
+   * 
+   * @param array<DatabaseContract> $values - values to execute
+   * @return self - self
    */
   function exec(array $values) : self
   {
@@ -93,9 +110,10 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
 
   /**
    * Save changes in database and reset stage buffer
-   * @return PDOLazyInsertTemplate - save changes (require for lazy insert)
+   * 
+   * @return self - self
    */
-  function save(): PDOLazyInsertTemplate
+  function save(): self
   {
     static $customTemplateUse = false;
     if (!empty($this->getStageBuffer())) {
@@ -105,7 +123,7 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
         $this->setState($this->getTemplate());
         $customTemplateUse = true;
 
-      } else if (is_null($this->getState()) || $customTemplateUse) {
+      } else if ($customTemplateUse) {
 
         $this->genTemplate($this->getStagesCount());
         $this->setState($this->getTemplate());
@@ -123,9 +141,10 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
 
 
   /**
-   * @return Querytemplate|null
+   * Return curr exempl
+   * @return QueryTemplate
    */
-  public function getState(): ?QueryTemplate
+  public function getState(): QueryTemplate
   {
     return $this->state;
   }

@@ -4,7 +4,6 @@ namespace GAR\Entity\Models;
 
 use GAR\Database\ConcreteTable;
 use GAR\Database\Table\SQL\QueryModel;
-use JetBrains\PhpStorm\ArrayShape;
 
 
 /**
@@ -15,10 +14,6 @@ use JetBrains\PhpStorm\ArrayShape;
  */
 class MunHierarchy extends ConcreteTable implements QueryModel
 {
-	#[ArrayShape(['id_mun' => "string[]",
-    'objectid_mun' => "string[]",
-    'parentobjid_mun' => "string[]",
-    'oktmo_mun' => "string[]"])]
   public function fieldsToCreate() : ?array
 	{
 		return [

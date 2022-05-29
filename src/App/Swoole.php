@@ -31,7 +31,6 @@ return function ($app)
 	        $uriFactory,
 	        $streamFactory,
 	        $uploadedFileFactory,
-	        $responseFactory,
 	        $responseMerger,
 	        $app
 	    ) {

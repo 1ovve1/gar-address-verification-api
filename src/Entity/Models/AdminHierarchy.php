@@ -4,7 +4,6 @@ namespace GAR\Entity\Models;
 
 use GAR\Database\ConcreteTable;
 use GAR\Database\Table\SQL\QueryModel;
-use JetBrains\PhpStorm\ArrayShape;
 
 
 /**
@@ -15,11 +14,6 @@ use JetBrains\PhpStorm\ArrayShape;
  */
 class AdminHierarchy extends ConcreteTable implements QueryModel
 {
-  #[ArrayShape(['id_admin' => "string[]",
-    'objectid_admin' => "string[]",
-    'parentobjid_admin' => "string[]",
-    'FOREIGN KEY (objectid_admin)' => "string[]",
-    'FOREIGN KEY (parentobjid_admin)' => "string[]"])]
   public function fieldsToCreate() : ?array
 	{
 		return [

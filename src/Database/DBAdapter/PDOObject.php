@@ -8,27 +8,26 @@ use PDO;
 use PDOStatement;
 
 /**
- * Contains all parameters of current connection
+ * Implemets DBAdapter for PDO conncetion type
+ *
+ * @phpstan-import-type DatabaseContract from DBAdapter
  */
 class PDOObject implements DBAdapter
 {
   /**
-   * @var PDO|null - curr instance of db connection
+   * @var PDO $instance - curr instance of db connection
    */
-  private ?PDO $instance = null;
+  private PDO $instance;
   /**
-   * @var PDOStatement|null - contains last result of query method
+   * @var PDOStatement|null $lastQuery - contains last result of query method
    */
   private ?PDOStatement $lastQuery = null;
 
-  public const F_ALL = PDO::FETCH_ASSOC;
-  public const F_COL = PDO::FETCH_COLUMN;
-
 
   /**
-   * @param string $dbType - type of curr db
+   * @param string $dbType - type name of curr db
    * @param string $dbHost - db host
-   * @param string $dbName - curr db
+   * @param string $dbName - db name
    * @param string $dbPort - port
    */
   function __construct(
@@ -40,7 +39,8 @@ class PDOObject implements DBAdapter
   {}
 
   /**
-   * Realize connect via PDO by password
+   * Realize connect via PDO by username and password
+   * 
    * @param string $dbUsername - name of user to connect
    * @param string $dbPass - pass from curr db
    * @return void
@@ -63,9 +63,10 @@ class PDOObject implements DBAdapter
   }
 
   /**
-   * Make SQL query
-   * @param Query $query - sql object
-   * @return self
+   * Make SQL query by $query container
+   * 
+   * @param Query $query - query container
+   * @return self - self
    */
   public function rawQuery(Query $query) : self
   {
@@ -85,7 +86,7 @@ class PDOObject implements DBAdapter
    * Prepare template
    *
    * @param string $template - string template query
-   * @return self - pdo object
+   * @return self - self
    */
   function prepare(string $template): self
   {
@@ -97,8 +98,8 @@ class PDOObject implements DBAdapter
   /**
    * Execute prepare statement
    *
-   * @param array - values to execute
-   * @return DBAdapter - self
+   * @param array<DatabaseContract> $values- values to execute
+   * @return self - self
    */
   function execute(array $values): DBAdapter
   {
@@ -112,16 +113,20 @@ class PDOObject implements DBAdapter
    */
   function getTemplate(): QueryTemplate
   {
+    if (is_null($this->lastQuery)) {
+      throw new RuntimeException('PDOObject (DBAdapter) error: template dosent exists');
+    }
     return new PDOTemplate($this->lastQuery);
   }
 
 
   /**
-   * Return prepared object InsertTemplate
+   * Return InsertTemplate
+   * 
    * @param string $tableName - name of table
-   * @param array $fields - fields to prepare
+   * @param array<string> $fields - fields to prepare
    * @param int $stagesCount - buffer size
-   * @return QueryTemplate - prepare object
+   * @return QueryTemplate - prepared lazy insert object
    */
   function getInsertTemplate(string $tableName,
                              array $fields,
@@ -132,28 +137,36 @@ class PDOObject implements DBAdapter
 
 
   /**
+   * Fething last query by $flag
+   * 
    * @param int $flag - standard PDO flag
-   * @return array|bool|null - fetch result
+   * @return array<string, mixed>|bool|null - fetch result
    */
-  public function fetchAll(int $flag = self::F_ALL) : array|bool|null
+  public function fetchAll(int $flag = DBAdapter::PDO_F_ALL) : array|bool|null
   {
-    return $this->getLastQuery()?->fetchAll($flag);
+    return $this->getLastQuery()->fetchAll($flag);
   }
 
   /**
-   * @return PDOStatement|null
+   * Return last query (PDOStatement)
+   * @return PDOStatement
    */
-  private function getLastQuery(): ?PDOStatement
+  private function getLastQuery(): PDOStatement
   {
+    if (is_null($this->lastQuery)) {
+      throw new RuntimeException('PDOObject (DBAdapter) error: call to undefined PDOStatement');
+    }
     return $this->lastQuery;
   }
 
   /**
-   * @param PDOStatement|null $lastQuery
+   * Set last query by $lastQuery
+   * @param PDOStatement|bool $lastQuery - query statement
+   * @throws RuntimeException
    */
-  private function setLastQuery(?PDOStatement $lastQuery): void
+  private function setLastQuery(PDOStatement|bool $lastQuery): void
   {
-    if ($lastQuery) {
+    if (!is_bool($lastQuery)) {
       $this->lastQuery = $lastQuery;
     } else {
       throw new RuntimeException(
@@ -164,19 +177,28 @@ class PDOObject implements DBAdapter
 
   /**
    * Set instance by PDO object
-   * @param PDO $connection - ready PDO object
+   * @param PDO|null $connection - ready PDO object
+   * @throws RuntimeException
    * @return void
    */
-  private function setInstance(PDO $connection): void
+  private function setInstance(?PDO $connection): void
   {
+    if (is_null($connection)) {
+      throw new RuntimeException('PDOObject (DBAdapter) error: PDO instance is null');
+    }
     $this->instance = $connection;
   }
 
   /**
-   * @return PDO|null - curr instance of PDO object
+   * Return curr instance of PDO
+   * @return PDO
+   * @throws RuntimeException
    */
-  private function getInstance(): PDO|null
+  private function getInstance(): PDO
   {
+    if (!isset($this->instance)) {
+      throw new RuntimeException('PDOObject (DBAdapter) error: call to undefined PDO object');
+    }
     return $this->instance;
   }
 }
