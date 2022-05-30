@@ -36,7 +36,7 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
   /**
    * @param DBAdapter $db - database connection
    * @param string $tableName - name of prepared table
-   * @param array<string> $fields - fields of preapred table
+   * @param array<mixed> $fields - fields of preapred table
    * @param int $stagesCount - default stages count
    */
   public function __construct(DBAdapter $db,
@@ -93,9 +93,9 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
    * Update buffer (or execute query if buffer full) by $values 
    * 
    * @param array<DatabaseContract> $values - values to execute
-   * @return self - self
+   * @return array<mixed> - ignore
    */
-  function exec(array $values) : self
+  function exec(array $values) : array
   {
     if (count($this->getFields()) === count($values)) {
       $this->setStageBuffer($values);
@@ -105,7 +105,7 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
         $this->save();
       }
     }
-    return $this;
+    return [];
   }
 
   /**

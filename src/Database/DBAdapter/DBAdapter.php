@@ -27,7 +27,7 @@ interface DBAdapter
    * Fecthing last query by special flag
    * 
    * @param  int $flag - fetching flag
-   * @return mixed - self
+   * @return array<mixed>
    */
   function fetchAll(int $flag) : mixed;
 
@@ -56,7 +56,7 @@ interface DBAdapter
    * Prepare lazy insert template and
    * 
    * @param  string $tableName- name of table
-   * @param  array<string> $fields - fields
+   * @param  array<mixed> $fields - fields
    * @param  int $stagesCount - stages count
    * @return QueryTemplate - prepared statement object
    */

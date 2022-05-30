@@ -7,10 +7,13 @@ use GAR\Util\XMLReader\XMLReaderFactory;
 
 class DatabaseUploader
 {
+  /**
+   * @var array<string, \GAR\Database\Table\SQL\QueryModel> - mapped array with tables
+   */
   private array $tables;
 
   /**
-   * @param EntityFactory $tables
+   * @param EntityFactory $tables - table factory
    */
   public function __construct(EntityFactory $tables)
   {
@@ -25,6 +28,12 @@ class DatabaseUploader
     ];
   }
 
+  /**
+   * Upload databse using GAR files using $readerFactory
+   * 
+   * @param  XMLReaderFactory $readerFactory - reader factory
+   * @return void
+   */
   public function upload(XMLReaderFactory $readerFactory) : void {
     $readerGroup = [
       'level_obj' => $readerFactory::execObjectLevels(),

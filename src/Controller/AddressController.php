@@ -8,8 +8,15 @@ use GAR\Repository\AddressByNameRepository;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
+/**
+ * Address controller
+ */
+
 class AddressController
 {
+  /**
+   * @var AddressByNameRepository
+   */
   protected AddressByNameRepository $addressByNameRepo;
   protected AddressByCodeRepository $addressByCodeRepo;
 

@@ -59,7 +59,7 @@ interface QueryModel
    * @param  string $field - fields name
    * @param  DatabaseContract $value - value for compare
    * @param  string|null $anotherTable - table name
-   * @return array<string, mixed>
+   * @return array<mixed>
    */
   function findFirst(string $field, mixed $value, ?string $anotherTable = null): array;
 
@@ -74,7 +74,7 @@ interface QueryModel
    * Execute template with name $templateName by $values
    * @param  array<DatabaseContract> $values - values to execute
    * @param  string|null $templateName - name of template
-   * @return array<string, mixed>
+   * @return array<mixed>
    */
   function execute(array $values, ?string $templateName = null) : array;
 }

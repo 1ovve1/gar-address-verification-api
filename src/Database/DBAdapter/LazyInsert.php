@@ -16,7 +16,7 @@ abstract class LazyInsert
    */
   private readonly string $tableName;
   /**
-   * @var array<string> $fields - template fields
+   * @var array<mixed> $fields - template fields
    */
   private readonly array $fields;
   /**
@@ -34,7 +34,7 @@ abstract class LazyInsert
 
   /**
    * @param string $tableName - name of table
-   * @param array<string> $fields - fields in table
+   * @param array<mixed> $fields - fields in table
    * @param int $stagesCount - stage buffer size
    */
   public function __construct(string $tableName, array $fields, int $stagesCount)
@@ -49,7 +49,7 @@ abstract class LazyInsert
    * Create exception if input is incorrect
    * 
    * @param string $tableName - name of table
-   * @param array<string> $fields - fields to create
+   * @param array<mixed> $fields - fields to create
    * @param int $stagesCount - stage count
    * @return void
    * @throws RuntimeException
@@ -91,7 +91,7 @@ abstract class LazyInsert
 
   /**
    * Return fields in table template
-   * @return array<string>
+   * @return array<mixed>
    */
   public function getFields(): array
   {

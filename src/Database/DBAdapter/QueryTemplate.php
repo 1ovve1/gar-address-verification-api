@@ -13,9 +13,9 @@ interface QueryTemplate
    * Execute statement
    * 
    * @param  array<DatabaseContract> $values - values to execute
-   * @return mixed
+   * @return array<mixed>
    */
-  function exec(array $values) : mixed;
+  function exec(array $values) : array;
 
   /**
    * Accept changes in template (use for lazy insert)

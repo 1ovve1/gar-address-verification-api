@@ -2,6 +2,9 @@
 
 namespace GAR\Repository;
 
+/**
+ * Enums type of codes
+ */
 enum Codes : string
 {
   case OKATO = 'okato';

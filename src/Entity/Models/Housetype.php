@@ -7,18 +7,23 @@ use GAR\Database\Table\SQL\QueryModel;
 
 class Housetype extends ConcreteTable implements QueryModel
 {
+  /**
+   * Return fields that need to create in model
+   * 
+   * @return array<string, string>|null
+   */
   public function fieldsToCreate(): ?array
   {
     return [
-      'id' => [
+      'id' =>
         'TINYINT UNSIGNED NOT NULL PRIMARY KEY',
-      ],
-      'short' => [
+        
+      'short' =>
         'CHAR(15) NOT NULL',
-      ],
-      'disc' => [
+        
+      'disc' =>
         'CHAR(50) NOT NULL',
-      ],
+        
     ];
   }
 }

@@ -6,9 +6,17 @@ use GAR\Database\Table\SQL\QueryModel;
 
 const LEVEL = 5;
 
+/**
+ * Repo that contains methods that use for get full name of address by specific name address
+ */
 class AddressByNameRepository extends BaseRepo
 {
 
+  /**
+   * Return full address by fragment of $halfAddress
+   * @param  array<string>  $halfAddress - exploided input address fragment
+   * @return array<string, array<mixed>> - trully full address
+   */
   public function getFullAddress(array $halfAddress) : array
   {
     $fullAddress = [];
@@ -33,9 +41,12 @@ class AddressByNameRepository extends BaseRepo
       }
 
       if (count($objectId) === 1) {
+        $objectIdCursor = $this->getObjectIdFromResult($objectId);
+
         // upper
-        $objectIdCursor = $objectId[0]['objectid'];
         $upperChiledObjectId = $objectIdCursor;
+        $parentName = '';
+
         for(; ; --$parent) {
           $parentCheck = $this->getParentNameByObjectId($upperChiledObjectId);
 
@@ -56,7 +67,7 @@ class AddressByNameRepository extends BaseRepo
           } else {
             break;
           }
-          $upperChiledObjectId = $fullAddress[$parentName][0]['objectid'];
+          $upperChiledObjectId = $this->getObjectIdFromResult($fullAddress[$parentName]);
         }
 
         //middle
@@ -64,12 +75,14 @@ class AddressByNameRepository extends BaseRepo
 
         // down
         $downChiledObjectId = $objectIdCursor;
+        $chiledName = '';
+
         for(; $chiled < count($halfAddress); ++$chiled) {
           $chiledName = $halfAddress[$chiled];
           $chiledVariant = $this->getChiledNameByObjectIdAndName($downChiledObjectId, $chiledName);
           if (count($chiledVariant) === 1 && $chiledName !== '') {
             $fullAddress[$chiledName] = $chiledVariant;
-            $downChiledObjectId = $fullAddress[$chiledName][0]['objectid'];
+            $downChiledObjectId = $this->getObjectIdFromResult($fullAddress[$chiledName]);
           } else {
             $fullAddress['variant'] = $chiledVariant;
             break;
@@ -90,6 +103,11 @@ class AddressByNameRepository extends BaseRepo
     return $fullAddress;
   }
 
+  /**
+   * Return singlename address name by objectud param of concrete address
+   * @param  int    $objectId - object id concrete address
+   * @return array<mixed>
+   */
   public function getSingleNameByObjectId (int $objectId) : array {
     $hierarchy = $this->getDatabase();
 
@@ -102,6 +120,12 @@ class AddressByNameRepository extends BaseRepo
     return $hierarchy->execute([$objectId], 'getSingleNameByObjectId');
   }
 
+  /**
+   * Return chiled name of using parent objectid and chiled name fragment
+   * @param  int    $parentObjectId - parent address objectid
+   * @param  string $chiledName - chiled name fragment
+   * @return array<mixed>
+   */
   protected function getChiledNameByObjectIdAndName (int $parentObjectId, string $chiledName) : array
   {
     $hierarchy = $this->getDatabase();
@@ -118,6 +142,11 @@ class AddressByNameRepository extends BaseRepo
     return $hierarchy->execute([$parentObjectId, $chiledName . '%'], 'getChiledNameByObjectIdAndName');
   }
 
+  /**
+   * Return parent name using chiled address objectid
+   * @param  int    $chiledObjectId - chiled address objectid
+   * @return array<mixed>
+   */
   protected function getParentNameByObjectId (int $chiledObjectId) : array
   {
     $hierarchy = $this->getDatabase();
@@ -132,6 +161,11 @@ class AddressByNameRepository extends BaseRepo
     return $hierarchy->execute([$chiledObjectId], 'getParentNameByObjectId');
   }
 
+  /**
+   * Return houses object id using parent address objectid
+   * @param  int    $objectId - parent address objectid
+   * @return array<mixed>
+   */
   protected function getHousesByObjectId(int $objectId) : array
   {
     $hierarchy = $this->getDatabase();
@@ -156,6 +190,12 @@ class AddressByNameRepository extends BaseRepo
       ->execute([$objectId], 'getHousesByObjectId');
   }
 
+  /**
+   * Return parent address object id by parent and chiled address name
+   * @param  string $parentName - parent address name
+   * @param  string $chiledName - chiled address name 
+   * @return array<mixed>
+   */
   protected function getAddressObjectIdByName(string $parentName, string $chiledName) : array
   {
     $hierarchy = $this->getDatabase();
@@ -174,6 +214,11 @@ class AddressByNameRepository extends BaseRepo
     return $hierarchy->execute([$parentName . '%', $chiledName . '%', LEVEL], 'getAddressObjectIdByName');
   }
 
+  /**
+   * Return like address name by address name fragment
+   * @param  string $halfAddress - address name fragment
+   * @return array<mixed>
+   */
   protected function getLikeAddress(string $halfAddress) : array
   {
     $hierarchy = $this->getDatabase();
@@ -189,6 +234,11 @@ class AddressByNameRepository extends BaseRepo
     return $hierarchy->execute([$halfAddress . '%', LEVEL], 'getLikeAddress');
   }
 
+  /**
+   * Return imploded address name + typename string
+   * @param  array<string, array<int, array<mixed>>> $address - address array
+   * @return string
+   */
   protected function getFullAddressByArray(array $address) : string
   {
     $formatted = [];
@@ -208,5 +258,27 @@ class AddressByNameRepository extends BaseRepo
     return implode(', ', $formatted);
   }
 
-
+  /**
+   * Save return 'objectid' field from query result
+   * @param  array<mixed>  $queryResult - result of query 
+   * @return int
+   * @throws \RuntimeException
+   */
+  protected function getObjectIdFromResult (array $queryResult) : int 
+  {
+    if (is_array($queryResult[0])) {
+      if (key_exists('objectid', $queryResult[0])) {
+        $data = $queryResult[0]['objectid'];
+        if (is_int($data)) {
+          return $data;
+        } else {
+          throw new \RuntimeException("AddressByNameRepository error: objectid are not int");
+        }
+      } else {
+        throw new \RuntimeException("AddressByNameRepository error: field 'objectid' are not exists");
+      }
+    } else {
+      throw new \RuntimeException("AddressByNameRepository error: queryResult is empty");
+    }
+  }
 }

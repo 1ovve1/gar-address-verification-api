@@ -26,11 +26,15 @@ class PDOTemplate implements QueryTemplate
    * Execute template and return result
    * 
    * @param  array<DatabaseContract> $values - values to execute
-   * @return array<string, mixed>
+   * @return array<mixed>
+   * @throws \RuntimeException
    */
-  function exec(array $values): array|bool
+  function exec(array $values): array
   {
-    $this->template->execute($values);
+    $res = $this->template->execute($values);
+    if ($res === false) {
+      throw new \RuntimeException('PDOTemplate (QueryTemplate) error: bad execute');
+    }
     return $this->template->fetchAll(DBAdapter::PDO_F_ALL);
   }
 

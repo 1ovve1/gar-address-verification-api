@@ -71,7 +71,7 @@ interface SelectQuery
   /**
    * Save and execute query
    * 
-   * @return array<string, mixed>
+   * @return array<mixed>
    */
   function save() : array;
 
@@ -94,7 +94,7 @@ interface SelectQuery
    * Execute template with name $templateName by $values
    * @param  array<DatabaseContract> $values - values to execute
    * @param  string|null $templateName - name of template
-   * @return array<string, mixed>
+   * @return array<mixed>
    */
   function execute(array $values, ?string $templateName = null) : array;
 }

@@ -359,7 +359,7 @@ class SQLBuilder
   /**
    * Save and execute query
    * 
-   * @return array<string, mixed>
+   * @return array<mixed>
    */
   function save(): array
   {
@@ -401,7 +401,7 @@ class SQLBuilder
    * Execute template with name $templateName by $values
    * @param  array<DatabaseContract> $values - values to execute
    * @param  string|null $templateName - name of template
-   * @return array<string, mixed>
+   * @return array<mixed>
    */
   function execute(array $values, ?string $templateName = null): array
   {

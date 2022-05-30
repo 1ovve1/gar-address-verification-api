@@ -124,7 +124,7 @@ class PDOObject implements DBAdapter
    * Return InsertTemplate
    * 
    * @param string $tableName - name of table
-   * @param array<string> $fields - fields to prepare
+   * @param array<mixed> $fields - fields to prepare
    * @param int $stagesCount - buffer size
    * @return QueryTemplate - prepared lazy insert object
    */
@@ -140,9 +140,9 @@ class PDOObject implements DBAdapter
    * Fething last query by $flag
    * 
    * @param int $flag - standard PDO flag
-   * @return array<string, mixed>|bool|null - fetch result
+   * @return array<mixed>
    */
-  public function fetchAll(int $flag = DBAdapter::PDO_F_ALL) : array|bool|null
+  public function fetchAll(int $flag = DBAdapter::PDO_F_ALL) : array
   {
     return $this->getLastQuery()->fetchAll($flag);
   }

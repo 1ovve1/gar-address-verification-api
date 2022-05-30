@@ -6,35 +6,34 @@ use GAR\Database\ConcreteTable;
 use GAR\Database\Table\SQL\QueryModel;
 
 
-/**
- * ADDRESS INFO CLASS-MODEL
- *
- * EXTENDS CONCRETE TABLE AND USING FOR COMMUNICATE
- * WITH TABLE 'address_info'
- */
 class AddrObjParams extends ConcreteTable implements QueryModel
 {
+  /**
+   * Return fields that need to create in model
+   * 
+   * @return array<string, string>|null
+   */
   public function fieldsToCreate() : ?array
 	{
 		return [
-			'id' => [
+			'id' =>
         'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
-			],
-			'objectid_addr' => [
+        
+			'objectid_addr' =>
         'BIGINT UNSIGNED NOT NULL',
-			],
-			'OKATO' => [
+        
+			'OKATO' =>
         'BIGINT UNSIGNED',
-			],
-      'OKTMO' => [
+        
+      'OKTMO' =>
         'BIGINT UNSIGNED',
-      ],
-      'KLADR' => [
+        
+      'KLADR' =>
         'BIGINT UNSIGNED',
-      ],
-      'FOREIGN KEY (objectid_addr)' => [
+        
+      'FOREIGN KEY (objectid_addr)' =>
         'REFERENCES addr_obj (objectid)'
-      ]
+        
 		];
 	}
 }

@@ -6,29 +6,27 @@ use GAR\Database\ConcreteTable;
 use GAR\Database\Table\SQL\QueryModel;
 
 
-/**
- * ADDRESS INFO CLASS-MODEL
- *
- * EXTENDS CONCRETE TABLE AND USING FOR COMMUNICATE
- * WITH TABLE 'address_info'
- */
 class AdminHierarchy extends ConcreteTable implements QueryModel
 {
+	/**
+   * Return fields that need to create in model
+   * 
+   * @return array<string, string>|null
+   */
   public function fieldsToCreate() : ?array
 	{
 		return [
-			'id' => [
+			'id' =>
         'BIGINT UNSIGNED NOT NULL',
-			],
-			'objectid' => [
+
+			'objectid' =>
         'BIGINT UNSIGNED NOT NULL',
-			],
-			'parentobjid_addr' => [
+
+			'parentobjid_addr' =>
         'BIGINT UNSIGNED NOT NULL',
-			],
-//      'FOREIGN KEY (objectid_admin)' => [
-//        'REFERENCES addr_obj (objectid_addr)'
-//      ],
+
+//      'FOREIGN KEY (objectid_admin)' =>
+//        'REFERENCES addr_obj (objectid_addr),'
 		];
 	}
 }

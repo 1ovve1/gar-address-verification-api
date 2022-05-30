@@ -10,7 +10,6 @@ use GAR\Database\Table\Container\QueryGenerator;
 /**
  * Meta table object, that doing all manipulation like creating table, get meta data and other
  *
- * @phpstan-type MysqlMetaContract array<array{Field: string, Type: string, Null: string, Key: string, Default: string|null, Extra: string}>
  */
 class MetaTable
 {
@@ -23,11 +22,11 @@ class MetaTable
    */
   private readonly string $tableName;
   /**
-   * @var array<string> $fields - table fields
+   * @var array<mixed> $fields - table fields
    */
   private array $fields;
   /**
-   * @var MysqlMetaContract $metaInfo - full information about table
+   * @var array<mixed> $metaInfo - full information about table
    */
   private readonly array $metaInfo;
   /**
@@ -60,7 +59,7 @@ class MetaTable
    * Getting meta info from table meta (only for mysql)
    * 
    * @param string $tableName - name of table
-   * @return array{metaInfo: mixed, fields: mixed}
+   * @return array{metaInfo: array<mixed>, fields: array<mixed>}
    */
   private function getMetaInfoAndFields(string $tableName) : array
   {
@@ -95,7 +94,7 @@ class MetaTable
    * 
    * @param string $tableName - name of table
    * @return bool
-   * @@throws RuntimeException
+   * @throws \RuntimeException
    */
   protected function tableExistsAndDropCheck(string $tableName) : bool
   {
@@ -105,7 +104,7 @@ class MetaTable
       ->fetchAll($this->getDb()::PDO_F_COL);
 
     if (!is_array($tableList)) {
-      throw new RuntimeException('MetaTable error: $tableList should return array, ' . gettype($tableList) . " given");
+      throw new \RuntimeException('MetaTable error: $tableList should return array, ' . gettype($tableList) . " given");
     }
     
     return in_array($tableName, $tableList);
@@ -123,16 +122,16 @@ class MetaTable
   /**
    * Return mta info about table
    * 
-   * @return MysqlMetaContract|null - meta info about table
+   * @return array<mixed> - meta info about table
    */
-  protected function getMetaInfo(): ?array
+  protected function getMetaInfo(): array
   {
     return $this->metaInfo;
   }
 
   /**
    * Return fields for curr table
-   * @return array<string> - fields
+   * @return array<mixed> - fields
    */
   public function getFields(): array
   {
