@@ -28,6 +28,9 @@ class AddressByCodeRepository extends BaseRepo
       } else {
         $code = $this->getCodeByObjectId($objectId, $type);
       }
+      if (!empty($code)) {
+        $code = $code[0];
+      }
     }
     return $code;
   }

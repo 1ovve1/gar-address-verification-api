@@ -30,9 +30,9 @@ class AddressController
   {
     $address = $request->getQueryParams()['address'];
 
-    $likeAddress[] = $this->addressByNameRepo->getFullAddress($address);
+    $likeAddress = $this->addressByNameRepo->getFullAddress($address);
 
-    if (!empty($likeAddress[0])) {
+    if (!empty($likeAddress)) {
       $response->getBody()->write(json_encode($likeAddress, JSON_FORCE_OBJECT));
     }
 
