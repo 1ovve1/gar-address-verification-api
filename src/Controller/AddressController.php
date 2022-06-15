@@ -3,7 +3,7 @@
 namespace GAR\Controller;
 
 use GAR\Entity\EntityFactory;
-use GAR\Repository\AddressByCodeRepository;
+use GAR\Repository\CodeByObjectIdRepository;
 use GAR\Repository\AddressByNameRepository;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -18,12 +18,12 @@ class AddressController
    * @var AddressByNameRepository
    */
   protected AddressByNameRepository $addressByNameRepo;
-  protected AddressByCodeRepository $addressByCodeRepo;
+  protected CodeByObjectIdRepository $addressByCodeRepo;
 
   public function __construct(
   ){
     $this->addressByNameRepo = new AddressByNameRepository(EntityFactory::getProductionDB());
-    $this->addressByCodeRepo = new AddressByCodeRepository(EntityFactory::getProductionDB());
+    $this->addressByCodeRepo = new CodeByObjectIdRepository(EntityFactory::getProductionDB());
   }
 
   public function getAddressByName(Request $request, Response $response): Response
@@ -49,11 +49,11 @@ class AddressController
       foreach ($likeAddress as $key => $value) {
         if (
           count($value) === 1 && 
-          $key !== 'houses' && 
-          $key !== 'variant' &&
-          $key !== 'parent_variants'
+          !key_exists('houses', $value) &&
+          !key_exists('variant', $value) &&
+          !key_exists('parent_variants', $value)
         ) {
-          $params['objectid'] = $value[0]['objectid'];
+          $params['objectid'] = end($value)[0]['objectid'];
           break;
         }
       } 

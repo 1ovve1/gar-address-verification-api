@@ -15,9 +15,6 @@ class MunHierarchy extends ConcreteTable implements QueryModel
   public function fieldsToCreate() : ?array
 	{
 		return [
-			'id' =>
-        'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
-
 			'parentobjid_addr' =>
         'BIGINT UNSIGNED NOT NULL',
 

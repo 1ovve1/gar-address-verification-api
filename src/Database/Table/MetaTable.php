@@ -68,6 +68,11 @@ class MetaTable
     $metaInfo = $this->getDb()->rawQuery($query)->fetchAll($this->getDb()::PDO_F_ALL);
     $tableFields = $this->getDb()->rawQuery($query)->fetchAll($this->getDb()::PDO_F_COL);
 
+    foreach ($metaInfo as $field) {
+      if (!empty($field['Extra'])) {
+        $tableFields = array_diff($tableFields, [$field['Field']]);
+      }
+    }
     return ['metaInfo' => $metaInfo, 'fields' => $tableFields];
   }
 
@@ -124,7 +129,7 @@ class MetaTable
    * 
    * @return array<mixed> - meta info about table
    */
-  protected function getMetaInfo(): array
+  public function getMetaInfo(): array
   {
     return $this->metaInfo;
   }

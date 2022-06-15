@@ -12,27 +12,56 @@ class AsMunHierarchy extends ConcreteReader
 	}
 
 	public static function getAttributes() : array {
-		return ['ID', 'OBJECTID', 'PARENTOBJID'];
+		return ['OBJECTID', 'PARENTOBJID'];
 	}
 
 	public function execDoWork(QueryModel $model, array $value) : void
 	{
-    if (!empty($model->findFirst('objectid', (int)$value['parentobjid'], 'addr_obj'))) {
-      if (!empty($model->findFirst('objectid', (int)$value['objectid'], 'addr_obj'))) {
+    $region = (int) $this->fileFloder;
+
+    $formatted = [
+      'objectid' => (int)$value['objectid'],
+      'parentobjid' => (int)$value['parentobjid']
+    ];
+
+    if (!empty($this->getIdAddrObj($model, $formatted['parentobjid'], $region))) {
+      if (!empty($this->getIdAddrObj($model, $formatted['objectid'], $region))) {
         $model->forceInsert([
-          (int)$value['id'],
-          (int)$value['parentobjid'],
-          (int)$value['objectid'],
+          $formatted['parentobjid'],
+          $formatted['objectid'],
           null,
         ]);
-      } else if (!empty($model->findFirst('objectid', (int)$value['objectid'], 'houses'))) {
+      } else if (!empty($this->getIdHouses($model, $formatted['objectid'], $region))) {
         $model->forceInsert([
-          (int)$value['id'],
-          (int)$value['parentobjid'],
+          $formatted['parentobjid'],
           null,
           (int)$value['objectid'],
         ]);
       }
     }
 	}
+
+  private function getIdAddrObj(QueryModel $model, int $objectid, int $region) : array
+  {
+    static $name = self::class . 'getIdAddrObj';
+
+    if (!$model->nameExist($name)) {
+      $model->select(['id'], ['addr_obj'])->where('region', '=', $region)
+        ->andWhere('objectid', '=', $objectid)->limit(1)->name($name);
+    }
+
+    return $model->execute([$region, $objectid], $name);
+  }
+
+  private function getIdHouses(QueryModel $model, int $objectid, int $region) : array
+  {
+    static $name = self::class . 'getFirstObjectIdHouses';
+
+    if (!$model->nameExist($name)) {
+      $model->select(['id'], ['houses'])->where('region', '=', $region)
+        ->andWhere('objectid', '=', $objectid)->limit(1)->name($name);
+    }
+
+    return $model->execute([$region, $objectid], $name);
+  }
 }

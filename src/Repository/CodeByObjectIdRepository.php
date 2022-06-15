@@ -5,11 +5,12 @@ namespace GAR\Repository;
 
 use GAR\Database\Table\SQL\QueryModel;
 use GAR\Repository\Codes;
+use http\Exception\RuntimeException;
 
 /**
  * Repository for getting code by concrete objectid
  */
-class AddressByCodeRepository extends BaseRepo
+class CodeByObjectIdRepository extends BaseRepo
 {
 
   /**
@@ -28,9 +29,8 @@ class AddressByCodeRepository extends BaseRepo
       } else {
         $code = $this->getCodeByObjectId($objectId, $type);
       }
-      if (!empty($code)) {
-        $code = $code[0];
-      }
+    } else {
+      throw new RuntimeException('type of code not found');
     }
     return $code;
   }
@@ -43,16 +43,29 @@ class AddressByCodeRepository extends BaseRepo
    */
   public function getCodeByObjectId(int $objectId, string $type) : array
   {
+    static $name = 'getCode';
+
     $params = $this->getDatabase();
 
-    if (!$params->nameExist('getCode' . $type)) {
-      $fmt = strtoupper($type);
-      $params->select(["params.{$fmt}"], ['params' => 'addr_obj_params'])
+    $type = strtoupper($type);
+
+
+    if (!$params->nameExist($name)) {
+      $params->select(["params.value"], ['params' => 'addr_obj_params'])
         ->where('params.objectid_addr', '=', $objectId)
-        ->name('getCode' . $type);
+        ->andWhere('params.type', '=', $type)
+        ->limit(1)
+        ->name($name);
     }
 
-    return $params->execute([$objectId], 'getCode' . $type);
+    $queryResult = $params->execute([$objectId, $type], $name);
+    if (empty($queryResult)) {
+      return [];
+    }
+
+    return [
+      $type => $queryResult[0]['value']
+    ];
   }
 
   /**
@@ -62,15 +75,43 @@ class AddressByCodeRepository extends BaseRepo
    */
   public function getAllCodesByObjectId(int $objectId) : array
   {
+    static $name = 'getAllCodes';
+
     $params = $this->getDatabase();
 
-    if (!$params->nameExist('getCodeAll')) {
-      $params->select(['params.OKATO', 'params.OKTMO', 'params.KLADR'], ['params' => 'addr_obj_params'])
+    $types = [
+      Codes::OKATO->value,
+      Codes::OKTMO->value,
+      Codes::KLADR->value,
+    ];
+
+    if (!$params->nameExist($name)) {
+      $params->select(["params.value, params.type"], ['params' => 'addr_obj_params'])
         ->where('params.objectid_addr', '=', $objectId)
-        ->name('getCodeAll');
+        ->name($name);
     }
 
-    return $params->execute([$objectId], 'getCodeAll');
+    $response = [];
+    $queryResult = $params->execute([$objectId], $name);
+    if (empty($queryResult)) {
+      return [];
+    }
+
+    foreach ($types as $type) {
+      $type = strtoupper($type);
+
+      foreach ($queryResult as $data) {
+        if ($data['type'] === $type) {
+          $response[$type] = $data['value'];
+          break;
+        }
+      }
+      if (!array_key_exists($type, $response)) {
+        $response[$type] = null;
+      }
+    }
+
+    return $response;
   }
 }
 

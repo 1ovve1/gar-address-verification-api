@@ -26,6 +26,10 @@ abstract class AbstractXMLReader implements Iterator
 	 * @var string - xml-file name
    */
 	protected string $fileName;
+  /**
+   * @var string - file floder in zip
+   */
+  protected string $fileFloder;
 	/**
 	 * @var string|null - full path to xml in cache floder
    */
@@ -88,6 +92,7 @@ abstract class AbstractXMLReader implements Iterator
       // getting some paths
 			$dropPath = explode('/', $this->pathToXml);
 			$this->fileName = array_pop($dropPath);
+      $this->fileFloder = end($dropPath);
 			$this->cachePath = implode('/', $dropPath);
 
 			// getting info about elemetns and attributes

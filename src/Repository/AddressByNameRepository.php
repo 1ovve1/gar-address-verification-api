@@ -26,7 +26,7 @@ class AddressByNameRepository extends BaseRepo
       $singleName = $halfAddress[0];
       $checkLikeAddress = $this->getLikeAddress($singleName);
       if (!empty($checkLikeAddress)) {
-        $fullAddress[(empty($singleName)) ? 'variants': $singleName] = $checkLikeAddress;
+        $fullAddress[][(empty($singleName)) ? 'variants': $singleName] = $checkLikeAddress;
       }
 
     } else {
@@ -59,39 +59,40 @@ class AddressByNameRepository extends BaseRepo
 
           if (!empty($parentCheck)) {
             if (count($parentCheck) === 1) {
-              $fullAddress = array_merge([$parentName => $parentCheck], $fullAddress);
+              $fullAddress[] = [$parentName => $parentCheck];
             } else {
-              $fullAddress = array_merge(['parent_variants' => $parentCheck], $fullAddress);
+              $fullAddress[] = ['parent_variants' => $parentCheck];
               break;
             }
           } else {
             break;
           }
-          $upperChiledObjectId = $this->getObjectIdFromResult($fullAddress[$parentName]);
+          $upperChiledObjectId = $this->getObjectIdFromResult(end($fullAddress)[$parentName]);
         }
+        //reverse
+        $fullAddress = array_reverse($fullAddress);
 
         //middle
-        $fullAddress[$halfAddress[$chiled - 1]] = $this->getSingleNameByObjectId($objectIdCursor);
+        $fullAddress[][$halfAddress[$chiled - 1]] = $this->getSingleNameByObjectId($objectIdCursor);
 
         // down
         $downChiledObjectId = $objectIdCursor;
-        $chiledName = '';
 
         for(; $chiled < count($halfAddress); ++$chiled) {
           $chiledName = $halfAddress[$chiled];
           $chiledVariant = $this->getChiledNameByObjectIdAndName($downChiledObjectId, $chiledName);
           if (count($chiledVariant) === 1 && $chiledName !== '') {
-            $fullAddress[$chiledName] = $chiledVariant;
-            $downChiledObjectId = $this->getObjectIdFromResult($fullAddress[$chiledName]);
-          } else {
-            $fullAddress['variant'] = $chiledVariant;
+            $fullAddress[][$chiledName] = $chiledVariant;
+            $downChiledObjectId = $this->getObjectIdFromResult(end($fullAddress)[$chiledName]);
+          } else if (!empty($chiledVariant)) {
+            $fullAddress[]['variant'] = $chiledVariant;
             break;
           }
         }
-        if (!array_key_exists('variant', $fullAddress)) {
+        if (!array_key_exists('variant', end($fullAddress))) {
           $housesCheck = $this->getHousesByObjectId($downChiledObjectId);
           if (!empty($housesCheck)) {
-            $fullAddress['houses'] = $housesCheck;
+            $fullAddress[]['houses'] = $housesCheck;
           }
         }
 
@@ -134,12 +135,16 @@ class AddressByNameRepository extends BaseRepo
       $hierarchy->select(['chiled.name', 'chiled.typename', 'chiled.objectid'], ['mun' => 'mun_hierarchy'])
         ->innerJoin('addr_obj as chiled', ['chiled.objectid' => 'mun.chiledobjid_addr'])
         ->where('mun.parentobjid_addr', '=', $parentObjectId)
-        ->andWhere('chiled.name', 'LIKE', $chiledName . '%')
+        ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
+        ->orWhere('mun.parentobjid_addr', '=', $parentObjectId)
+        ->andWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%')
         ->limit(50)
         ->name('getChiledNameByObjectIdAndName');
     }
 
-    return $hierarchy->execute([$parentObjectId, $chiledName . '%'], 'getChiledNameByObjectIdAndName');
+    return $hierarchy->execute([
+      $parentObjectId, $chiledName . '%',
+      $parentObjectId, $chiledName . '%'], 'getChiledNameByObjectIdAndName');
   }
 
   /**
@@ -204,14 +209,28 @@ class AddressByNameRepository extends BaseRepo
       $hierarchy->select(['DISTINCT(parent.objectid)'], ['mun' => 'mun_hierarchy'])
         ->innerJoin('addr_obj as parent', ['parent.objectid' => 'mun.parentobjid_addr'])
         ->leftJoin('addr_obj as chiled', ['chiled.objectid' => 'mun.chiledobjid_addr'])
-        ->where('parent.name', 'LIKE', $parentName . '%')
-        ->andWhere('chiled.name', 'LIKE', $chiledName . '%')
+        ->where("CONCAT(parent.name, ' ', parent.typename)", 'LIKE', $parentName . '%')
+        ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
+        ->andWhere('parent.id_level', '<=', LEVEL)
+        ->orWhere("CONCAT(parent.typename, ' ',parent.name)", 'LIKE', $parentName . '%')
+        ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
+        ->andWhere('parent.id_level', '<=', LEVEL)
+        ->orWhere("CONCAT(parent.typename, ' ', parent.name)", 'LIKE', $parentName . '%')
+        ->andWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%')
+        ->andWhere('parent.id_level', '<=', LEVEL)
+        ->orWhere("CONCAT(parent.name, ' ', parent.typename)", 'LIKE', $parentName . '%')
+        ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
         ->andWhere('parent.id_level', '<=', LEVEL)
         ->limit(2)
         ->name('getAddressObjectIdByName');
+
     }
 
-    return $hierarchy->execute([$parentName . '%', $chiledName . '%', LEVEL], 'getAddressObjectIdByName');
+    return $hierarchy->execute([
+      $parentName . '%', $chiledName . '%', LEVEL,
+      $parentName . '%', $chiledName . '%', LEVEL,
+      $parentName . '%', $chiledName . '%', LEVEL,
+      $parentName . '%', $chiledName . '%', LEVEL], 'getAddressObjectIdByName');
   }
 
   /**
@@ -225,13 +244,18 @@ class AddressByNameRepository extends BaseRepo
 
     if (!$hierarchy->nameExist('getLikeAddress')) {
       $hierarchy->select(['addr.name', 'addr.typename', 'addr.objectid'], ['addr' => 'addr_obj'])
-      ->where('addr.name', 'LIKE', $halfAddress . '%')
-      ->andWhere('id_level', '<=', LEVEL)
-      ->limit(100)
-      ->name('getLikeAddress');
+        ->where("CONCAT(addr.name, ' ', addr.typename)", 'LIKE', $halfAddress . '%')
+        ->andWhere('id_level', '<=', LEVEL)
+        ->orWhere("CONCAT(addr.typename, ' ', addr.name)", 'LIKE', $halfAddress . '%')
+        ->andWhere('id_level', '<=', LEVEL)
+        ->limit(100)
+        ->name('getLikeAddress');
     }
 
-    return $hierarchy->execute([$halfAddress . '%', LEVEL], 'getLikeAddress');
+    return $hierarchy->execute([
+      $halfAddress . '%', LEVEL,
+      $halfAddress . '%', LEVEL
+      ], 'getLikeAddress');
   }
 
   /**

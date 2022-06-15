@@ -73,10 +73,11 @@ class Log
 
 		$message = sprintf("%s\n%s\n%s\n",
 			Msg::LOG_BAD->value,
-			$exception,
+      $exception,
 			http_build_query($params, '', ', ')
 		);
 
+    self::put($message);
 		self::$logger->error($message);
 	}
 

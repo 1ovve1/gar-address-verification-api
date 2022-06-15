@@ -18,7 +18,9 @@ class AsAddressObject extends ConcreteReader
 	public function execDoWork(QueryModel $model, array $value) : void
 	{
 		if ($value['isactive'] === "1" && $value['isactual'] === "1") {
-      if (empty($model->findFirst('objectid', $value['objectid']))) {
+      $region = (int)$this->fileFloder;
+
+      if (empty($this->getFirstObjectId($model, (int)$value['objectid'], $region))) {
         $model->forceInsert([
           (int)$value['id'],
           (int)$value['objectid'],
@@ -26,8 +28,21 @@ class AsAddressObject extends ConcreteReader
           (int)$value['level'],
           $value['name'],
           $value['typename'],
+          (int)$region,
         ]);
       }
 		}
 	}
+
+  private function getFirstObjectId(QueryModel $model, int $objectid, int $region) : array
+  {
+    static $name = self::class . 'getFirstObjectId';
+
+    if (!$model->nameExist($name)) {
+      $model->select(['objectid'])->where('region', '=', $region)
+        ->andWhere('objectid', '=', $objectid)->limit(1)->name($name);
+    }
+
+    return $model->execute([$region, $objectid], $name);
+  }
 }

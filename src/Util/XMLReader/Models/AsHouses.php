@@ -22,7 +22,9 @@ class AsHouses extends ConcreteReader
 	protected function execDoWork(QueryModel $model, array $value) : void
 	{
 		if ($value['isactive'] === "1" && $value['isactual'] === "1") {
-      if (empty($model->findFirst('objectid', $value['objectid']))) {
+      $region = (int)$this->fileFloder;
+
+      if (empty($this->getFirstObjectId($model, (int)$value['objectid'], $region))) {
         $model->forceInsert([
           (int)$value['id'],
           (int)$value['objectid'],
@@ -33,8 +35,21 @@ class AsHouses extends ConcreteReader
           $value['housetype'],
           $value['addtype1'],
           $value['addtype2'],
+          $region
         ]);
       }
     }
 	}
+
+  private function getFirstObjectId(QueryModel $model, int $objectid, int $region) : array
+  {
+    static $name = self::class . 'getFirstObjectId';
+
+    if (!$model->nameExist($name)) {
+      $model->select(['id'])->where('region', '=', $region)
+        ->andWhere('objectid', '=', $objectid)->limit(1)->name($name);
+    }
+
+    return $model->execute([$region, $objectid], $name);
+  }
 }

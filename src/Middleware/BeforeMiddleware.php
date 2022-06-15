@@ -8,7 +8,7 @@ use Slim\Psr7\Response;
 
 class BeforeMiddleware {
 	function __invoke(Request $request, RequestHandler $handler) : Response
-	{
+  {
 		$params = $request->getQueryParams();
 		foreach ($params as $value) {
 			if (!preg_match('/^[A-ЯЁа-яё\,\-. \d]*$/', $value)) {

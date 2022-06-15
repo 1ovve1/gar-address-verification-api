@@ -3,6 +3,7 @@
 namespace GAR\Database\DBAdapter;
 
 use PDOStatement;
+use SebastianBergmann\Type\RuntimeException;
 
 /**
  * Lazy Insert Template object Using PDO
@@ -25,9 +26,9 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
    */
   private readonly DBAdapter $db;
   /**
-   * @var QueryTemplate - prepared insert statement
+   * @var array<QueryTemplate> $states - prepared insert statements
    */
-  private QueryTemplate $state;
+  private array $states = [];
   /**
    * @var string $template - default string template (by default stages count)
    */
@@ -115,23 +116,16 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
    */
   function save(): self
   {
-    static $customTemplateUse = false;
     if (!empty($this->getStageBuffer())) {
-      if ($this->getCurrStage() < $this->getStagesCount()) {
+      $tryGetState = $this->getState($this->getCurrStage());
+      if ($tryGetState === false) {
 
         $this->genTemplate($this->getCurrStage());
         $this->setState($this->getTemplate());
-        $customTemplateUse = true;
-
-      } else if ($customTemplateUse) {
-
-        $this->genTemplate($this->getStagesCount());
-        $this->setState($this->getTemplate());
-        $customTemplateUse = false;
-
+        $tryGetState = $this->getState($this->getCurrStage());
       }
 
-      $this->getState()->exec($this->getStageBuffer());
+      $tryGetState->exec($this->getStageBuffer());
 
       $this->setStageBuffer(null);
       $this->incCurrStage(null);
@@ -141,12 +135,17 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
 
 
   /**
-   * Return curr exempl
-   * @return QueryTemplate
+   * Return state by stageIndex
+   * @param int $stageIndex
+   * @return QueryTemplate|bool
    */
-  public function getState(): QueryTemplate
+  public function getState(int $stageIndex): QueryTemplate|bool
   {
-    return $this->state;
+    if (!array_key_exists($stageIndex, $this->states)) {
+      trigger_error("not found index '{$stageIndex}' in stages: return false", E_USER_WARNING);
+      return false;
+    }
+    return $this->states[$stageIndex];
   }
 
   /**
@@ -155,7 +154,7 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
    */
   private function setState(string $template): void
   {
-    $this->state = $this->db->prepare($template)->getTemplate();
+    $this->states[$this->getCurrStage()] = $this->db->prepare($template)->getTemplate();
   }
 
   /**

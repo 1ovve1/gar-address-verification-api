@@ -13,7 +13,7 @@ use GAR\Util\XMLReader\Readers\AbstractReaders\{AbstractXMLReader,
   OpenXMLFromZip,
   SchedulerObject};
 
-define('ZIP_PATH', __DIR__ . '/../../../../resources/archive/' . $_SERVER['GAR_ZIP_NAME']);
+define('DEFAULT_ZIP_PATH', __DIR__ . '/../../../../resources/archive/' . $_SERVER['GAR_ZIP_NAME']);
 define('CACHE_PATH', __DIR__ . '/../../../../cache');
 
 abstract class ConcreteReader
@@ -37,7 +37,13 @@ abstract class ConcreteReader
 	 */
 	function __construct(string $fileName = '')	
 	{
-		parent::__construct(ZIP_PATH, $fileName, CACHE_PATH);
+    $pathToZip = '';
+    if (file_exists($_SERVER['GAR_ZIP_NAME'])) {
+      $pathToZip = $_SERVER['GAR_ZIP_NAME'];
+    } else if (file_exists(DEFAULT_ZIP_PATH)) {
+      $pathToZip = DEFAULT_ZIP_PATH;
+    }
+		parent::__construct($pathToZip, $fileName, CACHE_PATH);
 
     // task reporting
 		Log::addTask(1);

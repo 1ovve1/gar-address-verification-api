@@ -67,6 +67,7 @@ class SQLBuilder
     $this->metaTable = $metaTable;
 
     if (!is_null($metaTable)) {
+
       $this->insTemple = $this->getDb()
         ->getInsertTemplate(
           $metaTable->getTableName(),

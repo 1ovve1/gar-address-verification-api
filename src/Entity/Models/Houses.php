@@ -17,13 +17,13 @@ class Houses extends ConcreteTable implements QueryModel
 	{
 		return [
 			'id' =>
-        'BIGINT UNSIGNED NOT NULL',
+        'INT UNSIGNED NOT NULL',
 
 			'objectid' =>
         'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
 
 			'objectguid' =>
-        'CHAR(50) NOT NULL',
+        'VARCHAR(36) NOT NULL',
 
 			'housenum' =>
 				'VARCHAR(50)',
@@ -42,6 +42,9 @@ class Houses extends ConcreteTable implements QueryModel
 
       'id_addtype2' =>
         'TINYINT UNSIGNED',
+
+      'region' =>
+        'TINYINT UNSIGNED NOT NULL',
 
       'FOREIGN KEY (id_housetype)' =>
         'REFERENCES housetype (id)',

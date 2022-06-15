@@ -16,22 +16,25 @@ class AddrObj extends ConcreteTable implements QueryModel
 	{
 		return [
 			'id' =>
-				'BIGINT UNSIGNED NOT NULL',
-		
+				'INT UNSIGNED NOT NULL',
+
 			'objectid' =>
 				'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
 		
 			'objectguid' =>
-				'CHAR(50) NOT NULL',
+				'CHAR(36) NOT NULL',
     
       'id_level' =>
         'TINYINT UNSIGNED NOT NULL',
-		
+
 			'name' =>
-				'VARCHAR(100) NOT NULL',
+				'VARCHAR(255) NOT NULL',
 		
 			'typename' =>
-				'VARCHAR(100) NOT NULL',
+				'VARCHAR(31) NOT NULL',
+
+      'region' =>
+        'TINYINT UNSIGNED NOT NULL',
     
       'FOREIGN KEY (id_level)' =>
         'REFERENCES obj_levels (id)',

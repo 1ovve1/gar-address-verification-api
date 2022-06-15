@@ -21,7 +21,6 @@ class AddressNameMiddleware {
 		foreach ($formattedAddress as $key => $value) {
 			$formattedAddress[$key] = trim($value);
 		}
-
 		if (count($formattedAddress) > 1 && empty($formattedAddress[0])) {
 			return $this->errorResponse("parent address shouldn't be empty", 411);
 		}
