@@ -39,14 +39,14 @@ class AddressController
     return $response;
   }
 
-  public function getCodeByType(Request $request, Response $response, array $args) : Response
+  public function getCodeByType(Request $request, Response $response, array $args ) : Response
   {
     $params = $request->getQueryParams();
 
     if (is_null($params['objectid'])) {
       $likeAddress = $this->addressByNameRepo->getFullAddress($params['address']);
 
-      foreach ($likeAddress as $key => $value) {
+      foreach (array_reverse($likeAddress) as $key => $value) {
         if (
           count($value) === 1 && 
           !key_exists('houses', $value) &&

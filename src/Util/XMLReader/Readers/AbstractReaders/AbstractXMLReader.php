@@ -71,7 +71,6 @@ abstract class AbstractXMLReader implements Iterator
 	{
 		if (!is_null($this->pathToXml) && file_exists($this->pathToXml)) {
 			unlink($this->pathToXml);
-			rmdir($this->cachePath);
 		}
 	}
 

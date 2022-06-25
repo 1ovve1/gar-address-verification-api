@@ -142,7 +142,7 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
   public function getState(int $stageIndex): QueryTemplate|bool
   {
     if (!array_key_exists($stageIndex, $this->states)) {
-      trigger_error("not found index '{$stageIndex}' in stages: return false", E_USER_WARNING);
+//      trigger_error("not found index '{$stageIndex}' in stages: return false", E_USER_WARNING);
       return false;
     }
     return $this->states[$stageIndex];

@@ -28,7 +28,11 @@ class Log
      */
 	public static function write(string $message, ?string ...$params) : void
 	{
-		if ($_ENV['SWOOLE_ENABLE'] === 'true') {
+
+    if ($_ENV['SWOOLE_ENABLE'] === 'true' &&
+        !(key_exists('argv', $_SERVER) &&
+        count($_SERVER['argv']) >= 2 &&
+        in_array($_SERVER['argv'][1], ['-l', '--log']))) {
 			return;
 		}
 		if (is_null(self::$logger)) {
@@ -59,7 +63,10 @@ class Log
    */
 	public static function error(Throwable $exception, array $params = []) : void
 	{
-		if ($_ENV['SWOOLE_ENABLE'] === 'true') {
+		if ($_ENV['SWOOLE_ENABLE'] === 'true' &&
+        !(key_exists('argv', $_SERVER) &&
+        count($_SERVER['argv']) >= 2 &&
+        in_array($_SERVER['argv'][1], ['-l', '--log']))) {
 			return;
 		}
 
@@ -104,8 +111,7 @@ class Log
 	private static function put(string $message) : void 
 	{
 
-		self::$logger->info(PHP_EOL . $message);
-
+		self::$logger->notice(PHP_EOL . $message);
 		if (key_exists('argv', $_SERVER) &&
 			count($_SERVER['argv']) >= 2 &&
 			in_array($_SERVER['argv'][1], ['-l', '--log'])) {
