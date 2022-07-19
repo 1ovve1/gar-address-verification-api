@@ -87,7 +87,9 @@ abstract class AbstractXMLReader implements Iterator
 		if (is_null($this->pathToXml)) {
       // extracting xml from zip
 			$this->pathToXml = $this->extractFileFromZip($this->pathToZip, $this->fileName, $this->cachePath);
-
+			if (is_null($this->pathToXml)) {
+				return;
+			}
       // getting some paths
 			$dropPath = explode('/', $this->pathToXml);
 			$this->fileName = array_pop($dropPath);
@@ -113,11 +115,11 @@ abstract class AbstractXMLReader implements Iterator
 	 * @param  string $pathToZip - path to zip archive
 	 * @param  string $fileName  - name of file or path in zip
 	 * @param  string $cachePath - path to temp floder
-	 * @return string             return full path to extract file
+	 * @return string|null         return full path to extract file
 	 */
 	public abstract function extractFileFromZip(string $pathToZip, 
 												string $fileName, 
-												string $cachePath) : string;
+												string $cachePath) : null|string;
 
     /**
      *  Method for open xml files from the path param

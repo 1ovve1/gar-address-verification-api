@@ -16,5 +16,6 @@ if (file_exists(__DIR__ . '/.env')) {
 
 $uplodaer = new DatabaseUploader(new \GAR\Entity\EntityFactory());
 
+$time = microtime(true);
 $uplodaer->upload(new \GAR\Util\XMLReader\XMLReaderFactory());
-
+echo PHP_EOL . 'Execution time: ' . microtime(true) - $time . ' s.' . PHP_EOL;
