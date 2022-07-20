@@ -13,14 +13,13 @@ trait OpenXMLFromZip
    *  Extracting concrete file from zip archive into temp floder
    *
    * @param string $pathToZip - path to zip archive
-   * @param string $fileName - name of file or name like /[A-Za-z_-\/]+[0-9]/
+   * @param string $fileName 	-	name of file or name like /[A-Za-z_-\/]+[0-9]/
    * @param string $cachePath - path to temp floder
-   * @return string             return absolute path to extract file
-   * @throws Exception
+   * @return string|null       return absolute path to extract file
    */
 	public function extractFileFromZip(string $pathToZip,
                                      string $fileName,
-                                     string $cachePath) : string
+                                     string $cachePath) : null|string
 	{
 		$zip = new ZipArchive;
 
@@ -40,11 +39,13 @@ trait OpenXMLFromZip
 					break;
 				}
 			}
-			$zip->extractTo($cachePath, $fileName);
+			$tryExtract = $zip->extractTo($cachePath, $fileName);
 			$zip->close();
-		} else {
-			throw new Exception(__DIR__ . PHP_EOL . 'invalid operation: open xml file ' .
-							$fileName . ' from ' . $pathToZip);
+
+			if (!$tryExtract) {
+				trigger_error("File {$fileName} not found");
+				return null;
+			}
 		}
 
 		return $cachePath . '/' . $fileName;
@@ -52,11 +53,15 @@ trait OpenXMLFromZip
 
 	/**
 	 *  Method for open xml files from the path param
-	 * @param  string $pathToXml  path to the concrete xml file
-	 * @return XMLReader|null    XMLReader object or false
+	 * @param  string|null 			$pathToXml  path to the concrete xml file
+	 * @return XMLReader|bool   XMLReader object or false
 	 */
 	public function openXML(string $pathToXml) : XMLReader|bool
 	{
-    return XMLReader::open($pathToXml);
+		if (is_null($pathToXml)) {
+			return false;
+		} else {
+    	return XMLReader::open($pathToXml);
+		}
 	}
 }

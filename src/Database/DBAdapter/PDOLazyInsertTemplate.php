@@ -29,10 +29,6 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
    * @var array<QueryTemplate> $states - prepared insert statements
    */
   private array $states = [];
-  /**
-   * @var string $template - default string template (by default stages count)
-   */
-  private string $template;
 
   /**
    * @param DBAdapter $db - database connection
@@ -46,49 +42,46 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
                               int $stagesCount = 1)
   {
     $this->db = $db;
-    $this->isValid($tableName, $fields, $stagesCount);
 
     parent::__construct($tableName, $fields, $stagesCount);
   }
 
   /**
-   * Generate template using $stageCount and create new statement
+   * Generate template using current cursor value 
+   * and create new statement
    * 
-   * @param int $stageCount - count of stages vars
-   * @return void
+   * @return string - template
    */
-  public function genTemplate(int $stageCount) : void
+  public function genNewTemplate() : string
   {
-    $this->template = sprintf(
+    $template = sprintf(
       'INSERT INTO %s (%s) VALUES %s',
       $this->getTableName(),
-      implode(', ', $this->getFields()),
-      $this->genVars($stageCount),
+      implode(', ', $this->getTableFields()),
+      $this->genVarsFromCurrentGroupNumber(),
     );
 
-    $this->setState($this->template);
+    return $template;
   }
 
   /**
    * Generate vars for prepared statement (in PDO: '?')
-   * Return example: (?, ..., ?) ... (?, ... , ?) multiple by $stageCount times
+   * Return example: (?, ..., ?) ... (?, ... , ?)
    * 
    * @return string - string of vars
    */
-  public function genVars(int $stageCount) : string
+  public function genVarsFromCurrentGroupNumber() : string
   {
-    $vars = [];
+    $vars = sprintf(
+      "(%s),",
+      substr(str_repeat("?, ", $this->getTableFieldsCount()), 0, -2)
+    );
 
-    for ($stage = $stageCount; $stage > 0; $stage--) {
-      $temp = [];
-      foreach ($this->getFields() as $ignored) {
-        $temp[] = '? ';
-      }
-      $vars[] = '(' . implode(', ', $temp) . ')';
-    }
+    $groupedVars = str_repeat($vars, $this->getCurrentNumberOfGroups());
 
-    return implode(', ', $vars);
+    return substr($groupedVars, 0, -1);
   }
+
 
   /**
    * Update buffer (or execute query if buffer full) by $values 
@@ -98,13 +91,10 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
    */
   function exec(array $values) : array
   {
-    if (count($this->getFields()) === count($values)) {
-      $this->setStageBuffer($values);
-      $this->incCurrStage();
+    $this->setStageBuffer($values);
 
-      if ($this->getCurrStage() === $this->getStagesCount()) {
-        $this->save();
-      }
+    if ($this->isBufferFull()) {
+      $this->save();
     }
     return [];
   }
@@ -116,53 +106,61 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
    */
   function save(): self
   {
-    if (!empty($this->getStageBuffer())) {
-      $tryGetState = $this->getState($this->getCurrStage());
+    if ($this->isBufferNotEmpty()) {
+      $tryGetState = $this->getState();
+
       if ($tryGetState === false) {
+        $tryGetState = $this->createNewStateWithCurrentGroupNumber();
+      } 
 
-        $this->genTemplate($this->getCurrStage());
-        $this->setState($this->getTemplate());
-        $tryGetState = $this->getState($this->getCurrStage());
+      if ($this->isBufferFull()) {
+        $tryGetState->exec($this->getBuffer());
+      } else {
+        $tryGetState->exec($this->getBufferSlice());  
       }
+      
 
-      $tryGetState->exec($this->getStageBuffer());
-
-      $this->setStageBuffer(null);
-      $this->incCurrStage(null);
+      $this->resetBufferCursor();
     }
     return $this;
   }
 
 
   /**
-   * Return state by stageIndex
-   * @param int $stageIndex
+   * Return state using cursor value
    * @return QueryTemplate|bool
    */
-  public function getState(int $stageIndex): QueryTemplate|bool
+  public function getState(): QueryTemplate|bool
   {
-    if (!array_key_exists($stageIndex, $this->states)) {
+    $currentGroupNumber = $this->getCurrentNumberOfGroups();
+    if (!array_key_exists($currentGroupNumber, $this->states)) {
+      //todo rewrite this warning using logger facade
 //      trigger_error("not found index '{$stageIndex}' in stages: return false", E_USER_WARNING);
       return false;
     }
-    return $this->states[$stageIndex];
+    return $this->states[$currentGroupNumber];
   }
 
   /**
-   * @param string $template
+   * @return QueryTemplate
+   */
+  function createNewStateWithCurrentGroupNumber(): QueryTemplate
+  {
+    $newTemplate = $this->genNewTemplate();
+    $this->setState($newTemplate);
+    
+    return $this->getState();
+  }
+
+  /**
+   * @param string $newTemplate
    * @return void
    */
-  private function setState(string $template): void
+  private function setState(string $newTemplate): void
   {
-    $this->states[$this->getCurrStage()] = $this->db->prepare($template)->getTemplate();
-  }
-
-  /**
-   * @return string
-   */
-  public function getTemplate(): string
-  {
-    return $this->template;
+    $this->states[$this->getCurrentNumberOfGroups()] = $this->db
+      ->prepare($newTemplate)
+      ->getTemplate();
   }
 
 }
