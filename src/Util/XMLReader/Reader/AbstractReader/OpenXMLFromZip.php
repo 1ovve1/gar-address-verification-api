@@ -23,7 +23,7 @@ trait OpenXMLFromZip
 	{
 		$zip = new ZipArchive;
 
-		if ($zip->open($pathToZip) === TRUE) {
+		if ($zip->open($pathToZip)) {
 
 			for ($iter = 0; $iter < $zip->numFiles; ++$iter)
 			{

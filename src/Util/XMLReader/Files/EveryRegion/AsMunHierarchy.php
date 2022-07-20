@@ -1,41 +1,49 @@
 <?php declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Files;
+namespace GAR\Util\XMLReader\Files\EveryRegion;
 
 use GAR\Database\Table\SQL\QueryModel;
+use GAR\Entity\EntityFactory;
+use GAR\Util\XMLReader\Files\XMLFile;
 use GAR\Util\XMLReader\Reader\ConcreteReader;
 
 class AsMunHierarchy extends XMLFile
 {
-	static function getElements() : array {
-		return ['ITEM'];
+  static function getQueryModel(): QueryModel
+  {
+    return EntityFactory::getMunTable();
+  }
+
+	static function getElement() : string {
+		return 'ITEM';
 	}
 
 	static function getAttributes() : array {
 		return ['OBJECTID', 'PARENTOBJID'];
 	}
 
-	function execDoWork(QueryModel $model, array $values) : void
+	function execDoWork(array $values) : void
 	{
-    $region = (int) $this->fileFloder;
+    $region = $this->getIntRegion();
+    $model = static::getQueryModel();
 
     $formatted = [
-      'objectid' => (int)$values['objectid'],
-      'parentobjid' => (int)$values['parentobjid']
+      'OBJECTID' => (int)$values['OBJECTID'],
+      'PARENTOBJID' => (int)$values['PARENTOBJID']
     ];
 
-    if (!empty($this->getIdAddrObj($model, $formatted['parentobjid'], $region))) {
-      if (!empty($this->getIdAddrObj($model, $formatted['objectid'], $region))) {
+    if (!empty($this->getIdAddrObj($model, $formatted['PARENTOBJID'], $region))) {
+      if (!empty($this->getIdAddrObj($model, $formatted['OBJECTID'], $region))) {
         $model->forceInsert([
-          $formatted['parentobjid'],
-          $formatted['objectid'],
+          $formatted['PARENTOBJID'],
+          $formatted['OBJECTID'],
           null,
         ]);
-      } else if (!empty($this->getIdHouses($model, $formatted['objectid'], $region))) {
+      } else if (!empty($this->getIdHouses($model, $formatted['OBJECTID'], $region))) {
         $model->forceInsert([
-          $formatted['parentobjid'],
+          $formatted['PARENTOBJID'],
           null,
-          (int)$values['objectid'],
+          (int)$values['OBJECTID'],
         ]);
       }
     }

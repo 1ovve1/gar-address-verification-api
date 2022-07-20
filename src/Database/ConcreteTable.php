@@ -4,6 +4,7 @@ namespace GAR\Database;
 
 use GAR\Database\DBAdapter\DBAdapter;
 use GAR\Database\Table\MetaTable;
+use GAR\Database\Table\SQL\QueryModel;
 use GAR\Database\Table\SQLBuilder;
 use GAR\Logger\Log;
 use GAR\Logger\Msg;
@@ -40,12 +41,12 @@ abstract class ConcreteTable extends SQLBuilder
 
   /**
    * Return singleton instance of static object
-   * 
-   * @param  DBAdapter $db - database connection
-   * @param  bool $createMetaTable - create table model option
-   * @return static
+   *
+   * @param DBAdapter $db - database connection
+   * @param bool $createMetaTable - create table model option
+   * @return QueryModel
    */
-  public static function getInstance(DBAdapter $db, bool $createMetaTable = true) : static
+  public static function getInstance(DBAdapter $db, bool $createMetaTable = true) : QueryModel
   {
     static $instance = null;
     if (is_null($instance)) {

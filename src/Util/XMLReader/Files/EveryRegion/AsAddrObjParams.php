@@ -1,43 +1,51 @@
 <?php declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Files;
+namespace GAR\Util\XMLReader\Files\EveryRegion;
 
+use GAR\Entity\EntityFactory;
 use GAR\Database\Table\SQL\QueryModel;
-use GAR\Util\XMLReader\Reader\ConcreteReader;
+use GAR\Util\XMLReader\Files\XMLFile;
 
-class AsAddressObjectParams extends XMLFile
+class AsAddrObjParams extends XMLFile
 {
-	static function getElements() : array {
-		return ['PARAM'];
+  static function getQueryModel(): QueryModel
+  {
+    return EntityFactory::getAddressObjectParamsTable();
+  }
+
+	static function getElement() : string {
+		return 'PARAM';
 	}
 
 	static function getAttributes() : array {
 		return ['OBJECTID', 'TYPEID', 'VALUE'];
 	}
 
-	function execDoWork(QueryModel $model, array $values) : void
+	function execDoWork(array $values) : void
 	{
-    $region = (int)$this->fileFloder;
+    $region = $this->getIntRegion();
+    $model = static::getQueryModel();
+
     $formatted = [
-      'objectid_addr' => (int)$values['objectid'],
+      'OBJECTID_ADDR' => (int)$values['OBJECTID'],
     ];
 
-    if (!empty($this->getFirstObjectIdAddrObj($model, $formatted['objectid_addr'], $region))) {
-      if (in_array($values['typeid'], ['6', '7', '10'])) {
+    if (!empty($this->getFirstObjectIdAddrObj($model, $formatted['OBJECTID_ADDR'], $region))) {
+      if (in_array($values['TYPEID'], ['6', '7', '10'])) {
         $type = '';
 
-        switch ($values['typeid']) {
+        switch ($values['TYPEID']) {
           case '6':
-            $formatted['type'] = 'OKATO';
-            $formatted['value'] = $values['value'];
+            $formatted['TYPE'] = 'OKATO';
+            $formatted['VALUE'] = $values['VALUE'];
             break;
           case '7':
-            $formatted['type'] = 'OKTMO';
-            $formatted['value'] = $values['value'];
+            $formatted['TYPE'] = 'OKTMO';
+            $formatted['VALUE'] = $values['VALUE'];
             break;
           case '10':
-            $formatted['type'] = 'KLADR';
-            $formatted['value'] = $values['value'];
+            $formatted['TYPE'] = 'KLADR';
+            $formatted['VALUE'] = $values['VALUE'];
             break;
         }
 

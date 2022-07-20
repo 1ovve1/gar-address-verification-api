@@ -1,19 +1,25 @@
 <?php
 
-namespace GAR\Util\XMLReader\Files;
+namespace GAR\Util\XMLReader\Files\Single;
 
 use GAR\Database\Table\SQL\QueryModel;
-use GAR\Util\XMLReader\Reader\ConcreteReader;
+use GAR\Entity\EntityFactory;
+use GAR\Util\XMLReader\Files\XMLFile;
 
 class AsObjectLevels extends XMLFile
 {
+  static function getQueryModel(): QueryModel
+  {
+    return EntityFactory::getObjectLevels();
+  }
+
   /**
    * return elements of xml document
-   * @return array elements names
+   * @return string elements names
    */
-  static function getElements(): array
+  static function getElement(): string
   {
-    return ['OBJECTLEVEL'];
+    return 'OBJECTLEVEL';
   }
 
   /**
@@ -27,16 +33,15 @@ class AsObjectLevels extends XMLFile
 
   /**
    * procedure that contains main operations from exec method
-   * @param QueryModel $model table model
    * @param array $values current parse element
    * @return void
    */
-  function execDoWork(QueryModel $model, array $values): void
+  function execDoWork(array $values): void
   {
-    if ($values['isactive'] == 'true') {
-      $model->forceInsert([
-        (int)$values['level'],
-        $values['name']
+    if ($values['ISACTIVE'] == 'true') {
+      static::getQueryModel()->forceInsert([
+        (int)$values['LEVEL'],
+        $values['NAME']
       ]);
     }
   }

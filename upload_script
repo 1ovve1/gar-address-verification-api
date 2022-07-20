@@ -14,11 +14,10 @@ if (file_exists(__DIR__ . '/.env')) {
   $dotenv->load();
 }
 
-$uplodaer = new DatabaseUploader(new \GAR\Entity\EntityFactory());
+Log::write('hello world');
 
 $time = microtime(true);
-$uplodaer->upload(new \GAR\Util\XMLReader\FilesFactory());
-
+(new \GAR\Util\XMLReader\XMLReaderClient())->run();
 
 function convert($size)
 {
