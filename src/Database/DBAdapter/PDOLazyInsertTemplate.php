@@ -98,13 +98,11 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
    */
   function exec(array $values) : array
   {
-    if (count($this->getFields()) === count($values)) {
-      $this->setStageBuffer($values);
-      $this->incCurrStage();
+    $this->setStageBuffer($values);
+    $this->incCurrStage();
 
-      if ($this->getCurrStage() === $this->getStagesCount()) {
-        $this->save();
-      }
+    if ($this->getCurrStage() === $this->getStagesCount()) {
+      $this->save();
     }
     return [];
   }
@@ -116,16 +114,22 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
    */
   function save(): self
   {
-    if (!empty($this->getStageBuffer())) {
+    if ($this->getCurrStage()) {
       $tryGetState = $this->getState($this->getCurrStage());
       if ($tryGetState === false) {
 
         $this->genTemplate($this->getCurrStage());
         $this->setState($this->getTemplate());
         $tryGetState = $this->getState($this->getCurrStage());
-      }
+        
+      } 
 
-      $tryGetState->exec($this->getStageBuffer());
+      if ($this->getCurrStage() !== $this->getStagesCount()) {
+        $tryGetState->exec($this->getStageBufferLimited());  
+      } else {
+        $tryGetState->exec($this->getStageBuffer());
+      }
+      
 
       $this->setStageBuffer(null);
       $this->incCurrStage(null);

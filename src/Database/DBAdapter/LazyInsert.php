@@ -28,9 +28,13 @@ abstract class LazyInsert
    */
   private int $currStage = 0;
   /**
-   * @var array<DatabaseContract> $stageBuffer - buffer of stage values
+   * @var int $stageBufferCursor - cursor of the stage buffer index
    */
-  private array $stageBuffer = [];
+  private int $stageBufferCursor = 0;
+  /**
+   * @var SplFixedArray $stageBuffer - buffer of stage values
+   */
+  private \SplFixedArray $stageBuffer;
 
   /**
    * @param string $tableName - name of table
@@ -42,6 +46,7 @@ abstract class LazyInsert
     $this->tableName = $tableName;
     $this->fields = $fields;
     $this->stagesCount = $stagesCount;
+    $this->stageBuffer = new \SplFixedArray($stagesCount * count($fields));
   }
 
 
@@ -122,25 +127,36 @@ abstract class LazyInsert
 
   /**
    * Return curr stage buffer
-   * @return array<DatabaseContract>
+   * @return array
    */
   public function getStageBuffer(): array
   {
-    return $this->stageBuffer;
+    return $this->stageBuffer->toArray();
+  }
+
+  public function getStageBufferLimited(): array 
+  {
+    $array = [];
+    for($i = 0; $i < $this->stageBufferCursor; ++$i) {
+      array_push($array, $this->stageBuffer[$i]);
+    }
+
+    return $array;
   }
 
   /**
-   * Set stage buffer by $stageBuffer or reset it by $stageBuffer = null
-   * @param array<DatabaseContract>|null $stageBuffer - values that need add in $stageBuffer 
+   * Set stage buffer by $insertValues or reset it by $insertValues = null
+   * @param array<DatabaseContract>|null $insertValues - values that need add in $stageBuffer 
    */
-  public function setStageBuffer(?array $stageBuffer): void
+  public function setStageBuffer(?array $insertValues): void
   {
-    if (is_null($stageBuffer)) {
-      $this->stageBuffer = [];
+    if (is_null($insertValues)) {
+      $this->stageBufferCursor = 0;
     } else {
-      $this->stageBuffer = array_merge(
-        $this->stageBuffer, array_values($stageBuffer)
-      );
+      foreach ($insertValues as $value) {
+        $this->stageBuffer[$this->stageBufferCursor] = $value;
+        $this->stageBufferCursor++;
+      }
     }
   }
 }
