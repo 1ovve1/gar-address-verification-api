@@ -1,33 +1,33 @@
 <?php declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Models;
+namespace GAR\Util\XMLReader\Files;
 
 use GAR\Database\Table\SQL\QueryModel;
-use GAR\Util\XMLReader\Readers\ConcreteReader;
+use GAR\Util\XMLReader\Reader\ConcreteReader;
 
-class AsAddressObject extends ConcreteReader
+class AsAddressObject extends XMLFile
 {
-	public static function getElements() : array {
+	static function getElements() : array {
 		return ['OBJECT'];
 	}
 
-	public static function getAttributes() : array {
+	static function getAttributes() : array {
 		return ['ID', 'OBJECTID', 'OBJECTGUID', 'NAME', 'TYPENAME', 'LEVEL', 'ISACTUAL', 'ISACTIVE'];
 	}
 
-	public function execDoWork(QueryModel $model, array $value) : void
+	function execDoWork(QueryModel $model, array $values) : void
 	{
-		if ($value['isactive'] === "1" && $value['isactual'] === "1") {
+		if ($values['isactive'] === "1" && $values['isactual'] === "1") {
       $region = (int)$this->fileFloder;
 
-      if (empty($this->getFirstObjectId($model, (int)$value['objectid'], $region))) {
+      if (empty($this->getFirstObjectId($model, (int)$values['objectid'], $region))) {
         $model->forceInsert([
-          (int)$value['id'],
-          (int)$value['objectid'],
-          $value['objectguid'],
-          (int)$value['level'],
-          $value['name'],
-          $value['typename'],
+          (int)$values['id'],
+          (int)$values['objectid'],
+          $values['objectguid'],
+          (int)$values['level'],
+          $values['name'],
+          $values['typename'],
           (int)$region,
         ]);
       }

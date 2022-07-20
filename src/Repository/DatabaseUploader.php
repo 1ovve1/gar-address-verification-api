@@ -3,7 +3,7 @@
 namespace GAR\Repository;
 
 use GAR\Entity\EntityFactory;
-use GAR\Util\XMLReader\XMLReaderFactory;
+use GAR\Util\XMLReader\FilesFactory;
 
 class DatabaseUploader
 {
@@ -31,10 +31,10 @@ class DatabaseUploader
   /**
    * Upload databse using GAR files using $readerFactory
    * 
-   * @param  XMLReaderFactory $readerFactory - reader factory
+   * @param  FilesFactory $readerFactory - reader factory
    * @return void
    */
-  public function upload(XMLReaderFactory $readerFactory) : void {
+  public function upload(FilesFactory $readerFactory) : void {
     $readerGroup = [
       'level_obj' => $readerFactory::execObjectLevels(),
       'housetype' => $readerFactory::execHousetype(),

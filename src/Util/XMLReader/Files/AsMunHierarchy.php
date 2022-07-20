@@ -1,27 +1,27 @@
 <?php declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Models;
+namespace GAR\Util\XMLReader\Files;
 
 use GAR\Database\Table\SQL\QueryModel;
-use GAR\Util\XMLReader\Readers\ConcreteReader;
+use GAR\Util\XMLReader\Reader\ConcreteReader;
 
-class AsMunHierarchy extends ConcreteReader
+class AsMunHierarchy extends XMLFile
 {
-	public static function getElements() : array {
+	static function getElements() : array {
 		return ['ITEM'];
 	}
 
-	public static function getAttributes() : array {
+	static function getAttributes() : array {
 		return ['OBJECTID', 'PARENTOBJID'];
 	}
 
-	public function execDoWork(QueryModel $model, array $value) : void
+	function execDoWork(QueryModel $model, array $values) : void
 	{
     $region = (int) $this->fileFloder;
 
     $formatted = [
-      'objectid' => (int)$value['objectid'],
-      'parentobjid' => (int)$value['parentobjid']
+      'objectid' => (int)$values['objectid'],
+      'parentobjid' => (int)$values['parentobjid']
     ];
 
     if (!empty($this->getIdAddrObj($model, $formatted['parentobjid'], $region))) {
@@ -35,7 +35,7 @@ class AsMunHierarchy extends ConcreteReader
         $model->forceInsert([
           $formatted['parentobjid'],
           null,
-          (int)$value['objectid'],
+          (int)$values['objectid'],
         ]);
       }
     }

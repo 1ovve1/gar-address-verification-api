@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Models;
+namespace GAR\Util\XMLReader\Files;
 
 use GAR\Database\Table\SQL\QueryModel;
-use GAR\Util\XMLReader\Readers\ConcreteReader;
+use GAR\Util\XMLReader\Reader\ConcreteReader;
 
-class AsHouses extends ConcreteReader 
+class AsHouses extends XMLFile
 {
 	public static function getElements() : array {
 		return ['HOUSE'];
@@ -19,22 +19,22 @@ class AsHouses extends ConcreteReader
     ];
 	}
 
-	protected function execDoWork(QueryModel $model, array $value) : void
+	function execDoWork(QueryModel $model, array $values) : void
 	{
-		if ($value['isactive'] === "1" && $value['isactual'] === "1") {
+		if ($values['isactive'] === "1" && $values['isactual'] === "1") {
       $region = (int)$this->fileFloder;
 
-      if (empty($this->getFirstObjectId($model, (int)$value['objectid'], $region))) {
+      if (empty($this->getFirstObjectId($model, (int)$values['objectid'], $region))) {
         $model->forceInsert([
-          (int)$value['id'],
-          (int)$value['objectid'],
-          $value['objectguid'],
-          $value['housenum'],
-          $value['addnum1'],
-          $value['addnum2'],
-          $value['housetype'],
-          $value['addtype1'],
-          $value['addtype2'],
+          (int)$values['id'],
+          (int)$values['objectid'],
+          $values['objectguid'],
+          $values['housenum'],
+          $values['addnum1'],
+          $values['addnum2'],
+          $values['housetype'],
+          $values['addtype1'],
+          $values['addtype2'],
           $region
         ]);
       }

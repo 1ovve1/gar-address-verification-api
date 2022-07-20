@@ -1,11 +1,11 @@
 <?php
 
-namespace GAR\Util\XMLReader\Models;
+namespace GAR\Util\XMLReader\Files;
 
 use GAR\Database\Table\SQL\QueryModel;
-use GAR\Util\XMLReader\Readers\ConcreteReader;
+use GAR\Util\XMLReader\Reader\ConcreteReader;
 
-class AsAddhousetype extends ConcreteReader
+class AsAddhousetype extends XMLFile
 {
   /**
    * return elements of xml document
@@ -28,15 +28,15 @@ class AsAddhousetype extends ConcreteReader
   /**
    * procedure that contains main operations from exec method
    * @param QueryModel $model table model
-   * @param array $value current parse element
+   * @param array $values current parse element
    * @return void
    */
-  protected function execDoWork(QueryModel $model, array $value): void
+  function execDoWork(QueryModel $model, array $values): void
   {
     $model->forceInsert([
-      (int)$value['id'],
-      $value['shortname'],
-      $value['name'],
+      (int)$values['id'],
+      $values['shortname'],
+      $values['name'],
     ]);
   }
 

@@ -3,7 +3,7 @@
 namespace GAR\Util\XMLReader;
 
 
-use GAR\Util\XMLReader\Models\{AsAddhousetype,
+use GAR\Util\XMLReader\Files\{AsAddhousetype,
   AsAddressObject,
   AsAddressObjectParams,
   AsAdminHierarchy,
@@ -11,11 +11,11 @@ use GAR\Util\XMLReader\Models\{AsAddhousetype,
   AsHousetype,
   AsMunHierarchy,
   AsObjectLevels};
-use GAR\Util\XMLReader\Readers\ConcreteReader;
+use GAR\Util\XMLReader\Reader\ConcreteReader;
 
 
 
-class XMLReaderFactory
+class FilesFactory
 {
   const FILES = [
     'AS_HOUSES' => 'AS_HOUSES',

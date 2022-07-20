@@ -1,53 +1,51 @@
 <?php declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Readers;
+namespace GAR\Util\XMLReader\Reader;
 
 
 use Exception;
 use GAR\Database\Table\SQL\QueryModel;
 use GAR\Logger\Log;
 use GAR\Logger\Msg;
-use GAR\Util\XMLReader\Readers\AbstractReaders\{AbstractXMLReader,
-  CustomReader,
+use GAR\Util\XMLReader\Reader\AbstractReader\{AbstractXMLReader,
   IteratorXML,
   OpenXMLFromZip,
   SchedulerObject};
+use http\Exception\RuntimeException;
 
 define('DEFAULT_ZIP_PATH', __DIR__ . '/../../../../resources/archive/' . $_SERVER['GAR_ZIP_NAME']);
 define('CACHE_PATH', __DIR__ . '/../../../../cache');
 
-abstract class ConcreteReader
+class Reader
   extends
     AbstractXMLReader
   implements
-    CustomReader, SchedulerObject
+    SchedulerObject
 {
   use IteratorXML, OpenXMLFromZip;
-
-  /**
-   * Link to another reader-chain
-   *
-   * @var ConcreteReader|null
-   */
-	protected ?ConcreteReader $linkToAnother = null;
 
 	/**
 	 * simplify construct from abstract reader using Env.php
 	 * @param string $fileName name of concrete xml file
 	 */
-	function __construct(string $fileName = '')	
+	function __construct($pathToZip = '')
 	{
-    $pathToZip = '';
-    if (file_exists($_SERVER['GAR_ZIP_NAME'])) {
-      $pathToZip = $_SERVER['GAR_ZIP_NAME'];
-    } else if (file_exists(DEFAULT_ZIP_PATH)) {
-      $pathToZip = DEFAULT_ZIP_PATH;
+    if (empty($pathToZip)) {
+      if (file_exists($_SERVER['GAR_ZIP_NAME'])) {
+        $pathToZip = $_SERVER['GAR_ZIP_NAME'];
+      } else if (file_exists(DEFAULT_ZIP_PATH)) {
+        $pathToZip = DEFAULT_ZIP_PATH;
+      } else {
+        throw new \RuntimeException("Zip file not found " . $pathToZip);
+      }
     }
-		parent::__construct($pathToZip, $fileName, CACHE_PATH);
+		parent::__construct($pathToZip,CACHE_PATH);
 
     // task reporting
 		Log::addTask(1);
 	}
+
+  private function find
 
 	function __destruct()
 	{
@@ -76,14 +74,6 @@ abstract class ConcreteReader
 			$this->linkToAnother->exec($model);
 		}
 	}
-
-	/**
-	 * procedure that contains main operations from exec method
-	 * @param  QueryModel $model table model
-	 * @param  array         $value current parse element
-	 * @return void
-	 */
-	protected abstract function execDoWork(QueryModel $model, array $value) : void;
 
 	/**
 	 *  method from SchedulerObject

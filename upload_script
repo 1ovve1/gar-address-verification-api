@@ -17,5 +17,14 @@ if (file_exists(__DIR__ . '/.env')) {
 $uplodaer = new DatabaseUploader(new \GAR\Entity\EntityFactory());
 
 $time = microtime(true);
-$uplodaer->upload(new \GAR\Util\XMLReader\XMLReaderFactory());
-echo PHP_EOL . 'Execution time: ' . microtime(true) - $time . ' s.' . PHP_EOL;
+$uplodaer->upload(new \GAR\Util\XMLReader\FilesFactory());
+
+
+function convert($size)
+{
+  $unit=array('b','kb','mb','gb','tb','pb');
+  return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+}
+
+echo PHP_EOL . 'Time to execute: ' . microtime(true) - $time . PHP_EOL;
+echo PHP_EOL . 'Peak memory usage: ' . convert(memory_get_peak_usage(true)) . PHP_EOL;

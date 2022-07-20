@@ -1,43 +1,43 @@
 <?php declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Models;
+namespace GAR\Util\XMLReader\Files;
 
 use GAR\Database\Table\SQL\QueryModel;
-use GAR\Util\XMLReader\Readers\ConcreteReader;
+use GAR\Util\XMLReader\Reader\ConcreteReader;
 
-class AsAddressObjectParams extends ConcreteReader 
+class AsAddressObjectParams extends XMLFile
 {
-	public static function getElements() : array {
+	static function getElements() : array {
 		return ['PARAM'];
 	}
 
-	public static function getAttributes() : array {
+	static function getAttributes() : array {
 		return ['OBJECTID', 'TYPEID', 'VALUE'];
 	}
 
-	public function execDoWork(QueryModel $model, array $value) : void
+	function execDoWork(QueryModel $model, array $values) : void
 	{
     $region = (int)$this->fileFloder;
     $formatted = [
-      'objectid_addr' => (int)$value['objectid'],
+      'objectid_addr' => (int)$values['objectid'],
     ];
 
     if (!empty($this->getFirstObjectIdAddrObj($model, $formatted['objectid_addr'], $region))) {
-      if (in_array($value['typeid'], ['6', '7', '10'])) {
+      if (in_array($values['typeid'], ['6', '7', '10'])) {
         $type = '';
 
-        switch ($value['typeid']) {
+        switch ($values['typeid']) {
           case '6':
             $formatted['type'] = 'OKATO';
-            $formatted['value'] = $value['value'];
+            $formatted['value'] = $values['value'];
             break;
           case '7':
             $formatted['type'] = 'OKTMO';
-            $formatted['value'] = $value['value'];
+            $formatted['value'] = $values['value'];
             break;
           case '10':
             $formatted['type'] = 'KLADR';
-            $formatted['value'] = $value['value'];
+            $formatted['value'] = $values['value'];
             break;
         }
 

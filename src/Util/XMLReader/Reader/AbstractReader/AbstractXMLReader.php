@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Readers\AbstractReaders;
+namespace GAR\Util\XMLReader\Reader\AbstractReader;
 
 
 use Iterator;
@@ -56,11 +56,9 @@ abstract class AbstractXMLReader implements Iterator
 	 * @param string $cachePath - temporary floder
 	 */
 	function __construct(string $pathToZip,
-                       string $fileName,
                        string $cachePath)
 	{
 		$this->pathToZip = $pathToZip;
-		$this->fileName = $fileName;
 		$this->cachePath = $cachePath;
 	}
 

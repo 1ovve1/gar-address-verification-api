@@ -1,11 +1,11 @@
 <?php
 
-namespace GAR\Util\XMLReader\Models;
+namespace GAR\Util\XMLReader\Files;
 
 use GAR\Database\Table\SQL\QueryModel;
-use GAR\Util\XMLReader\Readers\ConcreteReader;
+use GAR\Util\XMLReader\Reader\ConcreteReader;
 
-class AsHousetype extends ConcreteReader
+class AsObjectLevels extends XMLFile
 {
   /**
    * return elements of xml document
@@ -13,7 +13,7 @@ class AsHousetype extends ConcreteReader
    */
   static function getElements(): array
   {
-    return ['HOUSETYPE'];
+    return ['OBJECTLEVEL'];
   }
 
   /**
@@ -22,22 +22,23 @@ class AsHousetype extends ConcreteReader
    */
   static function getAttributes(): array
   {
-    return ['ID', 'NAME', 'SHORTNAME'];
+    return ['LEVEL', 'NAME', 'ISACTIVE'];
   }
 
   /**
    * procedure that contains main operations from exec method
    * @param QueryModel $model table model
-   * @param array $value current parse element
+   * @param array $values current parse element
    * @return void
    */
-  protected function execDoWork(QueryModel $model, array $value): void
+  function execDoWork(QueryModel $model, array $values): void
   {
-    $model->forceInsert([
-      (int)$value['id'],
-      $value['shortname'],
-      $value['name'],
-    ]);
+    if ($values['isactive'] == 'true') {
+      $model->forceInsert([
+        (int)$values['level'],
+        $values['name']
+      ]);
+    }
   }
 
 }
