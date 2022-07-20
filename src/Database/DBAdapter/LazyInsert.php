@@ -16,37 +16,38 @@ abstract class LazyInsert
    */
   private readonly string $tableName;
   /**
-   * @var array<mixed> $fields - template fields
+   * @var array<mixed> $tableFields - template fields
    */
-  private readonly array $fields;
+  private readonly array $tableFields;
   /**
-   * @var int $stagesCount - stages count
+   * @var int $bufferSize - size of buffer
    */
-  private readonly int $stagesCount;
+  private readonly int $bufferSize;
   /**
-   * @var int $currStage - current stages in template
+   * @var int $bufferCursor - cursor of the buffer index
    */
-  private int $currStage = 0;
+  private int $bufferCursor = 0;
   /**
-   * @var int $stageBufferCursor - cursor of the stage buffer index
+   * @var SplFixedArray $buffer - buffer of stage values
    */
-  private int $stageBufferCursor = 0;
-  /**
-   * @var SplFixedArray $stageBuffer - buffer of stage values
-   */
-  private \SplFixedArray $stageBuffer;
+  private readonly \SplFixedArray $buffer;
 
   /**
    * @param string $tableName - name of table
-   * @param array<mixed> $fields - fields in table
-   * @param int $stagesCount - stage buffer size
+   * @param array<mixed> $tableFields - table fields
+   * @param int $groupInsertCount - number of groups in group insert
+   * @throws RuntimeException
    */
-  public function __construct(string $tableName, array $fields, int $stagesCount)
+  public function __construct(string $tableName, array $tableFields, int $groupInsertCount)
   {
+    $this->isValid($tableName, $tableFields, $groupInsertCount);
+
     $this->tableName = $tableName;
-    $this->fields = $fields;
-    $this->stagesCount = $stagesCount;
-    $this->stageBuffer = new \SplFixedArray($stagesCount * count($fields));
+    $this->tableFields = $tableFields;
+
+    $bufferSize = $groupInsertCount * count($tableFields);
+    $this->bufferSize = $bufferSize;
+    $this->buffer = new \SplFixedArray($bufferSize);
   }
 
 
@@ -54,18 +55,18 @@ abstract class LazyInsert
    * Create exception if input is incorrect
    * 
    * @param string $tableName - name of table
-   * @param array<mixed> $fields - fields to create
-   * @param int $stagesCount - stage count
+   * @param array<mixed> $tableFields - fields to create
+   * @param int $groupInsertCount - stage count
    * @return void
    * @throws RuntimeException
    */
-  public static function isValid(string $tableName, array $fields, int $stagesCount) : void
+  public static function isValid(string $tableName, array $tableFields, int $groupInsertCount) : void
   {
-    if ($stagesCount < 1) {
+    if ($groupInsertCount < 1) {
       throw new RuntimeException(
         'PDOTemplate error: stages buffer needs to be more than 0'
       );
-    } else if (empty($fields)) {
+    } else if (empty($tableFields)) {
       throw new RuntimeException(
         'PDOTemplate error: stages buffer needs to be more than 0'
       );
@@ -86,77 +87,119 @@ abstract class LazyInsert
   }
 
   /**
-   * Return max stage buffer count
+   * Return size of value buffer
    * @return int
    */
-  public function getStagesCount(): int
+  public function getBufferSize(): int
   {
-    return $this->stagesCount;
+    return $this->bufferSize;
   }
 
   /**
-   * Return fields in table template
+   * Return curr count of buffer cursor
+   * @return int
+   */
+  public function getBufferCursor(): int 
+  {
+    return $this->bufferCursor;
+  }
+
+  /**
+   * Increment buffer cursor
+   * @return void
+   */
+  public function incBufferCursor(): void
+  {
+    $this->bufferCursor += 1;
+  }
+
+  /**
+   * Return true if buffer is full
+   * @return bool
+   */
+  public function isBufferFull(): bool
+  {
+    return $this->bufferCursor === $this->bufferSize;
+  }  
+
+  /**
+   * Return true if buffer is not empty
+   * @return bool
+   */
+  public function isBufferNotEmpty(): bool 
+  {
+    return $this->bufferCursor !== 0;
+  }
+
+  /**
+   * Return table fields in current template
    * @return array<mixed>
    */
-  public function getFields(): array
+  public function getTableFields(): array
   {
-    return $this->fields;
+    return $this->tableFields;
   }
 
   /**
-   * Return curr stage count
+   * Return table fields count
    * @return int
    */
-  public function getCurrStage(): int
+  public function getTableFieldsCount(): int 
   {
-    return $this->currStage;
+    return count($this->tableFields);
   }
 
   /**
-   * Increment curr stage by $value (set by default) or clear if $value = null
-   * @param int|null $value - value to increment
+   * Return current number of groups
+   * @return int
    */
-  public function incCurrStage(?int $value = 1): void
+  public function getCurrentNumberOfGroups(): int 
   {
-    if (is_null($value)) {
-      $this->currStage = 0;
-    } else {
-      $this->currStage = $this->currStage + $value;
-    }
+    return $this->bufferCursor / count($this->tableFields); 
   }
 
   /**
-   * Return curr stage buffer
+   * Return local SplFixedBuffer buffer in array
    * @return array
    */
-  public function getStageBuffer(): array
+  public function getBuffer(): array
   {
-    return $this->stageBuffer->toArray();
-  }
-
-  public function getStageBufferLimited(): array 
-  {
-    $array = [];
-    for($i = 0; $i < $this->stageBufferCursor; ++$i) {
-      array_push($array, $this->stageBuffer[$i]);
-    }
-
-    return $array;
+    return $this->buffer->toArray();
   }
 
   /**
-   * Set stage buffer by $insertValues or reset it by $insertValues = null
-   * @param array<DatabaseContract>|null $insertValues - values that need add in $stageBuffer 
+   * Slice local buffer with current cursor value
+   * @return 
    */
-  public function setStageBuffer(?array $insertValues): void
+  public function getBufferSlice(): array
   {
-    if (is_null($insertValues)) {
-      $this->stageBufferCursor = 0;
-    } else {
-      foreach ($insertValues as $value) {
-        $this->stageBuffer[$this->stageBufferCursor] = $value;
-        $this->stageBufferCursor++;
-      }
+    $array = new \SplFixedArray($this->bufferCursor);
+    for($i = 0; $i < $this->bufferCursor; ++$i) {
+      $array[$i] = $this->buffer[$i];
+    }
+
+    return $array->toArray();
+  }
+
+  /**
+   * Set stage buffer by $insertValues
+   * @param array<DatabaseContract> $insertValues - values that need add in $buffer 
+   * @return void
+   */
+  public function setStageBuffer(array $insertValues): void
+  {
+    foreach ($insertValues as $value) {
+      $this->buffer[$this->bufferCursor] = $value;
+      $this->incBufferCursor();
     }
   }
+
+  /**
+   * Reset cursor value
+   * @return void
+   */
+  public function resetBufferCursor(): void
+  {
+    $this->bufferCursor = 0;
+  } 
 }
