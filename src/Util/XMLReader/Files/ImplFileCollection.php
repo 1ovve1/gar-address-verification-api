@@ -7,7 +7,9 @@ use GAR\Util\XMLReader\Reader\ReaderVisitor;
 class ImplFileCollection implements FileCollection
 {
   /** @var XMLFile[] */
-  private array $files;
+  private array $singleFiles;
+  /** @var XMLFile[] */
+  private array $everyRegionFiles;
   /** @var String[] */
   private array $listOfRegions;
 
@@ -30,10 +32,10 @@ class ImplFileCollection implements FileCollection
       try{
         if (key_exists(ConfigList::EVERY_REGION_KEY, $tryFile)) {
           $classFile = $tryFile[ConfigList::EVERY_REGION_KEY];
-          $this->files[] = (new $classFile($realName, ''))->bindType(ConfigList::EVERY_REGION_KEY);
+          $this->everyRegionFiles[] = (new $classFile($realName, ''))->bindType(ConfigList::EVERY_REGION_KEY);
         } else if (key_exists(ConfigList::SINGLE_KEY, $tryFile)) {
           $classFile = $tryFile[ConfigList::SINGLE_KEY];
-          $this->files[] = (new $classFile($realName))->bindType(ConfigList::SINGLE_KEY);
+          $this->singleFiles[] = (new $classFile($realName))->bindType(ConfigList::SINGLE_KEY);
         }
       } catch (\Throwable $e) {
         var_dump($tryFile);
@@ -45,17 +47,13 @@ class ImplFileCollection implements FileCollection
 
   function exec(ReaderVisitor $reader): void
   {
-    foreach ($this->files as $trySingleFile) {
-      if ($trySingleFile->getType() === ConfigList::SINGLE_KEY) {
-        $reader->read($trySingleFile);
-      }
+    foreach ($this->singleFiles as $trySingleFile) {
+      $reader->read($trySingleFile);
     }
 
     foreach ($this->listOfRegions as $region) {
-      foreach ($this->files as $tryRegionFile) {
-        if ($tryRegionFile->getType() === ConfigList::EVERY_REGION_KEY) {
-          $reader->read($tryRegionFile->setRegion($region));
-        }
+      foreach ($this->everyRegionFiles as $tryRegionFile) {
+        $reader->read($tryRegionFile->setRegion($region));
       }
     }
   }
