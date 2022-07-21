@@ -1,20 +1,21 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
   
 use GAR\Logger\Log;
 
 return function ($app) {
+    $app->addRoutingMiddleware();
 
-  $app->addRoutingMiddleware();
 
+    $app->add(\GAR\Middleware\BeforeMiddleware::class);
 
-  $app->add(\GAR\Middleware\BeforeMiddleware::class);
-
-  $app->addErrorMiddleware(
-    filter_var($_ENV['DISPLAY_ERROR_DETAILS'], FILTER_VALIDATE_BOOLEAN), 
-    true, 
-    true, 
-    Log::getInstance()
-  );
-  return $app;
+    $app->addErrorMiddleware(
+        filter_var($_ENV['DISPLAY_ERROR_DETAILS'], FILTER_VALIDATE_BOOLEAN),
+        true,
+        true,
+        Log::getInstance()
+    );
+    return $app;
 };

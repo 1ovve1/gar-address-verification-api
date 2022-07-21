@@ -1,13 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Integration;
 
-
-use Slim\Factory\AppFactory;
 use Slim\Container;
+use Slim\Factory\AppFactory;
+use Slim\Psr7\Environment;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Response;
-use Slim\Psr7\Environment;
 
 class BaseTestSetup extends \PHPUnit\Framework\TestCase
 {
@@ -17,8 +18,7 @@ class BaseTestSetup extends \PHPUnit\Framework\TestCase
         string $requestMethod,
         string $requestUri,
         string $requestParams,
-    ): Response
-    {
+    ): Response {
         $request = (new ServerRequestFactory())->createServerRequest($requestMethod, $requestUri . '?' . $requestParams);
 
         $baseDir = __DIR__ . '/../../';
@@ -33,7 +33,7 @@ class BaseTestSetup extends \PHPUnit\Framework\TestCase
         $app = AppFactory::create();
 
         (require $basePath . '/Middleware.php')($app);
-		(require $basePath . '/Routes.php')($app);
+        (require $basePath . '/Routes.php')($app);
 
         return $app->handle($request);
     }

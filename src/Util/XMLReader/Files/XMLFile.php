@@ -1,147 +1,148 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace GAR\Util\XMLReader\Files;
 
 use GAR\Database\Table\SQL\QueryModel;
-use http\Exception\RuntimeException;
 
 abstract class XMLFile
 {
-  private string $fileName = '';
-  private ?string $region = null;
-  private ?int $intRegion = null;
-  private string $type;
+    private string $fileName = '';
+    private ?string $region = null;
+    private ?int $intRegion = null;
+    private string $type;
 
-  /**
-   * @param string $fileName
-   * @param string|null $region
-   */
-  public function __construct(string $fileName, ?string $region = null)
-  {
-    $this->fileName = $fileName;
-    if (!is_null($region)) {
-      $this->region = $region;
-      $this->intRegion = (int) $region;
+    /**
+     * @param string $fileName
+     * @param string|null $region
+     */
+    public function __construct(string $fileName, ?string $region = null)
+    {
+        $this->fileName = $fileName;
+        if (null !== $region) {
+            $this->region = $region;
+            $this->intRegion = (int) $region;
+        }
     }
-  }
 
-  public function __destruct()
-  {
-    static::getQueryModel()->save();
-  }
+    public function __destruct()
+    {
+        static::getQueryModel()->save();
+    }
 
 
-  /**
-   * @return string
-   */
-  public function getRegion(): string
-  {
-    if (is_null($this->region)) {
-      throw new \RuntimeException("Try get the null region 
+    /**
+     * @return string
+     */
+    public function getRegion(): string
+    {
+        if (null === $this->region) {
+            throw new \RuntimeException("Try get the null region 
       (replace file to EveryRegion flooder if you wanna use regions)");
+        }
+        return $this->region;
     }
-    return $this->region;
-  }
 
-  /**
-   * @return int
-   */
-  public function getIntRegion(): int
-  {
-    if (is_null($this->intRegion)) {
-      throw new \RuntimeException("Try get the null region 
+    /**
+     * @return int
+     */
+    public function getIntRegion(): int
+    {
+        if (null === $this->intRegion) {
+            throw new \RuntimeException("Try get the null region 
       (replace file to EveryRegion flooder if you wanna use regions)");
+        }
+        return $this->intRegion;
     }
-    return $this->intRegion;
-  }
 
-  /**
-   * @param string $region
-   * @return XMLFile
-   */
-  public function setRegion(string $region): self
-  {
-    $this->region = $region;
-    $this->intRegion = (int)$region;
+    /**
+     * @param string $region
+     * @return XMLFile
+     */
+    public function setRegion(string $region): self
+    {
+        $this->region = $region;
+        $this->intRegion = (int)$region;
 
-    return $this;
-  }
-
-  /**
-   * @return string
-   */
-  public function getFileName(): string
-  {
-    return $this->fileName;
-  }
-
-  /**
-   * @return string
-   */
-  public function getPathToFile(): string
-  {
-    if (is_null($this->region)) {
-      return $this->fileName;
-    } else {
-      return $this->region . '/' . $this->fileName;
+        return $this;
     }
-  }
 
-  /**
-   * @return string
-   */
-  public function getType(): string
-  {
-    return $this->type;
-  }
+    /**
+     * @return string
+     */
+    public function getFileName(): string
+    {
+        return $this->fileName;
+    }
 
-  /**
-   * @param string $type
-   * @return XMLFile
-   */
-  public function bindType(string $type): self
-  {
-    $this->type = $type;
-    return $this;
-  }
+    /**
+     * @return string
+     */
+    public function getPathToFile(): string
+    {
+        if (null === $this->region) {
+            return $this->fileName;
+        } else {
+            return $this->region . '/' . $this->fileName;
+        }
+    }
 
-  /**
-   * return concrete table model that support current file
-   * @return QueryModel
-   */
-  abstract static function getQueryModel(): QueryModel;
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
 
-  function saveChangesInQueryModel(): void
-  {
-    $this::getQueryModel()->save();
-  }
+    /**
+     * @param string $type
+     * @return XMLFile
+     */
+    public function bindType(string $type): self
+    {
+        $this->type = $type;
+        return $this;
+    }
 
-  /**
-   * return elements of xml document
-   * @return string elements names
-   */
-  abstract static function getElement(): string;
+    /**
+     * return concrete table model that support current file
+     * @return QueryModel
+     */
+    abstract public static function getQueryModel(): QueryModel;
 
-  /**
-   * return attributes of elements in xml document
-   * @return array attributes names
-   */
-  abstract static function getAttributes(): array;
+    public function saveChangesInQueryModel(): void
+    {
+        $this::getQueryModel()->save();
+    }
 
-  function getAttributesKeys(): array 
-  {
-    return array_keys($this::getAttributes());
-  } 
+    /**
+     * return elements of xml document
+     * @return string elements names
+     */
+    abstract public static function getElement(): string;
 
-  function getAttributesCasts(): array 
-  {
-    return $this::getAttributes();
-  } 
+    /**
+     * return attributes of elements in xml document
+     * @return array attributes names
+     */
+    abstract public static function getAttributes(): array;
 
-  /**
-   * procedure that contains main operations from exec method
-   * @param array $values current parse element
-   * @return void
-   */
-  abstract function execDoWork(array $values): void;
+    public function getAttributesKeys(): array
+    {
+        return array_keys($this::getAttributes());
+    }
+
+    public function getAttributesCasts(): array
+    {
+        return $this::getAttributes();
+    }
+
+    /**
+     * procedure that contains main operations from exec method
+     * @param array $values current parse element
+     * @return void
+     */
+    abstract public function execDoWork(array $values): void;
 }

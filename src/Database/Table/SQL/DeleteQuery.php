@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GAR\Database\Table\SQL;
 
 /**
@@ -9,49 +11,49 @@ namespace GAR\Database\Table\SQL;
  */
 interface DeleteQuery
 {
-  /**
-   * Create WHERE template
-   * 
-   * @param  string $field - name of field
-   * @param  string $sign - sign for compare
-   * @param  DatabaseContract $value - value to compare
-   * @return ContinueWhere
-   */
-  function where(string $field, string $sign, mixed $value) : ContinueWhere;
+    /**
+     * Create WHERE template
+     *
+     * @param  string $field - name of field
+     * @param  string $sign - sign for compare
+     * @param  DatabaseContract $value - value to compare
+     * @return ContinueWhere
+     */
+    public function where(string $field, string $sign, mixed $value): ContinueWhere;
 
-  /**
-   * Reset query buffer
-   * @return QueryModel
-   */
-  function reset() : QueryModel;
+    /**
+     * Reset query buffer
+     * @return QueryModel
+     */
+    public function reset(): QueryModel;
 
-  /**
-   * Save and execute query
-   * 
-   * @return array<mixed>
-   */
-  function save() : array;
+    /**
+     * Save and execute query
+     *
+     * @return array<mixed>
+     */
+    public function save(): array;
 
-  /**
-   * Create template with name $name
-   * 
-   * @param  string $name - name of template
-   * @return void
-   */
-  function name(string $name) : void;
+    /**
+     * Create template with name $name
+     *
+     * @param  string $name - name of template
+     * @return void
+     */
+    public function name(string $name): void;
   
-  /**
-   * Check if template with name $checkName exists
-   * @param  string $checkName - name of template
-   * @return bool
-   */
-  function nameExist(string $checkName) : bool;
+    /**
+     * Check if template with name $checkName exists
+     * @param  string $checkName - name of template
+     * @return bool
+     */
+    public function nameExist(string $checkName): bool;
 
-  /**
-   * Execute template with name $templateName by $values
-   * @param  array<DatabaseContract> $values - values to execute
-   * @param  string|null $templateName - name of template
-   * @return array<mixed>
-   */
-  function execute(array $values, ?string $templateName = null) : array;
+    /**
+     * Execute template with name $templateName by $values
+     * @param  array<DatabaseContract> $values - values to execute
+     * @param  string|null $templateName - name of template
+     * @return array<mixed>
+     */
+    public function execute(array $values, ?string $templateName = null): array;
 }
