@@ -28,7 +28,11 @@ class AsObjectLevels extends XMLFile
    */
   static function getAttributes(): array
   {
-    return ['LEVEL', 'NAME', 'ISACTIVE'];
+    return [
+      'LEVEL' => 'int', 
+      'NAME' => 'string', 
+      'ISACTIVE' => 'bool'
+    ];
   }
 
   /**
@@ -38,9 +42,9 @@ class AsObjectLevels extends XMLFile
    */
   function execDoWork(array $values): void
   {
-    if ($values['ISACTIVE'] == 'true') {
+    if ($values['ISACTIVE']) {
       static::getQueryModel()->forceInsert([
-        (int)$values['LEVEL'],
+        $values['LEVEL'],
         $values['NAME']
       ]);
     }

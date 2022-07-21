@@ -18,21 +18,30 @@ class AsAddrObj extends XMLFile
 	}
 
 	static function getAttributes() : array {
-		return ['ID', 'OBJECTID', 'OBJECTGUID', 'NAME', 'TYPENAME', 'LEVEL', 'ISACTUAL', 'ISACTIVE'];
+		return [
+      'ID' => 'int', 
+      'OBJECTID' => 'int', 
+      'OBJECTGUID' => 'string', 
+      'NAME' => 'string', 
+      'TYPENAME' => 'string', 
+      'LEVEL' => 'int', 
+      'ISACTUAL' => 'bool', 
+      'ISACTIVE' => 'bool'
+    ];
 	}
 
 	function execDoWork(array $values) : void
 	{
-		if ($values['ISACTIVE'] === "1" && $values['ISACTUAL'] === "1") {
+		if ($values['ISACTIVE'] && $values['ISACTUAL']) {
       $model = static::getQueryModel();
       $region = $this->getIntRegion();
 
-      if (empty($this->getFirstObjectId($model, (int)$values['OBJECTID'], $region))) {
+      if (empty($this->getFirstObjectId($model, $values['OBJECTID'], $region))) {
         $model->forceInsert([
-          (int)$values['ID'],
-          (int)$values['OBJECTID'],
+          $values['ID'],
+          $values['OBJECTID'],
           $values['OBJECTGUID'],
-          (int)$values['LEVEL'],
+          $values['LEVEL'],
           $values['NAME'],
           $values['TYPENAME'],
           $region,

@@ -77,14 +77,19 @@ class ImplReaderVisitor
   private function parseXml(XMLFile $file):void
   {
     $elem = $file::getElement();
-    $attributes = $file::getAttributes();
+    $attributes = $file->getAttributesKeys();
+    $casts = $file->getAttributesCasts();
     
     while($this->xmlReader->read()) {
       if ($this->xmlReader->nodeType == \XMLReader::ELEMENT && $this->xmlReader->localName == $elem) {
         $data = [];
         while($this->xmlReader->moveToNextAttribute()) {
-          if (in_array($this->xmlReader->name, $attributes)) {
-            $data[$this->xmlReader->name] = $this->xmlReader->value;
+          $index = $this->xmlReader->name;
+          if (in_array($index, $attributes)) {
+            $value = $this->xmlReader->value;
+            settype($value, $casts[$index]);
+
+            $data[$index] = $value;
           }
         }
         $file->execDoWork($data);
