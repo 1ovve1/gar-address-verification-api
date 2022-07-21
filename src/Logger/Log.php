@@ -32,10 +32,10 @@ class Log
         if ($_ENV['SWOOLE_ENABLE'] === 'true' &&
         !(key_exists('argv', $_SERVER) &&
         count($_SERVER['argv']) >= 2 &&
-        in_array($_SERVER['argv'][1], ['-l', '--log']))) {
+        in_array($_SERVER['argv'][1], ['-l', '--log'], true))) {
             return;
         }
-        if (is_null(self::$logger)) {
+        if (null === self::$logger) {
             self::launch();
         }
 
@@ -67,7 +67,7 @@ class Log
         if ($_ENV['SWOOLE_ENABLE'] === 'true' &&
         !(key_exists('argv', $_SERVER) &&
         count($_SERVER['argv']) >= 2 &&
-        in_array($_SERVER['argv'][1], ['-l', '--log']))) {
+        in_array($_SERVER['argv'][1], ['-l', '--log'], true))) {
             return;
         }
 
@@ -75,7 +75,7 @@ class Log
             $msg = Msg::LOG_DB_BAD->value;
         }
 
-        if (is_null(self::$logger)) {
+        if (null === self::$logger) {
             self::launch();
         }
 
@@ -115,7 +115,7 @@ class Log
         self::$logger->notice(PHP_EOL . $message);
         if (key_exists('argv', $_SERVER) &&
             count($_SERVER['argv']) >= 2 &&
-            in_array($_SERVER['argv'][1], ['-l', '--log'])) {
+            in_array($_SERVER['argv'][1], ['-l', '--log'], true)) {
             echo "\r" . $message;
 
             if (self::addTask() > self::removeTask()) {
@@ -167,7 +167,7 @@ class Log
 
     public static function getInstance(): LoggerInterface
     {
-        if (is_null(self::$logger)) {
+        if (null === self::$logger) {
             self::launch();
         }
         return self::$logger;

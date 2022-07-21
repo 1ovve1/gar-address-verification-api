@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GAR\Util\XMLReader\Files\Single;
 
 use GAR\Database\Table\SQL\QueryModel;
@@ -29,10 +31,10 @@ class AsHouseTypes extends XMLFile
     public static function getAttributes(): array
     {
         return [
-      'ID' => 'int',
-      'SHORTNAME' => 'string',
-      'NAME' => 'string',
-    ];
+            'ID' => 'int',
+            'SHORTNAME' => 'string',
+            'NAME' => 'string',
+        ];
     }
 
     /**
@@ -43,9 +45,9 @@ class AsHouseTypes extends XMLFile
     public function execDoWork(array $values): void
     {
         static::getQueryModel()->forceInsert([
-      $values['ID'],
-      $values['SHORTNAME'],
-      $values['NAME'],
-    ]);
+            $values['ID'],
+            $values['SHORTNAME'],
+            $values['NAME'],
+        ]);
     }
 }

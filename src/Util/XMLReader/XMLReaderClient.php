@@ -25,7 +25,7 @@ class XMLReaderClient
 
     public function run(array $customRegions = null)
     {
-        if (is_null($customRegions)) {
+        if (null === $customRegions) {
             $customRegions = self::regions;
         }
 

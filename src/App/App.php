@@ -15,8 +15,8 @@ if (file_exists($baseDir . '.env')) {
 }
 
 $dotenv->required([
-  'DB_TYPE', 'DB_NAME', 'DB_HOST', 'DB_PORT',
-  'DB_USER', 'DB_PASS', 'GAR_ZIP_NAME'
+    'DB_TYPE', 'DB_NAME', 'DB_HOST', 'DB_PORT',
+    'DB_USER', 'DB_PASS', 'GAR_ZIP_NAME',
 ]);
 
 $app = AppFactory::create();

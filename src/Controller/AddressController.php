@@ -45,7 +45,7 @@ class AddressController
     {
         $params = $request->getQueryParams();
 
-        if (is_null($params['objectid'])) {
+        if (null === $params['objectid']) {
             $likeAddress = $this->addressByNameRepo->getFullAddress($params['address']);
 
             foreach (array_reverse($likeAddress) as $key => $value) {
@@ -61,7 +61,7 @@ class AddressController
             }
         }
 
-        if (!is_null($params['objectid'])) {
+        if (null !== $params['objectid']) {
             $data = $this->addressByCodeRepo->getCode($params['objectid'], $args['type']);
 
             if (!empty($data)) {

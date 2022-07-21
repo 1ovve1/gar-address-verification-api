@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace GAR\Repository;
 
-use GAR\Database\Table\SQL\QueryModel;
-use GAR\Repository\Codes;
 use http\Exception\RuntimeException;
 
 /**
@@ -51,7 +49,9 @@ class CodeByObjectIdRepository extends BaseRepo
 
 
         if (!$params->nameExist($name)) {
-            $params->select(["params.value"], ['params' => 'addr_obj_params'])
+            $params->select(["params.value"], [
+                'params' => 'addr_obj_params',
+            ])
         ->where('params.objectid_addr', '=', $objectId)
         ->andWhere('params.type', '=', $type)
         ->limit(1)
@@ -64,8 +64,8 @@ class CodeByObjectIdRepository extends BaseRepo
         }
 
         return [
-      $type => $queryResult[0]['value']
-    ];
+            $type => $queryResult[0]['value'],
+        ];
     }
 
     /**
@@ -80,13 +80,15 @@ class CodeByObjectIdRepository extends BaseRepo
         $params = $this->getDatabase();
 
         $types = [
-      Codes::OKATO->value,
-      Codes::OKTMO->value,
-      Codes::KLADR->value,
-    ];
+            Codes::OKATO->value,
+            Codes::OKTMO->value,
+            Codes::KLADR->value,
+        ];
 
         if (!$params->nameExist($name)) {
-            $params->select(["params.value, params.type"], ['params' => 'addr_obj_params'])
+            $params->select(["params.value, params.type"], [
+                'params' => 'addr_obj_params',
+            ])
         ->where('params.objectid_addr', '=', $objectId)
         ->name($name);
         }

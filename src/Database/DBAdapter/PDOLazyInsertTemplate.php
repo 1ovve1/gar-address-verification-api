@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace GAR\Database\DBAdapter;
 
-use PDOStatement;
-use SebastianBergmann\Type\RuntimeException;
-
 /**
  * Lazy Insert Template object Using PDO
  *
@@ -24,7 +21,7 @@ use SebastianBergmann\Type\RuntimeException;
 class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
 {
     /**
-     * @var DBAdapter $db - curr database connection
+     * @var DBAdapter - curr database connection
      */
     private readonly DBAdapter $db;
     /**

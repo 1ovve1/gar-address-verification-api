@@ -20,18 +20,17 @@ class AddrObjParams extends ConcreteTable implements QueryModel
             'objectid_addr' =>
         'BIGINT UNSIGNED NOT NULL',
 
-      'type' =>
-        'CHAR(5) NOT NULL',
+            'type' =>
+              'CHAR(5) NOT NULL',
 
-      'value' =>
-        'CHAR(31) NOT NULL',
+            'value' =>
+              'CHAR(31) NOT NULL',
 
-      'region' =>
-        'TINYINT UNSIGNED NOT NULL',
+            'region' =>
+              'TINYINT UNSIGNED NOT NULL',
         
-      'FOREIGN KEY (objectid_addr)' =>
-        'REFERENCES addr_obj (objectid)'
-        
+            'FOREIGN KEY (objectid_addr)' =>
+              'REFERENCES addr_obj (objectid)',
         ];
     }
 }

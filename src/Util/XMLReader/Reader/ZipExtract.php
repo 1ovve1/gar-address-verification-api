@@ -93,7 +93,7 @@ class ZipExtract
             }
         }
 
-        if (is_null($realPath)) {
+        if (null === $realPath) {
             return false;
         } else {
             $this->tryExtract($realPath);

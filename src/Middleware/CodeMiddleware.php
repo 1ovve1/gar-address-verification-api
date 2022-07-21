@@ -49,9 +49,9 @@ class CodeMiddleware
 
         $response = $handler->handle(
             $request->withQueryParams([
-            'address' => $formattedAddress,
-            'objectid' => $objectId
-        ])
+                'address' => $formattedAddress,
+                'objectid' => $objectId,
+            ])
         );
 
         if (empty((string) $response->getBody())) {
@@ -65,7 +65,9 @@ class CodeMiddleware
     protected function errorResponse(string $message, int $status = 400): Response
     {
         $response = new Response();
-        $response->getBody()->write(json_encode(['error' => $message]));
+        $response->getBody()->write(json_encode([
+            'error' => $message,
+        ]));
         return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
     }
 }

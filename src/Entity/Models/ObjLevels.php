@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GAR\Entity\Models;
 
 use GAR\Database\ConcreteTable;
@@ -15,11 +17,11 @@ class ObjLevels extends ConcreteTable implements QueryModel
     public function fieldsToCreate(): ?array
     {
         return [
-      'id' =>
-        'TINYINT UNSIGNED NOT NULL PRIMARY KEY',
+            'id' =>
+              'TINYINT UNSIGNED NOT NULL PRIMARY KEY',
         
-      'disc' =>
-        'CHAR(70)',
-    ];
+            'disc' =>
+              'CHAR(70)',
+        ];
     }
 }

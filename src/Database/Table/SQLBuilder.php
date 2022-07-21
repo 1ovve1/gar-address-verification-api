@@ -72,7 +72,7 @@ class SQLBuilder implements
         $this->db = $db;
         $this->metaTable = $metaTable;
 
-        if (!is_null($metaTable)) {
+        if (null !== $metaTable) {
             $this->insTemple = $this->getDb()
         ->getInsertTemplate(
             $metaTable->getTableName(),
@@ -115,7 +115,7 @@ class SQLBuilder implements
     public function forceInsert(array $values): EndQuery
     {
         $this->reset();
-        if (is_null($this->metaTable) || is_null($this->insTemple)) {
+        if (null === $this->metaTable || null === $this->insTemple) {
             throw new Exception(
                 'SQLBuilder: forceInsert are not supported in this table (check meta table)'
             );
@@ -182,7 +182,7 @@ class SQLBuilder implements
         $this->checkTableName($anotherTables);
 
         $formattedTables = null;
-        if (!is_null($anotherTables)) {
+        if (null !== $anotherTables) {
             $formattedTables = $this->implodeWithKeys($anotherTables, ' as ');
         }
         $this->setQuery(sprintf(
@@ -207,7 +207,7 @@ class SQLBuilder implements
 
         $this->checkTableName($anotherTable);
 
-        return $this->select([$field], (is_null($anotherTable)) ? null : [$anotherTable])
+        return $this->select([$field], (null === $anotherTable) ? null : [$anotherTable])
       ->where($field, '=', $value)
       ->limit(1)->save();
     }
@@ -371,7 +371,7 @@ class SQLBuilder implements
     {
         if (!empty($this->getQuery())) {
             $this->getDb()->prepare($this->query)->execute($this->valueStack);
-        } elseif (!is_null($this->metaTable) && !is_null($this->insTemple)) {
+        } elseif (null !== $this->metaTable && null !== $this->insTemple) {
             $this->insTemple->save();
         }
 
@@ -413,7 +413,7 @@ class SQLBuilder implements
     {
         $fetch = [];
 
-        if (is_null($templateName)) {
+        if (null === $templateName) {
             $fetch = $this->getDb()->prepare($this->query)->execute($values)->fetchAll(DBAdapter::PDO_F_ALL);
         } else {
             if ($this->nameExist($templateName)) {
@@ -442,7 +442,7 @@ class SQLBuilder implements
      */
     private function setQuery(?string $query = null): void
     {
-        if (is_null($query)) {
+        if (null === $query) {
             $this->query = '';
         } else {
             $this->query .= $query;
@@ -492,7 +492,7 @@ class SQLBuilder implements
      */
     public function setVarStack(mixed $value = null): void
     {
-        if (is_null($value)) {
+        if (null === $value) {
             $this->valueStack = [];
             $this->valuesRequire = 0;
         } elseif (is_array($value)) {
@@ -513,7 +513,7 @@ class SQLBuilder implements
      */
     public function checkTableName(string|array|null $tableName): void
     {
-        if (is_null($tableName) && is_null($this->metaTable)) {
+        if (null === $tableName && null === $this->metaTable) {
             throw new Exception('SQLBuilder exception: require table name');
         }
     }

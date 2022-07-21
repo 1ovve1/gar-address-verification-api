@@ -17,15 +17,14 @@ class Housetype extends ConcreteTable implements QueryModel
     public function fieldsToCreate(): ?array
     {
         return [
-      'id' =>
-        'TINYINT UNSIGNED NOT NULL PRIMARY KEY',
+            'id' =>
+              'TINYINT UNSIGNED NOT NULL PRIMARY KEY',
         
-      'short' =>
-        'CHAR(15) NOT NULL',
+            'short' =>
+              'CHAR(15) NOT NULL',
         
-      'disc' =>
-        'CHAR(50) NOT NULL',
-        
-    ];
+            'disc' =>
+              'CHAR(50) NOT NULL',
+        ];
     }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GAR\Util\XMLReader\Files;
 
 use GAR\Database\Table\SQL\QueryModel;
-use http\Exception\RuntimeException;
 
 abstract class XMLFile
 {
@@ -21,7 +20,7 @@ abstract class XMLFile
     public function __construct(string $fileName, ?string $region = null)
     {
         $this->fileName = $fileName;
-        if (!is_null($region)) {
+        if (null !== $region) {
             $this->region = $region;
             $this->intRegion = (int) $region;
         }
@@ -38,7 +37,7 @@ abstract class XMLFile
      */
     public function getRegion(): string
     {
-        if (is_null($this->region)) {
+        if (null === $this->region) {
             throw new \RuntimeException("Try get the null region 
       (replace file to EveryRegion flooder if you wanna use regions)");
         }
@@ -50,7 +49,7 @@ abstract class XMLFile
      */
     public function getIntRegion(): int
     {
-        if (is_null($this->intRegion)) {
+        if (null === $this->intRegion) {
             throw new \RuntimeException("Try get the null region 
       (replace file to EveryRegion flooder if you wanna use regions)");
         }
@@ -82,7 +81,7 @@ abstract class XMLFile
      */
     public function getPathToFile(): string
     {
-        if (is_null($this->region)) {
+        if (null === $this->region) {
             return $this->fileName;
         } else {
             return $this->region . '/' . $this->fileName;

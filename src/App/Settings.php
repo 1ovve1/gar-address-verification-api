@@ -16,5 +16,5 @@ return [
             'domain' => $_ENV['APP_DOMAIN'] ?? '',
             'secret' => $_ENV['SECRET_KEY'],
         ],
-    ]
+    ],
 ];

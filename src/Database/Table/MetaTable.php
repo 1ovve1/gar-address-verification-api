@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GAR\Database\Table;
 
 use GAR\Database\DBAdapter\DBAdapter;
@@ -13,11 +15,11 @@ use GAR\Database\Table\Container\QueryGenerator;
 class MetaTable
 {
     /**
-     * @var DBAdapter $db - database object
+     * @var DBAdapter - database object
      */
     private readonly DBAdapter $db;
     /**
-     * @var string $tableName - name of table
+     * @var string - name of table
      */
     private readonly string $tableName;
     /**
@@ -29,7 +31,7 @@ class MetaTable
      */
     private readonly array $metaInfo;
     /**
-     * @var QueryFactory $factory - factory of sql queries
+     * @var QueryFactory - factory of sql queries
      */
     private readonly QueryFactory $factory;
 
@@ -73,7 +75,10 @@ class MetaTable
                 $tableFields = array_diff($tableFields, [$field['Field']]);
             }
         }
-        return ['metaInfo' => $metaInfo, 'fields' => $tableFields];
+        return [
+            'metaInfo' => $metaInfo,
+            'fields' => $tableFields,
+        ];
     }
 
     /**
@@ -113,7 +118,7 @@ class MetaTable
             throw new \RuntimeException('MetaTable error: $tableList should return array, ' . gettype($tableList) . " given");
         }
     
-        return in_array($tableName, $tableList);
+        return in_array($tableName, $tableList, true);
     }
 
     /**

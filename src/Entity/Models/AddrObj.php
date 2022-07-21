@@ -26,8 +26,8 @@ class AddrObj extends ConcreteTable implements QueryModel
             'objectguid' =>
                 'CHAR(36) NOT NULL',
     
-      'id_level' =>
-        'TINYINT UNSIGNED NOT NULL',
+            'id_level' =>
+              'TINYINT UNSIGNED NOT NULL',
 
             'name' =>
                 'VARCHAR(255) NOT NULL',
@@ -35,11 +35,11 @@ class AddrObj extends ConcreteTable implements QueryModel
             'typename' =>
                 'VARCHAR(31) NOT NULL',
 
-      'region' =>
-        'TINYINT UNSIGNED NOT NULL',
+            'region' =>
+              'TINYINT UNSIGNED NOT NULL',
     
-      'FOREIGN KEY (id_level)' =>
-        'REFERENCES obj_levels (id)',
+            'FOREIGN KEY (id_level)' =>
+              'REFERENCES obj_levels (id)',
         ];
     }
 }

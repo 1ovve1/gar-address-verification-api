@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace GAR\Util\XMLReader\Reader;
 
-use Exception;
-use GAR\Logger\Log;
-use GAR\Logger\Msg;
 use GAR\Util\XMLReader\Files\XMLFile;
 
 class ImplReaderVisitor implements
@@ -77,7 +74,7 @@ class ImplReaderVisitor implements
         $reader = $this->xmlReader;
     
         while ($reader->read()) {
-            if ($reader->nodeType == \XMLReader::ELEMENT && $reader->localName == $elem) {
+            if ($reader->nodeType === \XMLReader::ELEMENT && $reader->localName === $elem) {
                 $this->handleElement($file);
                 break;
             }

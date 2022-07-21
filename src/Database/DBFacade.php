@@ -17,7 +17,7 @@ use PDOException;
 class DBFacade
 {
     /**
-     * @var DBAdapter|null $instance - database static object
+     * @var DBAdapter|null - database static object
    */
     public static ?DBAdapter $instance = null;
 

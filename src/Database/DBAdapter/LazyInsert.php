@@ -14,7 +14,7 @@ use RuntimeException;
 abstract class LazyInsert
 {
     /**
-     * @var string $tableName - name of table
+     * @var string - name of table
      */
     private readonly string $tableName;
     /**
@@ -22,15 +22,15 @@ abstract class LazyInsert
      */
     private readonly array $tableFields;
     /**
-     * @var int $bufferSize - size of buffer
+     * @var int - size of buffer
      */
     private readonly int $bufferSize;
     /**
-     * @var int $bufferCursor - cursor of the buffer index
+     * @var int - cursor of the buffer index
      */
     private int $bufferCursor = 0;
     /**
-     * @var SplFixedArray $buffer - buffer of stage values
+     * @var SplFixedArray - buffer of stage values
      */
     private readonly \SplFixedArray $buffer;
 

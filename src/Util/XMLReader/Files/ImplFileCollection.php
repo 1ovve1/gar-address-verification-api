@@ -56,9 +56,8 @@ class ImplFileCollection implements FileCollection
 
         foreach ($this->everyRegionFiles as $everyRegionFile) {
             foreach ($this->listOfRegions as $region) {
-                {
-        $reader->read($everyRegionFile->setRegion($region));
-      }
+                $reader->read($everyRegionFile->setRegion($region));
+      
                 $everyRegionFile->saveChangesInQueryModel();
             }
         }

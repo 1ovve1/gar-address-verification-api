@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GAR\Util\XMLReader\Files\Single;
 
 use GAR\Database\Table\SQL\QueryModel;
@@ -29,10 +31,10 @@ class AsObjectLevels extends XMLFile
     public static function getAttributes(): array
     {
         return [
-      'LEVEL' => 'int',
-      'NAME' => 'string',
-      'ISACTIVE' => 'bool',
-    ];
+            'LEVEL' => 'int',
+            'NAME' => 'string',
+            'ISACTIVE' => 'bool',
+        ];
     }
 
     /**
@@ -43,8 +45,8 @@ class AsObjectLevels extends XMLFile
     public function execDoWork(array $values): void
     {
         static::getQueryModel()->forceInsert([
-      $values['LEVEL'],
-      $values['NAME']
-    ]);
+            $values['LEVEL'],
+            $values['NAME'],
+        ]);
     }
 }

@@ -17,11 +17,11 @@ use RuntimeException;
 class PDOObject implements DBAdapter
 {
     /**
-     * @var PDO $instance - curr instance of db connection
+     * @var PDO - curr instance of db connection
      */
     private PDO $instance;
     /**
-     * @var PDOStatement|null $lastQuery - contains last result of query method
+     * @var PDOStatement|null - contains last result of query method
      */
     private ?PDOStatement $lastQuery = null;
 
@@ -61,7 +61,10 @@ class PDOObject implements DBAdapter
             $dsn,
             $dbUsername,
             $dbPass,
-            [PDO::ATTR_PERSISTENT => true, PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true]
+            [
+                PDO::ATTR_PERSISTENT => true,
+                PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+            ]
         ));
     }
 
@@ -116,7 +119,7 @@ class PDOObject implements DBAdapter
      */
     public function getTemplate(): QueryTemplate
     {
-        if (is_null($this->lastQuery)) {
+        if (null === $this->lastQuery) {
             throw new RuntimeException('PDOObject (DBAdapter) error: template dosent exists');
         }
         return new PDOTemplate($this->lastQuery);
@@ -157,7 +160,7 @@ class PDOObject implements DBAdapter
      */
     private function getLastQuery(): PDOStatement
     {
-        if (is_null($this->lastQuery)) {
+        if (null === $this->lastQuery) {
             throw new RuntimeException('PDOObject (DBAdapter) error: call to undefined PDOStatement');
         }
         return $this->lastQuery;
@@ -187,7 +190,7 @@ class PDOObject implements DBAdapter
      */
     private function setInstance(?PDO $connection): void
     {
-        if (is_null($connection)) {
+        if (null === $connection) {
             throw new RuntimeException('PDOObject (DBAdapter) error: PDO instance is null');
         }
         $this->instance = $connection;

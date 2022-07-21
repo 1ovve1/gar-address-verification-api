@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GAR\Database\DBAdapter;
 
 use GAR\Database\Table\Container\Query;

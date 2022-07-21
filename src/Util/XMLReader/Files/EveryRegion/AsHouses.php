@@ -7,7 +7,6 @@ namespace GAR\Util\XMLReader\Files\EveryRegion;
 use GAR\Database\Table\SQL\QueryModel;
 use GAR\Entity\EntityFactory;
 use GAR\Util\XMLReader\Files\XMLFile;
-use GAR\Util\XMLReader\Reader\ConcreteReader;
 
 class AsHouses extends XMLFile
 {
@@ -24,13 +23,18 @@ class AsHouses extends XMLFile
     public static function getAttributes(): array
     {
         return [
-      'ISACTUAL' => 'bool', 'ISACTIVE' => 'bool',
-      'ID' => 'int', 'OBJECTID' => 'int',
-      'OBJECTGUID' => 'string', 'HOUSENUM' => 'string',
-      'ADDNUM1' => 'string', 'ADDNUM2' => 'string',
-      'HOUSETYPE' => 'int', 'ADDTYPE1' => 'int',
-      'ADDTYPE2' => 'int',
-    ];
+            'ISACTUAL' => 'bool',
+            'ISACTIVE' => 'bool',
+            'ID' => 'int',
+            'OBJECTID' => 'int',
+            'OBJECTGUID' => 'string',
+            'HOUSENUM' => 'string',
+            'ADDNUM1' => 'string',
+            'ADDNUM2' => 'string',
+            'HOUSETYPE' => 'int',
+            'ADDTYPE1' => 'int',
+            'ADDTYPE2' => 'int',
+        ];
     }
 
     public function execDoWork(array $values): void
@@ -40,17 +44,17 @@ class AsHouses extends XMLFile
 
         if (empty($this->getFirstObjectId($model, $values['OBJECTID'], $region))) {
             $model->forceInsert([
-        $values['ID'],
-        $values['OBJECTID'],
-        $values['OBJECTGUID'],
-        $values['HOUSENUM'] ?? null,
-        $values['ADDNUM1'] ?? null,
-        $values['ADDNUM2'] ?? null,
-        $values['HOUSETYPE'] ?? null,
-        $values['ADDTYPE1'] ?? null,
-        $values['ADDTYPE2'] ?? null,
-        $region
-      ]);
+                $values['ID'],
+                $values['OBJECTID'],
+                $values['OBJECTGUID'],
+                $values['HOUSENUM'] ?? null,
+                $values['ADDNUM1'] ?? null,
+                $values['ADDNUM2'] ?? null,
+                $values['HOUSETYPE'] ?? null,
+                $values['ADDTYPE1'] ?? null,
+                $values['ADDTYPE2'] ?? null,
+                $region,
+            ]);
         }
     }
 

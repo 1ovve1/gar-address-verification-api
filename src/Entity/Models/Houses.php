@@ -29,33 +29,32 @@ class Houses extends ConcreteTable implements QueryModel
             'housenum' =>
                 'VARCHAR(50)',
 
-      'addnum1' =>
-        'VARCHAR(50)',
+            'addnum1' =>
+              'VARCHAR(50)',
 
-      'addnum2' =>
-        'VARCHAR(50)',
+            'addnum2' =>
+              'VARCHAR(50)',
 
             'id_housetype' =>
                 'TINYINT UNSIGNED',
 
-      'id_addtype1' =>
-        'TINYINT UNSIGNED',
+            'id_addtype1' =>
+              'TINYINT UNSIGNED',
 
-      'id_addtype2' =>
-        'TINYINT UNSIGNED',
+            'id_addtype2' =>
+              'TINYINT UNSIGNED',
 
-      'region' =>
-        'TINYINT UNSIGNED NOT NULL',
+            'region' =>
+              'TINYINT UNSIGNED NOT NULL',
 
-      'FOREIGN KEY (id_housetype)' =>
-        'REFERENCES housetype (id)',
+            'FOREIGN KEY (id_housetype)' =>
+              'REFERENCES housetype (id)',
 
-      'FOREIGN KEY (id_addtype1)' =>
-        'REFERENCES addhousetype (id)',
+            'FOREIGN KEY (id_addtype1)' =>
+              'REFERENCES addhousetype (id)',
 
-      'FOREIGN KEY (id_addtype2)' =>
-        'REFERENCES addhousetype (id)',
-
+            'FOREIGN KEY (id_addtype2)' =>
+              'REFERENCES addhousetype (id)',
         ];
     }
 }

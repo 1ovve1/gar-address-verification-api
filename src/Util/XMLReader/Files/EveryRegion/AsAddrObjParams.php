@@ -23,10 +23,10 @@ class AsAddrObjParams extends XMLFile
     public static function getAttributes(): array
     {
         return [
-      'OBJECTID' => 'int',
-      'TYPEID' => 'int',
-      'VALUE' => 'string',
-    ];
+            'OBJECTID' => 'int',
+            'TYPEID' => 'int',
+            'VALUE' => 'string',
+        ];
     }
 
     public function execDoWork(array $values): void
@@ -34,7 +34,7 @@ class AsAddrObjParams extends XMLFile
         $region = $this->getIntRegion();
         $model = static::getQueryModel();
 
-        if (in_array($values['TYPEID'], [6, 7, 10])) {
+        if (in_array($values['TYPEID'], [6, 7, 10], true)) {
             if (!empty($this->getFirstObjectIdAddrObj($model, $values['OBJECTID'], $region))) {
                 $values['TYPEID'] = match ($values['TYPEID']) {
                     6 => 'OKATO',
@@ -44,10 +44,10 @@ class AsAddrObjParams extends XMLFile
 
 
                 $model->forceInsert([
-                  $values['OBJECTID'],
-                  $values['TYPEID'],
-                  $values['VALUE'],
-                  $region,
+                    $values['OBJECTID'],
+                    $values['TYPEID'],
+                    $values['VALUE'],
+                    $region,
                 ]);
             }
         }

@@ -7,7 +7,6 @@ namespace GAR\Util\XMLReader\Files\EveryRegion;
 use GAR\Database\Table\SQL\QueryModel;
 use GAR\Entity\EntityFactory;
 use GAR\Util\XMLReader\Files\XMLFile;
-use GAR\Util\XMLReader\Reader\ConcreteReader;
 
 class AsMunHierarchy extends XMLFile
 {
@@ -24,9 +23,9 @@ class AsMunHierarchy extends XMLFile
     public static function getAttributes(): array
     {
         return [
-      'OBJECTID' => 'int',
-      'PARENTOBJID' => 'int',
-    ];
+            'OBJECTID' => 'int',
+            'PARENTOBJID' => 'int',
+        ];
     }
 
     public function execDoWork(array $values): void
@@ -37,16 +36,16 @@ class AsMunHierarchy extends XMLFile
         if (isset($values['PARENTOBJID']) && !empty($this->getIdAddrObj($model, $values['PARENTOBJID'], $region))) {
             if (!empty($this->getIdAddrObj($model, $values['OBJECTID'], $region))) {
                 $model->forceInsert([
-          $values['PARENTOBJID'],
-          $values['OBJECTID'],
-          null,
-        ]);
+                    $values['PARENTOBJID'],
+                    $values['OBJECTID'],
+                    null,
+                ]);
             } elseif (!empty($this->getIdHouses($model, $values['OBJECTID'], $region))) {
                 $model->forceInsert([
-          $values['PARENTOBJID'],
-          null,
-          $values['OBJECTID'],
-        ]);
+                    $values['PARENTOBJID'],
+                    null,
+                    $values['OBJECTID'],
+                ]);
             }
         }
     }

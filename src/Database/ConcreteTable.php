@@ -51,7 +51,7 @@ abstract class ConcreteTable extends SQLBuilder
     public static function getInstance(DBAdapter $db, bool $createMetaTable = true): QueryModel
     {
         static $instance = null;
-        if (is_null($instance)) {
+        if (null === $instance) {
             $instance = new static($db, $createMetaTable);
         }
 

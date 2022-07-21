@@ -20,14 +20,14 @@ class DatabaseUploader
     public function __construct(EntityFactory $tables)
     {
         $this->tables = [
-      'level_obj' => $tables::getObjectLevels(),
-      'housetype' => $tables::getHousetype(),
-      'addhousetype' => $tables::getAddhousetype(),
-      'addr_obj' => $tables::getAddressObjectTable(),
-      'houses' => $tables::getHousesTable(),
-      'mun_hierarchy' => $tables::getMunTable(),
-      'addr_obj_params' => $tables::getAddressObjectParamsTable(),
-    ];
+            'level_obj' => $tables::getObjectLevels(),
+            'housetype' => $tables::getHousetype(),
+            'addhousetype' => $tables::getAddhousetype(),
+            'addr_obj' => $tables::getAddressObjectTable(),
+            'houses' => $tables::getHousesTable(),
+            'mun_hierarchy' => $tables::getMunTable(),
+            'addr_obj_params' => $tables::getAddressObjectParamsTable(),
+        ];
     }
 
     /**
@@ -39,14 +39,14 @@ class DatabaseUploader
     public function upload(FilesFactory $readerFactory): void
     {
         $readerGroup = [
-      'level_obj' => $readerFactory::execObjectLevels(),
-      'housetype' => $readerFactory::execHousetype(),
-      'addhousetype' => $readerFactory::execAddhousetype(),
-      'addr_obj' => $readerFactory::execAddrObj(),
-      'houses' => $readerFactory::execHouses(),
-      'mun_hierarchy' => $readerFactory::execMunHierachi(),
-      'addr_obj_params' => $readerFactory::execAddressObjParams(),
-    ];
+            'level_obj' => $readerFactory::execObjectLevels(),
+            'housetype' => $readerFactory::execHousetype(),
+            'addhousetype' => $readerFactory::execAddhousetype(),
+            'addr_obj' => $readerFactory::execAddrObj(),
+            'houses' => $readerFactory::execHouses(),
+            'mun_hierarchy' => $readerFactory::execMunHierachi(),
+            'addr_obj_params' => $readerFactory::execAddressObjParams(),
+        ];
 
         foreach ($readerGroup as $name => $reader) {
             $reader->exec($this->tables[$name]);

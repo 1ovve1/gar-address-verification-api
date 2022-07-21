@@ -23,14 +23,14 @@ class AsAddrObj extends XMLFile
     public static function getAttributes(): array
     {
         return [
-          'ISACTUAL' => 'bool',
-          'ISACTIVE' => 'bool',
-          'ID' => 'int',
-          'OBJECTID' => 'int',
-          'OBJECTGUID' => 'string',
-          'NAME' => 'string',
-          'TYPENAME' => 'string',
-          'LEVEL' => 'int',
+            'ISACTUAL' => 'bool',
+            'ISACTIVE' => 'bool',
+            'ID' => 'int',
+            'OBJECTID' => 'int',
+            'OBJECTGUID' => 'string',
+            'NAME' => 'string',
+            'TYPENAME' => 'string',
+            'LEVEL' => 'int',
         ];
     }
 
@@ -41,14 +41,14 @@ class AsAddrObj extends XMLFile
 
         if (empty($this->getFirstObjectId($model, $values['OBJECTID'], $region))) {
             $model->forceInsert([
-            $values['ID'],
-            $values['OBJECTID'],
-            $values['OBJECTGUID'],
-            $values['LEVEL'],
-            $values['NAME'],
-            $values['TYPENAME'],
-            $region,
-          ]);
+                $values['ID'],
+                $values['OBJECTID'],
+                $values['OBJECTGUID'],
+                $values['LEVEL'],
+                $values['NAME'],
+                $values['TYPENAME'],
+                $region,
+            ]);
         }
     }
 

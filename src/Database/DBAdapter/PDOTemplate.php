@@ -12,7 +12,7 @@ namespace GAR\Database\DBAdapter;
 class PDOTemplate implements QueryTemplate
 {
     /**
-     * @var \PDOStatement $template - prepared stage object
+     * @var \PDOStatement - prepared stage object
      */
     protected readonly \PDOStatement $template;
 
