@@ -28,7 +28,11 @@ class AsAddhouseTypes extends XMLFile
    */
   static function getAttributes(): array
   {
-    return ['ID', 'NAME', 'SHORTNAME'];
+    return [
+      'ID' => 'int', 
+      'SHORTNAME' => 'string',
+      'NAME' => 'string', 
+    ];
   }
 
   /**
@@ -40,7 +44,7 @@ class AsAddhouseTypes extends XMLFile
   {
 
     static::getQueryModel()->forceInsert([
-      (int)$values['ID'],
+      $values['ID'],
       $values['SHORTNAME'],
       $values['NAME'],
     ]);

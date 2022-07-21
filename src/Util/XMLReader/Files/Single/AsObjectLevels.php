@@ -31,7 +31,7 @@ class AsObjectLevels extends XMLFile
     return [
       'LEVEL' => 'int', 
       'NAME' => 'string', 
-      'ISACTIVE' => 'bool'
+      'ISACTIVE' => 'bool',
     ];
   }
 
@@ -42,12 +42,10 @@ class AsObjectLevels extends XMLFile
    */
   function execDoWork(array $values): void
   {
-    if ($values['ISACTIVE']) {
-      static::getQueryModel()->forceInsert([
-        $values['LEVEL'],
-        $values['NAME']
-      ]);
-    }
+    static::getQueryModel()->forceInsert([
+      $values['LEVEL'],
+      $values['NAME']
+    ]);
   }
 
 }

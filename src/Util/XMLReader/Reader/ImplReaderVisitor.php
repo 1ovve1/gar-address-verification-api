@@ -77,30 +77,48 @@ class ImplReaderVisitor
   private function parseXml(XMLFile $file):void
   {
     $elem = $file::getElement();
-    $attributes = $file->getAttributesKeys();
-    $casts = $file->getAttributesCasts();
     $reader = $this->xmlReader;
     
     while($reader->read()) {
       if ($reader->nodeType == \XMLReader::ELEMENT && $reader->localName == $elem) {
+        $this->handleElement($file);
         break;
       }
     }
 
+    
+  }
+
+  private function handleElement(XMLFile $file) :void
+  {
+    $elem = $file::getElement();
+    $reader = $this->xmlReader;
+    
     do {
+      $breakFlag = false;
       $data = [];
 
-      while($reader->moveToNextAttribute()) {
-        $index = $reader->name;
-        if (in_array($index, $attributes)) {
-          $value = $reader->value;
-          settype($value, $casts[$index]);
+      foreach ($file::getAttributes() as $index => $cast) {
+        if ($value = $reader->getAttribute($index)) {
+          try{
+            settype($value, $cast);
+          } catch (\ValueError $error) {
+            throw new \RuntimeException(
+              "Incorrect type of the attribute in " . $file::class . PHP_EOL .
+              "Given type '{$cast}' for cast attribute '{$index}'" . PHP_EOL);
+          }
 
           $data[$index] = $value;
+
+        } else if ($cast === 'bool'){
+          $breakFlag = true;
+          break;
+          
         }
       }
-
-      $file->execDoWork($data);
+      if (!$breakFlag) {
+        $file->execDoWork($data);
+      }
     } while($reader->next($elem));
   }
 

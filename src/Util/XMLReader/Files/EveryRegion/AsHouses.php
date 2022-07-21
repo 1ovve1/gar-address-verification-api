@@ -20,34 +20,35 @@ class AsHouses extends XMLFile
 
 	public static function getAttributes() : array {
 		return [
-      'ID', 'OBJECTID', 'OBJECTGUID', 'HOUSENUM',
-      'ADDNUM1', 'ADDNUM2', 'HOUSETYPE', 'ADDTYPE1',
-      'ADDTYPE2', 'ISACTUAL', 'ISACTIVE'
+      'ISACTUAL' => 'bool', 'ISACTIVE' => 'bool',
+      'ID' => 'int', 'OBJECTID' => 'int', 
+      'OBJECTGUID' => 'string', 'HOUSENUM' => 'string',
+      'ADDNUM1' => 'string', 'ADDNUM2' => 'string', 
+      'HOUSETYPE' => 'int', 'ADDTYPE1' => 'int',
+      'ADDTYPE2' => 'int', 
     ];
 	}
 
 	function execDoWork(array $values) : void
 	{
-		if ($values['ISACTIVE'] === "1" && $values['ISACTUAL'] === "1") {
-      $model = static::getQueryModel();
-      $region = $this->getIntRegion();
+    $model = static::getQueryModel();
+    $region = $this->getIntRegion();
 
-      if (empty($this->getFirstObjectId($model, (int)$values['OBJECTID'], $region))) {
+    if (empty($this->getFirstObjectId($model, $values['OBJECTID'], $region))) {
 
-        $model->forceInsert([
-          (int)$values['ID'],
-          (int)$values['OBJECTID'],
-          $values['OBJECTGUID'],
-          $values['HOUSENUM'] ?? null,
-          $values['ADDNUM1'] ?? null,
-          $values['ADDNUM2'] ?? null,
-          $values['HOUSETYPE'] ?? null,
-          $values['ADDTYPE1'] ?? null,
-          $values['ADDTYPE2'] ?? null,
-          $region
-        ]);
+      $model->forceInsert([
+        $values['ID'],
+        $values['OBJECTID'],
+        $values['OBJECTGUID'],
+        $values['HOUSENUM'] ?? null,
+        $values['ADDNUM1'] ?? null,
+        $values['ADDNUM2'] ?? null,
+        $values['HOUSETYPE'] ?? null,
+        $values['ADDTYPE1'] ?? null,
+        $values['ADDTYPE2'] ?? null,
+        $region
+      ]);
       }
-    }
 	}
 
   private function getFirstObjectId(QueryModel $model, int $objectid, int $region) : array

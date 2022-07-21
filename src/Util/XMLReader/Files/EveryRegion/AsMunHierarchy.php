@@ -19,7 +19,10 @@ class AsMunHierarchy extends XMLFile
 	}
 
 	static function getAttributes() : array {
-		return ['OBJECTID', 'PARENTOBJID'];
+		return [
+      'OBJECTID' => 'int', 
+      'PARENTOBJID' => 'int',
+    ];
 	}
 
 	function execDoWork(array $values) : void
@@ -27,23 +30,18 @@ class AsMunHierarchy extends XMLFile
     $region = $this->getIntRegion();
     $model = static::getQueryModel();
 
-    $formatted = [
-      'OBJECTID' => (int)$values['OBJECTID'],
-      'PARENTOBJID' => (int)$values['PARENTOBJID']
-    ];
-
-    if (!empty($this->getIdAddrObj($model, $formatted['PARENTOBJID'], $region))) {
-      if (!empty($this->getIdAddrObj($model, $formatted['OBJECTID'], $region))) {
+    if (isset($values['PARENTOBJID']) && !empty($this->getIdAddrObj($model, $values['PARENTOBJID'], $region))) {
+      if (!empty($this->getIdAddrObj($model, $values['OBJECTID'], $region))) {
         $model->forceInsert([
-          $formatted['PARENTOBJID'],
-          $formatted['OBJECTID'],
+          $values['PARENTOBJID'],
+          $values['OBJECTID'],
           null,
         ]);
-      } else if (!empty($this->getIdHouses($model, $formatted['OBJECTID'], $region))) {
+      } else if (!empty($this->getIdHouses($model, $values['OBJECTID'], $region))) {
         $model->forceInsert([
-          $formatted['PARENTOBJID'],
+          $values['PARENTOBJID'],
           null,
-          (int)$values['OBJECTID'],
+          $values['OBJECTID'],
         ]);
       }
     }

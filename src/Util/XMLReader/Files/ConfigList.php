@@ -10,13 +10,13 @@ use JetBrains\PhpStorm\ArrayShape;
 
 enum ConfigList
 {
-  // case AsHouseTypes;
-  // case AsAddhouseTypes;
+  case AsHouseTypes;
+  case AsAddhouseTypes;
   case AsObjectLevels;
   case AsAddrObj;
-  // case AsAddrObjParams;
-  // case AsHouses;
-  // case AsMunHierarchy;
+  case AsAddrObjParams;
+  case AsHouses;
+  case AsMunHierarchy;
 
   const EVERY_REGION_FLOODER = "\\EveryRegion\\";
   const SINGLE_FLOODER = "\\Single\\";
