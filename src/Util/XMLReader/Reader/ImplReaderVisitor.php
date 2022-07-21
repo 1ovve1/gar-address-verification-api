@@ -6,9 +6,6 @@ namespace GAR\Util\XMLReader\Reader;
 use Exception;
 use GAR\Logger\Log;
 use GAR\Logger\Msg;
-use GAR\Util\XMLReader\Reader\AbstractReader\{AbstractXMLReader,
-  IteratorXML,
-  OpenXMLFromZip};
 use GAR\Util\XMLReader\Files\XMLFile;
 
 class ImplReaderVisitor
