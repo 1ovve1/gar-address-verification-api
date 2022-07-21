@@ -1,18 +1,22 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace GAR\Entity;
 
 use GAR\Database\DBFacade;
 use GAR\Database\Table\SQL\QueryModel;
-use GAR\Entity\Models\{AddrObj,
-  AddrObjParams,
-  AdminHierarchy,
-  Houses,
-  MunHierarchy,
-  ObjLevels,
-  Housetype,
-  Addhousetype,
-  Production};
+use GAR\Entity\Models\{
+    Addhousetype,
+    AddrObj,
+    AddrObjParams,
+    AdminHierarchy,
+    Houses,
+    Housetype,
+    MunHierarchy,
+    ObjLevels,
+    Production
+};
 
 /**
  * BD FACTORY CLASS
@@ -22,114 +26,114 @@ use GAR\Entity\Models\{AddrObj,
  */
 class EntityFactory
 {
-	/**
+    /**
    * Return addr_obj table
-   * 
+   *
    * @return QueryModel
    */
-	public static function getAddressObjectTable() : QueryModel
-	{
-		static $model = null;
-    if (is_null($model)) {
-      $model = new AddrObj(DBFacade::getInstance());
+    public static function getAddressObjectTable(): QueryModel
+    {
+        static $model = null;
+        if (is_null($model)) {
+            $model = new AddrObj(DBFacade::getInstance());
+        }
+        return $model;
     }
-    return $model;
-	}
 
-  /**
-   * Return addr_obj_params table
-   * 
-   * @return QueryModel
-   */
-	public static function getAddressObjectParamsTable() : QueryModel
-	{
-		static $model = null;
-    if (is_null($model)) {
-      $model = new AddrObjParams(DBFacade::getInstance());
+    /**
+     * Return addr_obj_params table
+     *
+     * @return QueryModel
+     */
+    public static function getAddressObjectParamsTable(): QueryModel
+    {
+        static $model = null;
+        if (is_null($model)) {
+            $model = new AddrObjParams(DBFacade::getInstance());
+        }
+        return $model;
     }
-    return $model;
-	}
 
-  /**
-   * Return houses table
-   * 
-   * @return QueryModel
-   */
-	public static function getHousesTable() : QueryModel
-	{
-		static $model = null;
-    if (is_null($model)) {
-      $model = new Houses(DBFacade::getInstance());
+    /**
+     * Return houses table
+     *
+     * @return QueryModel
+     */
+    public static function getHousesTable(): QueryModel
+    {
+        static $model = null;
+        if (is_null($model)) {
+            $model = new Houses(DBFacade::getInstance());
+        }
+        return $model;
     }
-    return $model;
-	}
 
-  /**
-   * Return mun_hierarchy table
-   * 
-   * @return QueryModel
-   */
-	public static function getMunTable() : QueryModel
-	{
-		static $model = null;
-    if (is_null($model)) {
-      $model = new MunHierarchy(DBFacade::getInstance());
+    /**
+     * Return mun_hierarchy table
+     *
+     * @return QueryModel
+     */
+    public static function getMunTable(): QueryModel
+    {
+        static $model = null;
+        if (is_null($model)) {
+            $model = new MunHierarchy(DBFacade::getInstance());
+        }
+        return $model;
     }
-    return $model;
-	}
 
-  /**
-   * Return obj_level table
-   * 
-   * @return QueryModel
-   */
-  public static function getObjectLevels() : QueryModel
-  {
-    static $model = null;
-    if (is_null($model)) {
-      $model = new ObjLevels(DBFacade::getInstance());
+    /**
+     * Return obj_level table
+     *
+     * @return QueryModel
+     */
+    public static function getObjectLevels(): QueryModel
+    {
+        static $model = null;
+        if (is_null($model)) {
+            $model = new ObjLevels(DBFacade::getInstance());
+        }
+        return $model;
     }
-    return $model;
-  }
 
-  /**
-   * Return housetype table
-   * 
-   * @return QueryModel
-   */
-  public static function getHousetype() : QueryModel
-  {
-    static $model = null;
-    if (is_null($model)) {
-      $model = new Housetype(DBFacade::getInstance());
+    /**
+     * Return housetype table
+     *
+     * @return QueryModel
+     */
+    public static function getHousetype(): QueryModel
+    {
+        static $model = null;
+        if (is_null($model)) {
+            $model = new Housetype(DBFacade::getInstance());
+        }
+        return $model;
     }
-    return $model;
-  }
 
-  /**
-   * Return addhousetype table
-   * 
-   * @return QueryModel
-   */
-  public static function getAddhousetype() : QueryModel
-  {
-    static $model = null;
-    if (is_null($model)) {
-      $model = new Addhousetype(DBFacade::getInstance());
+    /**
+     * Return addhousetype table
+     *
+     * @return QueryModel
+     */
+    public static function getAddhousetype(): QueryModel
+    {
+        static $model = null;
+        if (is_null($model)) {
+            $model = new Addhousetype(DBFacade::getInstance());
+        }
+        return $model;
     }
-    return $model;
-  }
 
-  /**
-   * Return prodaction table accsessor (not a model)
-   * 
-   * @return QueryModel
-   */
-  public static function getProductionDB() : QueryModel
-  {
-    return Production::getInstance(
-      db: DBFacade::getInstance(), 
-      createMetaTable: false
-    );
-  }
+    /**
+     * Return prodaction table accsessor (not a model)
+     *
+     * @return QueryModel
+     */
+    public static function getProductionDB(): QueryModel
+    {
+        return Production::getInstance(
+            db: DBFacade::getInstance(),
+            createMetaTable: false
+        );
+    }
 }

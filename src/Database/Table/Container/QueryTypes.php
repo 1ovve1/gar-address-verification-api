@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace GAR\Database\Table\Container;
 
@@ -7,7 +9,7 @@ namespace GAR\Database\Table\Container;
  */
 enum QueryTypes
 {
-  case INSERT;
-  case SELECT;
-  case META;
+    case INSERT;
+    case SELECT;
+    case META;
 }

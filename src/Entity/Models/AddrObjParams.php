@@ -1,22 +1,23 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace GAR\Entity\Models;
 
 use GAR\Database\ConcreteTable;
 use GAR\Database\Table\SQL\QueryModel;
 
-
 class AddrObjParams extends ConcreteTable implements QueryModel
 {
-  /**
-   * Return fields that need to create in model
-   * 
-   * @return array<string, string>|null
-   */
-  public function fieldsToCreate() : ?array
-	{
-		return [
-			'objectid_addr' =>
+    /**
+     * Return fields that need to create in model
+     *
+     * @return array<string, string>|null
+     */
+    public function fieldsToCreate(): ?array
+    {
+        return [
+            'objectid_addr' =>
         'BIGINT UNSIGNED NOT NULL',
 
       'type' =>
@@ -31,6 +32,6 @@ class AddrObjParams extends ConcreteTable implements QueryModel
       'FOREIGN KEY (objectid_addr)' =>
         'REFERENCES addr_obj (objectid)'
         
-		];
-	}
+        ];
+    }
 }

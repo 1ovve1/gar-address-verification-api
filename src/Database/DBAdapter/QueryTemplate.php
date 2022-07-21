@@ -9,18 +9,18 @@ namespace GAR\Database\DBAdapter;
  */
 interface QueryTemplate
 {
-  /**
-   * Execute statement
-   * 
-   * @param  array<DatabaseContract> $values - values to execute
-   * @return array<mixed>
-   */
-  function exec(array $values) : array;
+    /**
+     * Execute statement
+     *
+     * @param  array<DatabaseContract> $values - values to execute
+     * @return array<mixed>
+     */
+    public function exec(array $values): array;
 
-  /**
-   * Accept changes in template (use for lazy insert)
-   * 
-   * @return mixed
-   */
-  function save(): mixed;
+    /**
+     * Accept changes in template (use for lazy insert)
+     *
+     * @return mixed
+     */
+    public function save(): mixed;
 }

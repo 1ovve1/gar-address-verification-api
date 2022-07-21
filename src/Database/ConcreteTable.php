@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace GAR\Database;
 
@@ -14,55 +16,55 @@ use GAR\Logger\Msg;
  */
 abstract class ConcreteTable extends SQLBuilder
 {
-  /**
-   * @param DBAdapter $db - database object
-   * @param bool $createMetaTable - create table model option
-   */
-  final public function __construct(DBAdapter $db, bool $createMetaTable = true)
-  {
-    if ($createMetaTable) {
-      $metaTable = new MetaTable(
-        $db,
-        DBFacade::genTableNameByClassName(get_class($this)),
-        $this->fieldsToCreate()
-      );
-    }
-    parent::__construct(
-      $db,
-      ($createMetaTable) ? $metaTable: null,
-      intval($_SERVER['DB_BUFF'])
-    );
-    Log::write(
-      Msg::LOG_DB_INIT->value,
-      $this->metaTable?->getTableName() ?? '',
-      Msg::LOG_COMPLETE->value
-    );
-  }
-
-  /**
-   * Return singleton instance of static object
-   *
-   * @param DBAdapter $db - database connection
-   * @param bool $createMetaTable - create table model option
-   * @return QueryModel
-   */
-  public static function getInstance(DBAdapter $db, bool $createMetaTable = true) : QueryModel
-  {
-    static $instance = null;
-    if (is_null($instance)) {
-      $instance = new static($db, $createMetaTable);
+    /**
+     * @param DBAdapter $db - database object
+     * @param bool $createMetaTable - create table model option
+     */
+    final public function __construct(DBAdapter $db, bool $createMetaTable = true)
+    {
+        if ($createMetaTable) {
+            $metaTable = new MetaTable(
+                $db,
+                DBFacade::genTableNameByClassName(get_class($this)),
+                $this->fieldsToCreate()
+            );
+        }
+        parent::__construct(
+            $db,
+            ($createMetaTable) ? $metaTable : null,
+            intval($_SERVER['DB_BUFF'])
+        );
+        Log::write(
+            Msg::LOG_DB_INIT->value,
+            $this->metaTable?->getTableName() ?? '',
+            Msg::LOG_COMPLETE->value
+        );
     }
 
-    return $instance;
-  }
+    /**
+     * Return singleton instance of static object
+     *
+     * @param DBAdapter $db - database connection
+     * @param bool $createMetaTable - create table model option
+     * @return QueryModel
+     */
+    public static function getInstance(DBAdapter $db, bool $createMetaTable = true): QueryModel
+    {
+        static $instance = null;
+        if (is_null($instance)) {
+            $instance = new static($db, $createMetaTable);
+        }
 
-  /**
-   * return fields thath need to create in new table model 
-   * 
-   * @return ?array<string, string>
-   */
-  protected function fieldsToCreate() : ?array
-  {
-    return null;
-  }
+        return $instance;
+    }
+
+    /**
+     * return fields thath need to create in new table model
+     *
+     * @return ?array<string, string>
+     */
+    protected function fieldsToCreate(): ?array
+    {
+        return null;
+    }
 }

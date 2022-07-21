@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace GAR\Entity\Models;
 
@@ -7,15 +9,15 @@ use GAR\Database\Table\SQL\QueryModel;
 
 class MunHierarchy extends ConcreteTable implements QueryModel
 {
-  /**
-   * Return fields that need to create in model
-   * 
-   * @return array<string, string>|null
-   */
-  public function fieldsToCreate() : ?array
-	{
-		return [
-			'parentobjid_addr' =>
+    /**
+     * Return fields that need to create in model
+     *
+     * @return array<string, string>|null
+     */
+    public function fieldsToCreate(): ?array
+    {
+        return [
+            'parentobjid_addr' =>
         'BIGINT UNSIGNED NOT NULL',
 
       'chiledobjid_addr' =>
@@ -33,6 +35,6 @@ class MunHierarchy extends ConcreteTable implements QueryModel
       'FOREIGN KEY (chiledobjid_houses)' =>
         'REFERENCES houses (objectid)',
 
-		];
-	}
+        ];
+    }
 }

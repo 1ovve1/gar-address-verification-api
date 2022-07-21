@@ -6,5 +6,5 @@ use GAR\Util\XMLReader\Reader\ReaderVisitor;
 
 interface FileCollection
 {
-  function exec(ReaderVisitor $reader) : void;
+    public function exec(ReaderVisitor $reader): void;
 }

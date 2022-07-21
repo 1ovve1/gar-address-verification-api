@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace GAR\Entity\Models;
 
@@ -8,5 +10,4 @@ use GAR\Database\Table\SQL\QueryModel;
 
 class Production extends ConcreteTable implements QueryModel
 {
-  
 }
