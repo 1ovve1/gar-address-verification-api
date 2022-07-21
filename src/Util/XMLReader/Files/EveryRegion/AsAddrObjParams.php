@@ -18,7 +18,11 @@ class AsAddrObjParams extends XMLFile
 	}
 
 	static function getAttributes() : array {
-		return ['OBJECTID', 'TYPEID', 'VALUE'];
+		return [
+      'OBJECTID' => 'int', 
+      'TYPEID' => 'int', 
+      'VALUE' => 'string',
+    ];
 	}
 
 	function execDoWork(array $values) : void
@@ -26,64 +30,32 @@ class AsAddrObjParams extends XMLFile
     $region = $this->getIntRegion();
     $model = static::getQueryModel();
 
-    $formatted = [
-      'OBJECTID_ADDR' => (int)$values['OBJECTID'],
-    ];
-
-    if (!empty($this->getFirstObjectIdAddrObj($model, $formatted['OBJECTID_ADDR'], $region))) {
-      if (in_array($values['TYPEID'], ['6', '7', '10'])) {
+    if (in_array($values['TYPEID'], [6, 7, 10])) {
+      if (!empty($this->getFirstObjectIdAddrObj($model, $values['OBJECTID'], $region))) {
         $type = '';
 
         switch ($values['TYPEID']) {
-          case '6':
-            $formatted['TYPE'] = 'OKATO';
-            $formatted['VALUE'] = $values['VALUE'];
+          case 6:
+            $values['TYPEID'] = 'OKATO';
+            $values['VALUE'] = $values['VALUE'];
             break;
-          case '7':
-            $formatted['TYPE'] = 'OKTMO';
-            $formatted['VALUE'] = $values['VALUE'];
+          case 7:
+            $values['TYPEID'] = 'OKTMO';
+            $values['VALUE'] = $values['VALUE'];
             break;
           case '10':
-            $formatted['TYPE'] = 'KLADR';
-            $formatted['VALUE'] = $values['VALUE'];
+            $values['TYPEID'] = 'KLADR';
+            $values['VALUE'] = $values['VALUE'];
             break;
         }
 
 
-        $model->forceInsert($formatted + ['region' => $region]);
-
-//        if (empty($this->getFirstObjectId($model, $formatted['objectid_addr'], $region))) {
-//          $this->doInsert($model, $type, $formatted);
-//        } else {
-//          $this->doUpdate($model, $type, $formatted);
-//        }
+        $model->forceInsert($values + [$region]);
       }
     }
 	}
 
-
-
-  private function doUpdate(QueryModel $model, string $type, array $formatted) : void
-  {
-    if (!$model->nameExist($type . 'U')) {
-      $model->update($type, $formatted[$type])
-        ->where('objectid_addr', '=', $formatted['objectid_addr'])
-        ->name($type . 'U');
-    }
-
-    $model->execute([$formatted[$type], $formatted['objectid_addr']], $type . 'U');
-  }
-
-  private function doInsert(QueryModel $model, string $type,  array $formatted) : void
-  {
-    if (!$model->nameExist($type . 'I')) {
-      $model->insert($formatted)
-        ->name($type . 'I');
-    }
-
-    $model->execute(array_values($formatted), $type . 'I');
-  }
-
+  
   private function getFirstObjectId(QueryModel $model, int $objectid, int $region) : array
   {
     static $name = self::class . 'getFirstObjectId';

@@ -128,6 +128,16 @@ abstract class XMLFile
    */
   abstract static function getAttributes(): array;
 
+  function getAttributesKeys(): array 
+  {
+    return array_keys($this::getAttributes());
+  } 
+
+  function getAttributesCasts(): array 
+  {
+    return $this::getAttributes();
+  } 
+
   /**
    * procedure that contains main operations from exec method
    * @param array $values current parse element

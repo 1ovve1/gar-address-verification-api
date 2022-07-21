@@ -34,8 +34,8 @@ class PDOTemplate implements QueryTemplate
     try {
       $res = $this->template->execute($values);
     } catch (\PDOException $e) {
-      var_dump($values);
-      throw new RuntimeException($e->getMessage());
+      var_dump(count($values));
+      throw new \RuntimeException($e->getMessage());
     }
     if ($res === false) {
       throw new \RuntimeException('PDOTemplate (QueryTemplate) error: bad execute');

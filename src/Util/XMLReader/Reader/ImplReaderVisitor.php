@@ -77,19 +77,49 @@ class ImplReaderVisitor
   private function parseXml(XMLFile $file):void
   {
     $elem = $file::getElement();
-    $attributes = $file::getAttributes();
+    $reader = $this->xmlReader;
     
-    while($this->xmlReader->read()) {
-      if ($this->xmlReader->nodeType == \XMLReader::ELEMENT && $this->xmlReader->localName == $elem) {
-        $data = [];
-        while($this->xmlReader->moveToNextAttribute()) {
-          if (in_array($this->xmlReader->name, $attributes)) {
-            $data[$this->xmlReader->name] = $this->xmlReader->value;
-          }
-        }
-        $file->execDoWork($data);
+    while($reader->read()) {
+      if ($reader->nodeType == \XMLReader::ELEMENT && $reader->localName == $elem) {
+        $this->handleElement($file);
+        break;
       }
     }
+
+    
+  }
+
+  private function handleElement(XMLFile $file) :void
+  {
+    $elem = $file::getElement();
+    $reader = $this->xmlReader;
+    
+    do {
+      $breakFlag = false;
+      $data = [];
+
+      foreach ($file::getAttributes() as $index => $cast) {
+        if ($value = $reader->getAttribute($index)) {
+          try{
+            settype($value, $cast);
+          } catch (\ValueError $error) {
+            throw new \RuntimeException(
+              "Incorrect type of the attribute in " . $file::class . PHP_EOL .
+              "Given type '{$cast}' for cast attribute '{$index}'" . PHP_EOL);
+          }
+
+          $data[$index] = $value;
+
+        } else if ($cast === 'bool'){
+          $breakFlag = true;
+          break;
+          
+        }
+      }
+      if (!$breakFlag) {
+        $file->execDoWork($data);
+      }
+    } while($reader->next($elem));
   }
 
   private function closeReadSessionAndDeleteCache(string $pathToXmlInCache): void
