@@ -111,6 +111,11 @@ abstract class XMLFile
    */
   abstract static function getQueryModel(): QueryModel;
 
+  function saveChangesInQueryModel(): void
+  {
+    $this::getQueryModel()->save();
+  }
+
   /**
    * return elements of xml document
    * @return string elements names

@@ -33,21 +33,17 @@ class AsHouses extends XMLFile
       $region = $this->getIntRegion();
 
       if (empty($this->getFirstObjectId($model, (int)$values['OBJECTID'], $region))) {
-        foreach ($this::getAttributes() as $attr) {
-          if (!isset($values[$attr])) {
-            $values[$attr] = null;
-          }
-        }
+
         $model->forceInsert([
           (int)$values['ID'],
           (int)$values['OBJECTID'],
           $values['OBJECTGUID'],
-          $values['HOUSENUM'],
-          $values['ADDNUM1'],
-          $values['ADDNUM2'],
-          $values['HOUSETYPE'],
-          $values['ADDTYPE1'],
-          $values['ADDTYPE2'],
+          $values['HOUSENUM'] ?? null,
+          $values['ADDNUM1'] ?? null,
+          $values['ADDNUM2'] ?? null,
+          $values['HOUSETYPE'] ?? null,
+          $values['ADDTYPE1'] ?? null,
+          $values['ADDTYPE2'] ?? null,
           $region
         ]);
       }

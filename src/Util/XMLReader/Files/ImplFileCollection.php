@@ -7,9 +7,9 @@ use GAR\Util\XMLReader\Reader\ReaderVisitor;
 class ImplFileCollection implements FileCollection
 {
   /** @var XMLFile[] */
-  private array $singleFiles;
+  private array $singleFiles = [];
   /** @var XMLFile[] */
-  private array $everyRegionFiles;
+  private array $everyRegionFiles = [];
   /** @var String[] */
   private array $listOfRegions;
 
@@ -47,14 +47,19 @@ class ImplFileCollection implements FileCollection
 
   function exec(ReaderVisitor $reader): void
   {
-    foreach ($this->singleFiles as $trySingleFile) {
-      $reader->read($trySingleFile);
+    foreach ($this->singleFiles as $singleFile) {
+      $reader->read($singleFile);
+      $singleFile->saveChangesInQueryModel();
     }
 
     foreach ($this->listOfRegions as $region) {
-      foreach ($this->everyRegionFiles as $tryRegionFile) {
-        $reader->read($tryRegionFile->setRegion($region));
+      foreach ($this->everyRegionFiles as $everyRegionFile) {
+        $reader->read($everyRegionFile->setRegion($region));
       }
+    }
+
+    foreach ($this->everyRegionFiles as $everyRegionFile) {
+      $everyRegionFile->saveChangesInQueryModel();
     }
   }
 }
