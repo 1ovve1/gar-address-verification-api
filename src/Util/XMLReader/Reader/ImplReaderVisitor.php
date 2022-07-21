@@ -79,22 +79,29 @@ class ImplReaderVisitor
     $elem = $file::getElement();
     $attributes = $file->getAttributesKeys();
     $casts = $file->getAttributesCasts();
+    $reader = $this->xmlReader;
     
-    while($this->xmlReader->read()) {
-      if ($this->xmlReader->nodeType == \XMLReader::ELEMENT && $this->xmlReader->localName == $elem) {
-        $data = [];
-        while($this->xmlReader->moveToNextAttribute()) {
-          $index = $this->xmlReader->name;
-          if (in_array($index, $attributes)) {
-            $value = $this->xmlReader->value;
-            settype($value, $casts[$index]);
-
-            $data[$index] = $value;
-          }
-        }
-        $file->execDoWork($data);
+    while($reader->read()) {
+      if ($reader->nodeType == \XMLReader::ELEMENT && $reader->localName == $elem) {
+        break;
       }
     }
+
+    do {
+      $data = [];
+
+      while($reader->moveToNextAttribute()) {
+        $index = $reader->name;
+        if (in_array($index, $attributes)) {
+          $value = $reader->value;
+          settype($value, $casts[$index]);
+
+          $data[$index] = $value;
+        }
+      }
+
+      $file->execDoWork($data);
+    } while($reader->next($elem));
   }
 
   private function closeReadSessionAndDeleteCache(string $pathToXmlInCache): void
