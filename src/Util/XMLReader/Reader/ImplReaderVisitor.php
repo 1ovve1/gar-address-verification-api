@@ -78,6 +78,7 @@ class ImplReaderVisitor
   {
     $elem = $file::getElement();
     $attributes = $file::getAttributes();
+    
     while($this->xmlReader->read()) {
       if ($this->xmlReader->nodeType == \XMLReader::ELEMENT && $this->xmlReader->localName == $elem) {
         $data = [];
@@ -86,7 +87,6 @@ class ImplReaderVisitor
             $data[$this->xmlReader->name] = $this->xmlReader->value;
           }
         }
-//      var_dump($data);
         $file->execDoWork($data);
       }
     }
