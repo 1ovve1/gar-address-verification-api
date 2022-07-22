@@ -28,27 +28,23 @@ class AsAddrObj extends XMLFile
             'ID' => 'int',
             'OBJECTID' => 'int',
             'OBJECTGUID' => 'string',
+            'LEVEL' => 'int',
             'NAME' => 'string',
             'TYPENAME' => 'string',
-            'LEVEL' => 'int',
         ];
     }
 
-    public function execDoWork(array $values): void
+    public function execDoWork(array &$values): void
     {
         $model = static::getQueryModel();
         $region = $this->getIntRegion();
 
         if (empty($this->getFirstObjectId($model, $values['OBJECTID'], $region))) {
-            $model->forceInsert([
-                $values['ID'],
-                $values['OBJECTID'],
-                $values['OBJECTGUID'],
-                $values['LEVEL'],
-                $values['NAME'],
-                $values['TYPENAME'],
-                $region,
-            ]);
+            unset($values['ISACTUAL']); unset($values['ISACTIVE']);
+
+            $values['REGION'] = $region;
+
+            $model->forceInsert($values);
         }
     }
 

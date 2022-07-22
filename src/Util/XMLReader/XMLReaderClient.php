@@ -6,6 +6,7 @@ namespace GAR\Util\XMLReader;
 
 use GAR\Util\XMLReader\Files\ImplFileCollection;
 use GAR\Util\XMLReader\Reader\ImplReaderVisitor;
+use http\Exception\RuntimeException;
 
 class XMLReaderClient
 {
@@ -23,14 +24,23 @@ class XMLReaderClient
 
     ];
 
-    public function run(array $customRegions = null)
+    /**
+     * @param String[]|null $customRegions
+     * @param String[] $options
+     * @return void
+     */
+    public function run(array $customRegions = null, array $options = []) : void
     {
         if (null === $customRegions) {
             $customRegions = self::regions;
+        } else {
+            if (!in_array($customRegions[0], self::regions)) {
+                throw new \RuntimeException("Unknown region '{$customRegions[0]}' ");
+            }
         }
 
         $fileCollection = new ImplFileCollection($customRegions);
         $reader = new ImplReaderVisitor();
-        $fileCollection->exec($reader);
+        $fileCollection->exec($reader, $options);
     }
 }

@@ -42,12 +42,8 @@ class AsHouseTypes extends XMLFile
      * @param array $values current parse element
      * @return void
      */
-    public function execDoWork(array $values): void
+    public function execDoWork(array &$values): void
     {
-        static::getQueryModel()->forceInsert([
-            $values['ID'],
-            $values['SHORTNAME'],
-            $values['NAME'],
-        ]);
+        static::getQueryModel()->forceInsert($values);
     }
 }

@@ -47,17 +47,19 @@ class ImplFileCollection implements FileCollection
     }
 
 
-    public function exec(ReaderVisitor $reader): void
+    public function exec(ReaderVisitor $reader, array $options = []): void
     {
-        foreach ($this->singleFiles as $singleFile) {
-            $reader->read($singleFile);
-            $singleFile->saveChangesInQueryModel();
+        if (!in_array('--onlyRegions', $options)) {
+            foreach ($this->singleFiles as $singleFile) {
+                $reader->read($singleFile);
+                $singleFile->saveChangesInQueryModel();
+            }
         }
 
-        foreach ($this->everyRegionFiles as $everyRegionFile) {
-            foreach ($this->listOfRegions as $region) {
+        foreach ($this->listOfRegions as $region) {
+            foreach ($this->everyRegionFiles as $everyRegionFile) {
                 $reader->read($everyRegionFile->setRegion($region));
-      
+
                 $everyRegionFile->saveChangesInQueryModel();
             }
         }

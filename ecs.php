@@ -12,4 +12,5 @@ return static function (ECSConfig $ecsConfig): void {
   $ecsConfig->ruleWithConfiguration(ArraySyntaxFixer::class, [
   'syntax' => 'short',
   ]);
+
 };

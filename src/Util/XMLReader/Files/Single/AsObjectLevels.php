@@ -38,15 +38,12 @@ class AsObjectLevels extends XMLFile
     }
 
     /**
-     * procedure that contains main operations from exec method
-     * @param array $values current parse element
-     * @return void
+     * {@inheritdoc}
      */
-    public function execDoWork(array $values): void
+    public function execDoWork(array &$values): void
     {
-        static::getQueryModel()->forceInsert([
-            $values['LEVEL'],
-            $values['NAME'],
-        ]);
+        unset($values['ISACTIVE']);
+
+        static::getQueryModel()->forceInsert($values);
     }
 }

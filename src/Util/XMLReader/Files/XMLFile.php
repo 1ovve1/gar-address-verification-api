@@ -125,24 +125,15 @@ abstract class XMLFile
 
     /**
      * return attributes of elements in xml document
-     * @return array attributes names
+     * @return String[] attributes names
      */
     abstract public static function getAttributes(): array;
 
-    public function getAttributesKeys(): array
-    {
-        return array_keys($this::getAttributes());
-    }
-
-    public function getAttributesCasts(): array
-    {
-        return $this::getAttributes();
-    }
 
     /**
      * procedure that contains main operations from exec method
-     * @param array $values current parse element
+     * @param array &$values current parse element
      * @return void
      */
-    abstract public function execDoWork(array $values): void;
+    abstract public function execDoWork(array &$values): void;
 }

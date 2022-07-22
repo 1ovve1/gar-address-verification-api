@@ -85,13 +85,15 @@ class ImplReaderVisitor implements
     {
         $elem = $file::getElement();
         $reader = $this->xmlReader;
-    
+
         do {
-            $breakFlag = false;
             $data = [];
+            $breakFlag = false;
 
             foreach ($file::getAttributes() as $index => $cast) {
-                if ($value = $reader->getAttribute($index)) {
+                $value = $reader->getAttribute($index);
+
+                if (null !== $value) {
                     try {
                         settype($value, $cast);
                     } catch (\ValueError $error) {
@@ -101,14 +103,20 @@ class ImplReaderVisitor implements
                         );
                     }
 
+                    if (is_bool($value) && $value === false) {
+                        $breakFlag = true;
+                        break;
+                    }
                     $data[$index] = $value;
-                } elseif ($cast === 'bool') {
-                    $breakFlag = true;
-                    break;
                 }
             }
             if (!$breakFlag) {
-                $file->execDoWork($data);
+                try{
+                    $file->execDoWork($data);
+                } catch (\Throwable $e) {
+                    var_dump($data);
+                    throw new \RuntimeException(previous: $e);
+                }
             }
         } while ($reader->next($elem));
     }

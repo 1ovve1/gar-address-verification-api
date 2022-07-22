@@ -28,7 +28,7 @@ class AsMunHierarchy extends XMLFile
         ];
     }
 
-    public function execDoWork(array $values): void
+    public function execDoWork(array &$values): void
     {
         $region = $this->getIntRegion();
         $model = static::getQueryModel();

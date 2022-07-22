@@ -8,5 +8,10 @@ use GAR\Util\XMLReader\Reader\ReaderVisitor;
 
 interface FileCollection
 {
-    public function exec(ReaderVisitor $reader): void;
+    /**
+     * @param ReaderVisitor $reader
+     * @param String[] $options
+     * @return void
+     */
+    public function exec(ReaderVisitor $reader, array $options = []): void;
 }

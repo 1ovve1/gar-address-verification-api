@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 
 <?php
+declare(ticks=1);
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -14,10 +15,46 @@ if (file_exists(__DIR__ . '/.env')) {
   $dotenv->load();
 }
 
-Log::write('hello world');
-
 $time = microtime(true);
-(new \GAR\Util\XMLReader\XMLReaderClient())->run();
+
+$regions = [
+    '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+    '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
+    '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
+    '31', '32', '33', '34', '35', '36', '37', '38', '39', '40',
+    '41', '42', '43', '44', '45', '46', '47', '48', '49', '50',
+    '51', '52', '53', '54', '55', '56', '57', '58', '59', '60',
+    '61', '62', '63', '64', '65', '66', '67', '68', '69', '70',
+    '71', '72', '73', '74', '75', '76', '77', '78', '79', '80',
+    '81', '82', '83', '84', '85', '86', '87', '88', '89', '91',
+    '92', '99',
+
+];
+$sizeOfRegions = count($regions);
+$processCount = 5;
+
+$firstRegion = $regions[7];
+$status = 1;
+//doWork($firstRegion);
+
+for ($process = 0; $process < $sizeOfRegions; ++$process) {
+    $pid = pcntl_fork();
+    if ($pid == -1) {
+        die("Не удалось породить процесс");
+    } else if ($pid) {
+        static $execute = 0;
+        $execute++;
+        if ($execute >= $processCount){
+            pcntl_wait($status);
+            $execute--;
+        }
+        echo "Create process #$process\n";
+    } else {
+        $region = $regions[$process];
+        doWork($region, ['--onlyRegions']);
+        exit($status);
+    }
+}
 
 function convert($size)
 {
@@ -25,5 +62,12 @@ function convert($size)
   return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
 }
 
+echo 'PROCESS: ' . $pid . PHP_EOL;
 echo PHP_EOL . 'Time to execute: ' . microtime(true) - $time . PHP_EOL;
 echo PHP_EOL . 'Peak memory usage: ' . convert(memory_get_peak_usage(true)) . PHP_EOL;
+
+
+function doWork($region, $arguments = []) {
+
+    (new \GAR\Util\XMLReader\XMLReaderClient())->run([$region], $arguments);
+}
