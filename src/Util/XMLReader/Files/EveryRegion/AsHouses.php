@@ -25,9 +25,9 @@ class AsHouses extends XMLFile
         return [
             'ISACTUAL' => 'bool',
             'ISACTIVE' => 'bool',
-            'ID' => 'int',
+//            'ID' => 'int',
             'OBJECTID' => 'int',
-            'OBJECTGUID' => 'string',
+//            'OBJECTGUID' => 'string',
             'HOUSENUM' => 'string',
             'ADDNUM1' => 'string',
             'ADDNUM2' => 'string',
@@ -60,7 +60,7 @@ class AsHouses extends XMLFile
         static $name = self::class . 'getFirstObjectId';
 
         if (!$model->nameExist($name)) {
-            $model->select(['id'])->where('region', '=', $region)
+            $model->select(['region'])->where('region', '=', $region)
         ->andWhere('objectid', '=', $objectid)->limit(1)->name($name);
         }
 

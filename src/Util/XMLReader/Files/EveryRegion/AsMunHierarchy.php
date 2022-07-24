@@ -55,7 +55,7 @@ class AsMunHierarchy extends XMLFile
         static $name = self::class . 'getIdAddrObj';
 
         if (!$model->nameExist($name)) {
-            $model->select(['id'], ['addr_obj'])->where('region', '=', $region)
+            $model->select(['region'], ['addr_obj'])->where('region', '=', $region)
         ->andWhere('objectid', '=', $objectid)->limit(1)->name($name);
         }
 
@@ -67,7 +67,7 @@ class AsMunHierarchy extends XMLFile
         static $name = self::class . 'getFirstObjectIdHouses';
 
         if (!$model->nameExist($name)) {
-            $model->select(['id'], ['houses'])->where('region', '=', $region)
+            $model->select(['region'], ['houses'])->where('region', '=', $region)
         ->andWhere('objectid', '=', $objectid)->limit(1)->name($name);
         }
 

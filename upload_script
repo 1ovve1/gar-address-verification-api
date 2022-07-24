@@ -1,13 +1,11 @@
 #!/usr/bin/env php
 
 <?php
-declare(ticks=1);
+pcntl_async_signals(true);
 
 require __DIR__ . '/vendor/autoload.php';
 
 use Dotenv\Dotenv;
-use GAR\Logger\Log;
-use GAR\Repository\DatabaseUploader;
 
 $dotenv = Dotenv::createImmutable(__DIR__ . '/');
 
@@ -18,7 +16,7 @@ if (file_exists(__DIR__ . '/.env')) {
 $time = microtime(true);
 
 $regions = [
-    '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+    '01', '02', '03', '04', '05', '06', '07', '08', '09', '10',
     '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
     '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
     '31', '32', '33', '34', '35', '36', '37', '38', '39', '40',
@@ -30,12 +28,26 @@ $regions = [
     '92', '99',
 
 ];
-$sizeOfRegions = count($regions);
-$processCount = 5;
 
-$firstRegion = $regions[7];
-$status = 1;
-//doWork($firstRegion);
+$sizeOfRegions = count($regions);
+$processCount = $_SERVER['PROCESS_COUNT'];
+if (!is_int($processCount) && !$processCount > 0) {
+    return;
+}
+$status = 0;
+$pidCollection = [];
+$options = $_SERVER['argv'];
+
+$pid = pcntl_fork();
+if ($pid == -1) {
+    die("Не удалось породить процесс");
+} else if ($pid) {
+    echo "Upload files in root archive (single) ...\n";
+    pcntl_wait($status);
+} else {
+    doWork(null, ['--onlySingle']);
+    exit(1);
+}
 
 for ($process = 0; $process < $sizeOfRegions; ++$process) {
     $pid = pcntl_fork();
@@ -43,17 +55,22 @@ for ($process = 0; $process < $sizeOfRegions; ++$process) {
         die("Не удалось породить процесс");
     } else if ($pid) {
         static $execute = 0;
+        $pidCollection [] = $pid;
         $execute++;
+        echo "Create process #" . $process + 1 . PHP_EOL;
         if ($execute >= $processCount){
             pcntl_wait($status);
             $execute--;
         }
-        echo "Create process #$process\n";
     } else {
         $region = $regions[$process];
-        doWork($region, ['--onlyRegions']);
-        exit($status);
+        doWork([$region], ['--onlyRegions']);
+        exit(1);
     }
+}
+
+foreach ($pidCollection as $chilledPid) {
+    pcntl_waitpid($chilledPid, $status);
 }
 
 function convert($size)
@@ -69,5 +86,5 @@ echo PHP_EOL . 'Peak memory usage: ' . convert(memory_get_peak_usage(true)) . PH
 
 function doWork($region, $arguments = []) {
 
-    (new \GAR\Util\XMLReader\XMLReaderClient())->run([$region], $arguments);
+    (new \GAR\Util\XMLReader\XMLReaderClient())->run($region, $arguments);
 }

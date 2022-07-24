@@ -34,11 +34,6 @@ abstract class ConcreteTable extends SQLBuilder
             ($createMetaTable) ? $metaTable : null,
             intval($_SERVER['DB_BUFF'])
         );
-        Log::write(
-            Msg::LOG_DB_INIT->value,
-            $this->metaTable?->getTableName() ?? '',
-            Msg::LOG_COMPLETE->value
-        );
     }
 
     /**

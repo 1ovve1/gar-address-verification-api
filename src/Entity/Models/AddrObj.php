@@ -17,14 +17,14 @@ class AddrObj extends ConcreteTable implements QueryModel
     public function fieldsToCreate(): ?array
     {
         return [
-            'id' =>
-                'INT UNSIGNED NOT NULL',
+//            'id' =>
+//                'INT UNSIGNED NOT NULL',
 
             'objectid' =>
                 'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
         
-            'objectguid' =>
-                'CHAR(36) NOT NULL',
+//            'objectguid' =>
+//                'CHAR(36) NOT NULL',
     
             'id_level' =>
               'TINYINT UNSIGNED NOT NULL',

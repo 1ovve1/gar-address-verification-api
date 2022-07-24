@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace GAR\Util\XMLReader\Reader;
 
-define('DEFAULT_ZIP_PATH', __DIR__ . '/../../../../resources/archive/' . $_SERVER['GAR_ZIP_NAME']);
-define('CACHE_PATH', __DIR__ . '/../../../../cache');
+defined('DEFAULT_ZIP_PATH') ?:
+    define('DEFAULT_ZIP_PATH', __DIR__ . '/../../../../resources/archive/' . $_SERVER['GAR_ZIP_NAME']);
+defined('CACHE_PATH') ?:
+    define('CACHE_PATH', __DIR__ . '/../../../../cache');
 
 class ZipExtract
 {
     private readonly \ZipArchive $zipArchive;
     private readonly string $pathToZip;
     private readonly string $cachePath;
+
+    public const CACHE_PATH = CACHE_PATH;
+    public const DEFAULT_ZIP_PATH = DEFAULT_ZIP_PATH;
 
     /**
      * @param string $pathToZip

@@ -25,9 +25,9 @@ class AsAddrObj extends XMLFile
         return [
             'ISACTUAL' => 'bool',
             'ISACTIVE' => 'bool',
-            'ID' => 'int',
+//            'ID' => 'int',
             'OBJECTID' => 'int',
-            'OBJECTGUID' => 'string',
+//            'OBJECTGUID' => 'string',
             'LEVEL' => 'int',
             'NAME' => 'string',
             'TYPENAME' => 'string',

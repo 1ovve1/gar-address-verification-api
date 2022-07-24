@@ -16,7 +16,7 @@ class ImplFileCollection implements FileCollection
     private array $listOfRegions;
 
     /**
-     * @param array $listOfRegions
+     * @param String[] $listOfRegions
      */
     public function __construct(array $listOfRegions)
     {
@@ -49,13 +49,32 @@ class ImplFileCollection implements FileCollection
 
     public function exec(ReaderVisitor $reader, array $options = []): void
     {
-        if (!in_array('--onlyRegions', $options)) {
-            foreach ($this->singleFiles as $singleFile) {
-                $reader->read($singleFile);
-                $singleFile->saveChangesInQueryModel();
+        foreach ($options as $flag) {
+            $isComplete = match ($flag) {
+                '--onlyRegions' => $this->readEveryRegions($reader),
+                '--onlySingle' => $this->readSingleRegions($reader),
+                'all' => $this->readAll($reader),
+                default => false
+            };
+
+            if ($isComplete) {
+                break;
             }
         }
+    }
 
+    private function readSingleRegions(ReaderVisitor &$reader): bool
+    {
+        foreach ($this->singleFiles as $singleFile) {
+            $reader->read($singleFile);
+            $singleFile->saveChangesInQueryModel();
+        }
+
+        return true;
+    }
+
+    private function readEveryRegions(ReaderVisitor &$reader): bool
+    {
         foreach ($this->listOfRegions as $region) {
             foreach ($this->everyRegionFiles as $everyRegionFile) {
                 $reader->read($everyRegionFile->setRegion($region));
@@ -63,5 +82,14 @@ class ImplFileCollection implements FileCollection
                 $everyRegionFile->saveChangesInQueryModel();
             }
         }
+
+        return true;
+    }
+
+    private function readAll(ReaderVisitor &$reader): bool
+    {
+        $this->readSingleRegions($reader);
+        $this->readEveryRegions($reader);
+        return true;
     }
 }
