@@ -1,23 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
-declare(strict_types=1);
+require __DIR__ . '/../../bootstrap.php';
 
-require __DIR__ . '/../../vendor/autoload.php';
-
-use Dotenv\Dotenv;
 use Slim\Factory\AppFactory;
-
-$baseDir = __DIR__ . '/../../';
-$dotenv = Dotenv::createImmutable($baseDir);
-
-if (file_exists($baseDir . '.env')) {
-    $dotenv->load();
-}
-
-$dotenv->required([
-    'DB_TYPE', 'DB_NAME', 'DB_HOST', 'DB_PORT',
-    'DB_USER', 'DB_PASS', 'GAR_ZIP_NAME',
-]);
 
 $app = AppFactory::create();
 

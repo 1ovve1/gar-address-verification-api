@@ -3,88 +3,100 @@
 <?php
 pcntl_async_signals(true);
 
-require __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/bootstrap.php';
 
-use Dotenv\Dotenv;
-
-$dotenv = Dotenv::createImmutable(__DIR__ . '/');
-
-if (file_exists(__DIR__ . '/.env')) {
-  $dotenv->load();
-}
+\GAR\Logger\Log::write('hahahah');
 
 $time = microtime(true);
 
-$regions = [
-    '01', '02', '03', '04', '05', '06', '07', '08', '09', '10',
-    '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-    '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
-    '31', '32', '33', '34', '35', '36', '37', '38', '39', '40',
-    '41', '42', '43', '44', '45', '46', '47', '48', '49', '50',
-    '51', '52', '53', '54', '55', '56', '57', '58', '59', '60',
-    '61', '62', '63', '64', '65', '66', '67', '68', '69', '70',
-    '71', '72', '73', '74', '75', '76', '77', '78', '79', '80',
-    '81', '82', '83', '84', '85', '86', '87', '88', '89', '91',
-    '92', '99',
-
-];
-
+// load regions
+$regions = $_SERVER['CONFIG']('regions');
 $sizeOfRegions = count($regions);
+
+// define our processes
 $processCount = $_SERVER['PROCESS_COUNT'];
 if (!is_int($processCount) && !$processCount > 0) {
-    return;
+	return;
 }
 $status = 0;
 $pidCollection = [];
+pcntl_signal(SIGINT, 'sig_handler');
+
 $options = $_SERVER['argv'];
 
-$pid = pcntl_fork();
-if ($pid == -1) {
-    die("Не удалось породить процесс");
-} else if ($pid) {
-    echo "Upload files in root archive (single) ...\n";
-    pcntl_wait($status);
-} else {
-    doWork(null, ['--onlySingle']);
-    exit(1);
-}
+
+pcntl_waitpid(
+    newProcessTasks(fn() => doWork(null, ['--onlySingle'])), $status
+);
+
 
 for ($process = 0; $process < $sizeOfRegions; ++$process) {
-    $pid = pcntl_fork();
-    if ($pid == -1) {
-        die("Не удалось породить процесс");
-    } else if ($pid) {
-        static $execute = 0;
-        $pidCollection [] = $pid;
-        $execute++;
-        echo "Create process #" . $process + 1 . PHP_EOL;
-        if ($execute >= $processCount){
-            pcntl_wait($status);
-            $execute--;
-        }
-    } else {
-        $region = $regions[$process];
-        doWork([$region], ['--onlyRegions']);
-        exit(1);
-    }
+	$region = $regions[$process];
+	$pid = newProcessTasks(
+        function() use ($region) { doWork([$region], ['--onlyRegions']); },
+        $processCount
+    );
+
+	$pidCollection[] = $pid;
 }
 
 foreach ($pidCollection as $chilledPid) {
-    pcntl_waitpid($chilledPid, $status);
+	pcntl_waitpid($chilledPid, $status);
+}
+
+echo PHP_EOL . 'Time to execute: ' . microtime(true) - $time . PHP_EOL;
+echo PHP_EOL . 'Peak memory usage: ' . convert(memory_get_peak_usage(true)) . PHP_EOL;
+
+function newProcessTasks(callable $taskCallback, int $maxTaskCount = 1): bool|int
+{
+	$pid = pcntl_fork();
+
+	if ($pid == -1) {
+		echo "Не удалось породить процесс" . PHP_EOL;
+		return false;
+	} else if ($pid) {
+		static $execute = 0;
+		$execute++;
+		if ($execute >= $maxTaskCount){
+			pcntl_wait($status);
+			$execute--;
+		}
+	} else {
+		$taskCallback();
+		exit(1);
+	}
+
+	return $pid;
 }
 
 function convert($size)
 {
-  $unit=array('b','kb','mb','gb','tb','pb');
-  return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+	$unit=array('b','kb','mb','gb','tb','pb');
+	return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
 }
 
-echo 'PROCESS: ' . $pid . PHP_EOL;
-echo PHP_EOL . 'Time to execute: ' . microtime(true) - $time . PHP_EOL;
-echo PHP_EOL . 'Peak memory usage: ' . convert(memory_get_peak_usage(true)) . PHP_EOL;
 
 
-function doWork($region, $arguments = []) {
-
+function doWork($region, $arguments = []): void
+{
     (new \GAR\Util\XMLReader\XMLReaderClient())->run($region, $arguments);
+}
+
+function sig_handler(int $signal) {
+	switch($signal) {
+		case SIGINT:
+            // shutdown
+            echo 'SHUTDOWN' . PHP_EOL;
+			exit;
+			break;
+		case SIGHUP:
+			// handle restart tasks
+			break;
+		case SIGUSR1:
+			print "Caught SIGUSR1...\n";
+			break;
+		default:
+			// not implemented yet...
+			break;
+	}
 }
