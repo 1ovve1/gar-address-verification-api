@@ -1,13 +1,13 @@
 #!/usr/bin/env php
 
 <?php
-pcntl_async_signals(true);
 
 require_once __DIR__ . '/bootstrap.php';
 
-\GAR\Logger\Log::write('hahahah');
 
 $time = microtime(true);
+
+$options = $_SERVER['argv'];
 
 // load regions
 $regions = $_SERVER['CONFIG']('regions');
@@ -18,85 +18,35 @@ $processCount = $_SERVER['PROCESS_COUNT'];
 if (!is_int($processCount) && !$processCount > 0) {
 	return;
 }
-$status = 0;
-$pidCollection = [];
-pcntl_signal(SIGINT, 'sig_handler');
-
-$options = $_SERVER['argv'];
+$manager = new \CLI\ProcessManager($processCount);
 
 
-pcntl_waitpid(
-    newProcessTasks(fn() => doWork(null, ['--onlySingle'])), $status
+$manager->newTask(fn() => 
+	parseRegion(null, ['--onlySingle'])
 );
+$manager->waitAll();
 
-
-for ($process = 0; $process < $sizeOfRegions; ++$process) {
-	$region = $regions[$process];
-	$pid = newProcessTasks(
-        function() use ($region) { doWork([$region], ['--onlyRegions']); },
-        $processCount
+foreach ($regions as $region) {
+	$manager->newTask(
+        function() use ($region) { 
+        	parseRegion([$region], ['--onlyRegions']); 
+    	}
     );
-
-	$pidCollection[] = $pid;
 }
 
-foreach ($pidCollection as $chilledPid) {
-	pcntl_waitpid($chilledPid, $status);
+$manager->waitAll();
+
+
+function parseRegion($region, $arguments = []): void
+{
+    (new \GAR\Util\XMLReader\XMLReaderClient())->run($region, $arguments);
 }
 
 echo PHP_EOL . 'Time to execute: ' . microtime(true) - $time . PHP_EOL;
 echo PHP_EOL . 'Peak memory usage: ' . convert(memory_get_peak_usage(true)) . PHP_EOL;
 
-function newProcessTasks(callable $taskCallback, int $maxTaskCount = 1): bool|int
-{
-	$pid = pcntl_fork();
-
-	if ($pid == -1) {
-		echo "Не удалось породить процесс" . PHP_EOL;
-		return false;
-	} else if ($pid) {
-		static $execute = 0;
-		$execute++;
-		if ($execute >= $maxTaskCount){
-			pcntl_wait($status);
-			$execute--;
-		}
-	} else {
-		$taskCallback();
-		exit(1);
-	}
-
-	return $pid;
-}
-
 function convert($size)
 {
 	$unit=array('b','kb','mb','gb','tb','pb');
 	return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
-}
-
-
-
-function doWork($region, $arguments = []): void
-{
-    (new \GAR\Util\XMLReader\XMLReaderClient())->run($region, $arguments);
-}
-
-function sig_handler(int $signal) {
-	switch($signal) {
-		case SIGINT:
-            // shutdown
-            echo 'SHUTDOWN' . PHP_EOL;
-			exit;
-			break;
-		case SIGHUP:
-			// handle restart tasks
-			break;
-		case SIGUSR1:
-			print "Caught SIGUSR1...\n";
-			break;
-		default:
-			// not implemented yet...
-			break;
-	}
 }

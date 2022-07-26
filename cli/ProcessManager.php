@@ -28,7 +28,7 @@ class ProcessManager
 	{
 		match ($this->isProcessBufferNotFull()) {
 			true => $this->createProcessAndRun($taskCallback),
-			false => $this->waitWhileDoneFIFO(),
+			false => $this->waitQueue(),
 		};
 	}
 
