@@ -4,6 +4,7 @@
     "autoload": {
         "psr-4": {
             "GAR\\": "src/",
+            "CLI\\": "cli/",
             "Tests\\": "tests/"
         }
     },
