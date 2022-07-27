@@ -200,16 +200,7 @@ class ImplReaderVisitor implements
 
         if (file_exists($pathToXmlInCache)) {
             $deleteTargets = self::getTargetToDelete($pathToXmlInCache);
-            if (null !== $deleteTargets) {
-                foreach ($deleteTargets as $target) {
-                    if (is_dir($target)) {
-                        rmdir($target);
-                    } else {
-                        unlink($target);
-                    }
-                }
-            }
-
+			self::tryDeleteTargets($deleteTargets);
         }
     }
 
@@ -241,4 +232,41 @@ class ImplReaderVisitor implements
 
         return array_reverse($targets);
     }
+
+	/**
+	 * @param String[]|null $deleteTargets
+	 * @return void
+	 */
+	private static function tryDeleteTargets(?array $deleteTargets): void
+	{
+		if (null !== $deleteTargets) {
+			foreach ($deleteTargets as $target) {
+				self::handleTarget($target);
+			}
+		}
+	}
+
+	private static function handleTarget(string $target): void
+	{
+		if (is_dir($target)) {
+			if (self::isDirEmpty($target)) {
+				rmdir($target);
+			}
+		} else {
+			unlink($target);
+		}
+	}
+
+	private static function isDirEmpty(string $dir): bool
+	{
+		$handle = opendir($dir);
+		while (false !== ($entry = readdir($handle))) {
+			if ($entry != "." && $entry != "..") {
+				closedir($handle);
+				return false;
+			}
+		}
+		closedir($handle);
+		return true;
+	}
 }

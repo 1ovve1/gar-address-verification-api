@@ -39,12 +39,14 @@ class AsMunHierarchy extends XMLFile
                     $values['PARENTOBJID'],
                     $values['OBJECTID'],
                     null,
+	                $region,
                 ]);
             } elseif (!empty($this->getIdHouses($model, $values['OBJECTID'], $region))) {
                 $model->forceInsert([
                     $values['PARENTOBJID'],
                     null,
                     $values['OBJECTID'],
+	                $region,
                 ]);
             }
         }

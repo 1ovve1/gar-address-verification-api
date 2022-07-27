@@ -32,12 +32,13 @@ foreach ($regions as $region) {
         	parseRegion([$region], ['--onlyRegions']); 
     	}
     );
+    var_dump($region);
 }
 
 $manager->waitAll();
 
 
-function parseRegion($region, $arguments = []): void
+function parseRegion(?array $region, array $arguments = []): void
 {
     (new \GAR\Util\XMLReader\XMLReaderClient())->run($region, $arguments);
 }
