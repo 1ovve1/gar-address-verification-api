@@ -122,12 +122,17 @@ class ImplFileCollection implements FileCollection
 
     private function readEveryRegions(ReaderVisitor &$reader): bool
     {
+        $manager = new \CLI\ProcessManager(2);
+
         foreach ($this->listOfRegions as $region) {
             foreach ($this->everyRegionFiles as $everyRegionFile) {
-                $reader->read($everyRegionFile->setRegion($region));
+                $manager->newTask(function() use ($region, $reader, $everyRegionFile) {
+                    $reader->read($everyRegionFile->setRegion($region));
 
-                $everyRegionFile->saveChangesInQueryModel();
+                    $everyRegionFile->saveChangesInQueryModel();    
+                });
             }
+            $manager->waitAll();
         }
 
         return true;
