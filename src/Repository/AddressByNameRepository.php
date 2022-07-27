@@ -242,18 +242,12 @@ class AddressByNameRepository extends BaseRepo
             ])->where(
 				'parent.id_level', '<=', LEVEL
             )->andWhere(function ($builder) use ($parentName, $chiledName) {
-	            $builder->where(function ($builder) use ($parentName, $chiledName) {
+	            $builder->where(function ($builder) use ($parentName) {
 		            $builder->where("CONCAT(parent.name, ' ', parent.typename)", 'LIKE', $parentName)
-			            ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName);
-	            })->orWhere(function ($builder) use ($parentName, $chiledName) {
-		            $builder->where("CONCAT(parent.typename, ' ',parent.name)", 'LIKE', $parentName . '%')
-			            ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%');
-	            })->orWhere(function ($builder) use ($parentName, $chiledName) {
-		            $builder->where("CONCAT(parent.name, ' ', parent.typename)", 'LIKE', $parentName . '%')
-			            ->andWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%');
-	            })->orWhere(function ($builder) use ($parentName, $chiledName) {
-		            $builder->where("CONCAT(parent.typename, ' ', parent.name)", 'LIKE', $parentName . '%')
-			            ->andWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%');
+			            ->orWhere("CONCAT(parent.typename, ' ', parent.name)", 'LIKE', $parentName);
+	            })->andWhere(function ($builder) use ($chiledName) {
+		            $builder->where("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
+			            ->orWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%');
 	            });
             })->limit(
 				2
@@ -262,10 +256,8 @@ class AddressByNameRepository extends BaseRepo
 
         return $hierarchy->execute([
 			LEVEL,
-            $parentName . '%', $chiledName . '%',
-            $parentName . '%', $chiledName . '%',
-            $parentName . '%', $chiledName . '%',
-            $parentName . '%', $chiledName . '%',
+            $parentName . '%', $parentName . '%',
+            $chiledName . '%', $chiledName . '%',
         ], 'getAddressObjectIdByName');
     }
 
@@ -335,7 +327,7 @@ class AddressByNameRepository extends BaseRepo
             if (key_exists('objectid', $queryResult[0])) {
                 $objectid = $queryResult[0]['objectid'];
                 if (is_int($objectid)) {
-                     return $objectid;
+                     return $queryResult[0]['objectid'];
                 } else {
                     throw new \RuntimeException("AddressByNameRepository error: objectid are not int");
                 }
