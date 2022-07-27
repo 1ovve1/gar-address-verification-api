@@ -32,11 +32,20 @@ class Process
 		return $this;
 	}
 
-	function wait(): void
+	function wait(int $flag = 0): void
 	{
 		if ($this->isParentTime()) {
-			pcntl_waitpid($this->pid, $this->status);
+			$tryStatus = 0;
+			pcntl_waitpid($this->pid, $tryStatus, $flag);
+			if ($tryStatus) {
+				$this->setStatus($tryStatus);
+			}
 		}
+	}
+
+	function updateStatus(): void
+	{
+		$this->wait(WNOHANG);
 	}
 
 	private function isParentTime(): bool 
@@ -51,6 +60,11 @@ class Process
 			0 => 0,
 			default => $this->status >> 8,
 		};
+	}
+
+	function setStatus(int $value): void
+	{
+		$this->status = $value;
 	}
 
 	function getPid(): int 

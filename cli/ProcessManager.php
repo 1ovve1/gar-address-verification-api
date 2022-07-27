@@ -24,12 +24,16 @@ class ProcessManager
 		$this->maxProcessCount = $maxProcessCount;
 	}
 
-	function newTask(callable $taskCallback): void
+	function newTask(callable $taskCallback, bool $queueMod = false): void
 	{
-		match ($this->isProcessBufferNotFull()) {
-			true => $this->createProcessAndRun($taskCallback),
-			false => $this->waitQueue(),
-		};
+		if (!$this->isProcessBufferNotFull()) {
+			match ($queueMod) {
+				true    => $this->waitQueue(),
+				false   => $this->waitAsync(),
+			};
+		}
+
+		$this->createProcessAndRun($taskCallback);
 	}
 
 	function isProcessBufferNotFull(): bool 
@@ -42,33 +46,33 @@ class ProcessManager
 		$this->processBuffer[] = new Process($task);
 	}
 
+	function waitAsync(): void
+	{
+		while(!$this->isProcessBufferNotFull()) {
+			foreach ($this->processBuffer as $process) {
+				$process->updateStatus();
+			}
+			$this->updateInfoAboutActiveProcesses();
+		}
+	}
+
 	function waitQueue(): void
 	{
-		$firstProcess = $this->getFirstProcess();
-
-		$firstProcess->wait();
-
-		$this->history[] = $firstProcess;
-		$this->shiftBuffer();
-	}
-
-	private function getFirstProcess(): Process
-	{
-		return $this->processBuffer[0];
-	}
-
-	private function shiftBuffer(): void
-	{
-		array_shift($this->processBuffer);
+		$shiftProcess = array_shift($this->processBuffer);
+		$shiftProcess->wait();
+		$this->history[] = $shiftProcess;
 	}
 
 	function waitAll(): void
 	{
-		foreach ($this->processBuffer as $ignored) {
-			$this->waitQueue();
+		foreach ($this->processBuffer as $process) {
+			$process->wait();
 		}
 	}
 
+	/**
+	 * @return Process[]
+	 */
 	function getStatusHistory(): array
 	{
 		$this->updateInfoAboutActiveProcesses();
@@ -83,7 +87,5 @@ class ProcessManager
 				unset($this->processBuffer[$key]);
 			}
 		}
-
-		$this->processBuffer = array_values($this->processBuffer);
 	}
 }

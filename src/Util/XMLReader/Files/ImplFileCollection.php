@@ -130,7 +130,7 @@ class ImplFileCollection implements FileCollection
                     $reader->read($everyRegionFile->setRegion($region));
 
                     $everyRegionFile->saveChangesInQueryModel();    
-                });
+                }, true);
             }
             $manager->waitAll();
         }

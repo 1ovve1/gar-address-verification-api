@@ -204,6 +204,10 @@ class ImplReaderVisitor implements
         }
     }
 
+	/**
+	 * @param string $fullXmlPath
+	 * @return String[]|null
+	 */
     private static function getTargetToDelete(string &$fullXmlPath): null|array
     {
         $splitOfCachePath = str_split(ZipExtract::CACHE_PATH);

@@ -19,6 +19,7 @@ class ProcessManagerTest extends TestCase
 		{
 			$manager->newTask(
 				function() use ($i) {
+					sleep(2);
 					exit($i);
 				}
 			);
