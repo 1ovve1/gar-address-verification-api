@@ -13,30 +13,20 @@ use RuntimeException;
  */
 abstract class LazyInsert
 {
-    /**
-     * @var string - name of table
-     */
+    /** @var string - name of table */
     private readonly string $tableName;
-    /**
-     * @var array<mixed> $tableFields - template fields
-     */
+    /** @var String[] $tableFields - template fields */
     private readonly array $tableFields;
-    /**
-     * @var int - size of buffer
-     */
+    /** @var int - size of buffer */
     private readonly int $bufferSize;
-    /**
-     * @var int - cursor of the buffer index
-     */
+    /** @var int - cursor of the buffer index */
     private int $bufferCursor = 0;
-    /**
-     * @var SplFixedArray - buffer of stage values
-     */
-    private readonly \SplFixedArray $buffer;
+    /** @var \SplFixedArray - buffer of stage values */
+    private \SplFixedArray $buffer;
 
     /**
      * @param string $tableName - name of table
-     * @param array<mixed> $tableFields - table fields
+     * @param String[] $tableFields - table fields
      * @param int $groupInsertCount - number of groups in group insert
      * @throws RuntimeException
      */
@@ -135,7 +125,7 @@ abstract class LazyInsert
 
     /**
      * Return table fields in current template
-     * @return array<mixed>
+     * @return String[]
      */
     public function getTableFields(): array
     {
@@ -162,7 +152,7 @@ abstract class LazyInsert
 
     /**
      * Return local SplFixedBuffer buffer in array
-     * @return array
+     * @return DatabaseContract[]
      */
     public function getBuffer(): array
     {
@@ -171,7 +161,7 @@ abstract class LazyInsert
 
     /**
      * Slice local buffer with current cursor value
-     * @return
+     * @return DatabaseContract[]
      */
     public function getBufferSlice(): array
     {
@@ -185,11 +175,16 @@ abstract class LazyInsert
 
     /**
      * Set stage buffer by $insertValues
-     * @param array<DatabaseContract> $insertValues - values that need add in $buffer
+     * @param DatabaseContract[] $insertValues - values that need add in $buffer
      * @return void
      */
-    public function setStageBuffer(array $insertValues): void
+    public function setBuffer(array $insertValues): void
     {
+        if (count($insertValues) !== $this->getTableFieldsCount()) {
+            var_dump($insertValues);
+            throw new \RuntimeException('Count of insert values are more then appear:' .
+                count($insertValues) . ' !== ' . $this->getTableFieldsCount());
+        }
         foreach ($insertValues as $value) {
             $this->buffer[$this->bufferCursor] = $value;
             $this->incBufferCursor();

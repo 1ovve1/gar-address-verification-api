@@ -25,9 +25,9 @@ class AsHouses extends XMLFile
         return [
             'ISACTUAL' => 'bool',
             'ISACTIVE' => 'bool',
-            'ID' => 'int',
+//            'ID' => 'int',
             'OBJECTID' => 'int',
-            'OBJECTGUID' => 'string',
+//            'OBJECTGUID' => 'string',
             'HOUSENUM' => 'string',
             'ADDNUM1' => 'string',
             'ADDNUM2' => 'string',
@@ -37,24 +37,21 @@ class AsHouses extends XMLFile
         ];
     }
 
-    public function execDoWork(array $values): void
+    public function execDoWork(array &$values): void
     {
         $model = static::getQueryModel();
         $region = $this->getIntRegion();
 
         if (empty($this->getFirstObjectId($model, $values['OBJECTID'], $region))) {
-            $model->forceInsert([
-                $values['ID'],
-                $values['OBJECTID'],
-                $values['OBJECTGUID'],
-                $values['HOUSENUM'] ?? null,
-                $values['ADDNUM1'] ?? null,
-                $values['ADDNUM2'] ?? null,
-                $values['HOUSETYPE'] ?? null,
-                $values['ADDTYPE1'] ?? null,
-                $values['ADDTYPE2'] ?? null,
-                $region,
-            ]);
+
+            foreach ($this::getAttributes() as $attr => $ignore) {
+                $values[$attr] ?? $values[$attr] = null;
+            }
+            unset($values['ISACTUAL']); unset($values['ISACTIVE']);
+
+            $values['REGION'] = $region;
+
+            $model->forceInsert($values);
         }
     }
 
@@ -63,7 +60,7 @@ class AsHouses extends XMLFile
         static $name = self::class . 'getFirstObjectId';
 
         if (!$model->nameExist($name)) {
-            $model->select(['id'])->where('region', '=', $region)
+            $model->select(['region'])->where('region', '=', $region)
         ->andWhere('objectid', '=', $objectid)->limit(1)->name($name);
         }
 

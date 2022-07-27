@@ -28,7 +28,7 @@ class AsMunHierarchy extends XMLFile
         ];
     }
 
-    public function execDoWork(array $values): void
+    public function execDoWork(array &$values): void
     {
         $region = $this->getIntRegion();
         $model = static::getQueryModel();
@@ -39,12 +39,14 @@ class AsMunHierarchy extends XMLFile
                     $values['PARENTOBJID'],
                     $values['OBJECTID'],
                     null,
+	                $region,
                 ]);
             } elseif (!empty($this->getIdHouses($model, $values['OBJECTID'], $region))) {
                 $model->forceInsert([
                     $values['PARENTOBJID'],
                     null,
                     $values['OBJECTID'],
+	                $region,
                 ]);
             }
         }
@@ -55,7 +57,7 @@ class AsMunHierarchy extends XMLFile
         static $name = self::class . 'getIdAddrObj';
 
         if (!$model->nameExist($name)) {
-            $model->select(['id'], ['addr_obj'])->where('region', '=', $region)
+            $model->select(['region'], ['addr_obj'])->where('region', '=', $region)
         ->andWhere('objectid', '=', $objectid)->limit(1)->name($name);
         }
 
@@ -67,7 +69,7 @@ class AsMunHierarchy extends XMLFile
         static $name = self::class . 'getFirstObjectIdHouses';
 
         if (!$model->nameExist($name)) {
-            $model->select(['id'], ['houses'])->where('region', '=', $region)
+            $model->select(['region'], ['houses'])->where('region', '=', $region)
         ->andWhere('objectid', '=', $objectid)->limit(1)->name($name);
         }
 

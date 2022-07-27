@@ -32,7 +32,7 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
     /**
      * @param DBAdapter $db - database connection
      * @param string $tableName - name of prepared table
-     * @param array<mixed> $fields - fields of preapred table
+     * @param String[] $fields - fields of preapred table
      * @param int $stagesCount - default stages count
      */
     public function __construct(
@@ -91,7 +91,7 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
      */
     public function exec(array $values): array
     {
-        $this->setStageBuffer($values);
+        $this->setBuffer($values);
 
         if ($this->isBufferFull()) {
             $this->save();
@@ -109,7 +109,7 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
         if ($this->isBufferNotEmpty()) {
             $tryGetState = $this->getState();
 
-            if ($tryGetState === false) {
+            if (is_bool($tryGetState)) {
                 $tryGetState = $this->createNewStateWithCurrentGroupNumber();
             }
 
@@ -146,20 +146,21 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
      */
     public function createNewStateWithCurrentGroupNumber(): QueryTemplate
     {
-        $newTemplate = $this->genNewTemplate();
-        $this->setState($newTemplate);
-    
-        return $this->getState();
+        $newStrTemplate = $this->genNewTemplate();
+        return $this->setState($newStrTemplate);
     }
 
     /**
      * @param string $newTemplate
-     * @return void
+     * @return QueryTemplate - new template that was created
      */
-    private function setState(string $newTemplate): void
+    private function setState(string $newTemplate): QueryTemplate
     {
-        $this->states[$this->getCurrentNumberOfGroups()] = $this->db
-      ->prepare($newTemplate)
-      ->getTemplate();
+      $newTemplate = $this->db
+        ->prepare($newTemplate)
+        ->getTemplate();
+      $this->states[$this->getCurrentNumberOfGroups()] = $newTemplate;
+
+      return $newTemplate;
     }
 }

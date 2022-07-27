@@ -4,6 +4,7 @@
     "autoload": {
         "psr-4": {
             "GAR\\": "src/",
+            "CLI\\": "cli/",
             "Tests\\": "tests/"
         }
     },
@@ -29,6 +30,7 @@
         "vlucas/phpdotenv": "*",
         "imefisto/psr-swoole-native": "^1.1",
         "nyholm/psr7": "^1.5",
-        "monolog/monolog": "^3.0"
+        "monolog/monolog": "^3.0",
+        "ext-pcntl": "*"
     }
 }

@@ -2,28 +2,52 @@
 
 <?php
 
-require __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/bootstrap.php';
 
-use Dotenv\Dotenv;
-use GAR\Logger\Log;
-use GAR\Repository\DatabaseUploader;
-
-$dotenv = Dotenv::createImmutable(__DIR__ . '/');
-
-if (file_exists(__DIR__ . '/.env')) {
-  $dotenv->load();
-}
-
-Log::write('hello world');
 
 $time = microtime(true);
-(new \GAR\Util\XMLReader\XMLReaderClient())->run();
 
-function convert($size)
+$options = $_SERVER['argv'];
+
+// load regions
+$regions = $_SERVER['CONFIG']('regions');
+$sizeOfRegions = count($regions);
+
+// define our processes
+$processCount = $_SERVER['PROCESS_COUNT'];
+if (!is_int($processCount) && !$processCount > 0) {
+	return;
+}
+$manager = new \CLI\ProcessManager($processCount);
+
+
+$manager->newTask(fn() => 
+	parseRegion(null, ['--onlySingle'])
+);
+$manager->waitAll();
+
+foreach ($regions as $region) {
+	$manager->newTask(
+        function() use ($region) { 
+        	parseRegion([$region], ['--onlyRegions']); 
+    	}
+    );
+    var_dump($region);
+}
+
+$manager->waitAll();
+
+
+function parseRegion(?array $region, array $arguments = []): void
 {
-  $unit=array('b','kb','mb','gb','tb','pb');
-  return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+    (new \GAR\Util\XMLReader\XMLReaderClient())->run($region, $arguments);
 }
 
 echo PHP_EOL . 'Time to execute: ' . microtime(true) - $time . PHP_EOL;
 echo PHP_EOL . 'Peak memory usage: ' . convert(memory_get_peak_usage(true)) . PHP_EOL;
+
+function convert($size)
+{
+	$unit=array('b','kb','mb','gb','tb','pb');
+	return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+}

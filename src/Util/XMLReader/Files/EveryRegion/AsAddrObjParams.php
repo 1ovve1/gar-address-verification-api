@@ -29,7 +29,7 @@ class AsAddrObjParams extends XMLFile
         ];
     }
 
-    public function execDoWork(array $values): void
+    public function execDoWork(array &$values): void
     {
         $region = $this->getIntRegion();
         $model = static::getQueryModel();
@@ -42,13 +42,9 @@ class AsAddrObjParams extends XMLFile
                     10 => 'KLADR',
                 };
 
+                $values['REGION'] = $region;
 
-                $model->forceInsert([
-                    $values['OBJECTID'],
-                    $values['TYPEID'],
-                    $values['VALUE'],
-                    $region,
-                ]);
+                $model->forceInsert($values);
             }
         }
     }

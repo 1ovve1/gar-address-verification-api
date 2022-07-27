@@ -17,14 +17,14 @@ class Houses extends ConcreteTable implements QueryModel
     public function fieldsToCreate(): ?array
     {
         return [
-            'id' =>
-        'INT UNSIGNED NOT NULL',
+//            'id' =>
+//        'INT UNSIGNED NOT NULL',
 
             'objectid' =>
         'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
 
-            'objectguid' =>
-        'VARCHAR(36) NOT NULL',
+//            'objectguid' =>
+//        'VARCHAR(36) NOT NULL',
 
             'housenum' =>
                 'VARCHAR(50)',

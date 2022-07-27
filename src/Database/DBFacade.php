@@ -50,16 +50,7 @@ class DBFacade
             $_SERVER['DB_PORT'],
         );
 
-        try {
-            Log::write(Msg::LOG_DB_INIT->value);
-            $PDO->connect($_SERVER['DB_USER'], $_SERVER['DB_PASS']);
-            Log::write(Msg::LOG_COMPLETE->value);
-        } catch (PDOException $exception) {
-            Log::error(
-                $exception,
-                $_SERVER
-            );
-        }
+        $PDO->connect($_SERVER['DB_USER'], $_SERVER['DB_PASS']);
 
         return $PDO;
     }
