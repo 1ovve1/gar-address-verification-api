@@ -10,7 +10,7 @@ use Slim\Psr7\Response;
 
 class AddressNameMiddleware
 {
-    public function __invoke(Request $request, RequestHandler $handler): Response
+    public function __invoke(Request $request, RequestHandler $handler): \Psr\Http\Message\ResponseInterface
     {
         $params = $request->getQueryParams();
         

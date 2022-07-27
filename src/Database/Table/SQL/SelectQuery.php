@@ -11,15 +11,15 @@ namespace GAR\Database\Table\SQL;
  */
 interface SelectQuery
 {
-    /**
-     * Create WHERE template
-     *
-     * @param  string $field - name of field
-     * @param  string $sign - sign for compare
-     * @param  DatabaseContract $value - value to compare
-     * @return ContinueWhere
-     */
-    public function where(string $field, string $sign, mixed $value): ContinueWhere;
+	/**
+	 * Create WHERE template
+	 *
+	 * @param  string $field - name of field
+	 * @param  string $sign - sign for compare
+	 * @param  DatabaseContract $value - value to compare
+	 * @return ContinueWhere
+	 */
+	public function where(string $field, string $sign, mixed $value): ContinueWhere;
 
     /**
      * Create INNER JOIN template
