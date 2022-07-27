@@ -82,13 +82,9 @@ class SQLBuilder implements
         }
     }
 
-    /**
-     * Create insert template
-     *
-     * @param  array<string, DatabaseContract> $values - values in field => value fmt
-     * @param  string|null $tableName - name of table
-     * @return EndQuery
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function insert(array $values, ?string $tableName = null): EndQuery
     {
         $this->reset();
@@ -106,12 +102,9 @@ class SQLBuilder implements
         return $this;
     }
 
-    /**
-     * Doing forceInsert
-     *
-     * @param  array<DatabaseContract> $values - values for the force insert
-     * @return EndQuery
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function forceInsert(array $values): EndQuery
     {
         $this->reset();
@@ -124,14 +117,9 @@ class SQLBuilder implements
         return $this;
     }
 
-    /**
-     * Create update template
-     *
-     * @param  string $field - field for update
-     * @param  DatabaseContract $value - value for upadte
-     * @param  string|null $tableName - name of table
-     * @return UpdateQuery
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function update(string $field, mixed $value, ?string $tableName = null): UpdateQuery
     {
         $this->reset();
@@ -150,12 +138,9 @@ class SQLBuilder implements
         return $this;
     }
 
-    /**
-     * Creating delete template
-     *
-     * @param  string|null $tableName - name of table
-     * @return DeleteQuery
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function delete(?string $tableName = null): DeleteQuery
     {
         $this->checkTableName($tableName);
@@ -168,13 +153,9 @@ class SQLBuilder implements
         return $this;
     }
 
-    /**
-     * Creating select template
-     *
-     * @param  array<string> $fields - fields to select
-     * @param  array<string>|null $anotherTables - name of another table
-     * @return SelectQuery
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function select(array $fields, array $anotherTables = null): SelectQuery
     {
         $this->reset();
@@ -193,14 +174,9 @@ class SQLBuilder implements
         return $this;
     }
 
-    /**
-     * Finding first element of $field collumn with $value compare
-     *
-     * @param  string $field - fields name
-     * @param  DatabaseContract $value - value for compare
-     * @param  string|null $anotherTable - table name
-     * @return array<string, mixed>
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function findFirst(string $field, mixed $value, ?string $anotherTable = null): array
     {
         $this->reset();
@@ -214,76 +190,66 @@ class SQLBuilder implements
 
 
     /**
-     * Create WHERE template
-     *
-     * @param  string $field - name of field
-     * @param  string $sign - sign for compare
-     * @param  DatabaseContract $value - value to compare
-     * @return ContinueWhere
+     * {@inheritDoc}
      */
-    public function where(string $field, string $sign, mixed $value): ContinueWhere
+    public function where(string|callable $field, string $sign = '', mixed $value = ''): ContinueWhere
     {
-        $this->setVarStack($value);
+	    $this->whereBuilder('WHERE', $field, $sign, $value);
 
-        $this->setQuery(sprintf(
-            "WHERE %s %s (%s) ",
-            $field,
-            $sign,
-            '?'
-        ));
-        return $this;
+	    return $this;
     }
 
-    /**
-     * Create AND WHERE template
-     *
-     * @param  string $field - name of field
-     * @param  string $sign - sign for compare
-     * @param  DatabaseContract $value - value to compare
-     * @return ContinueWhere
-     */
-    public function andWhere(string $field, string $sign, mixed $value): ContinueWhere
+	/**
+	 * {@inheritDoc}
+	 */
+    public function andWhere(string|callable $field, string $sign = '', mixed $value = ''): ContinueWhere
     {
-        $this->setVarStack($value);
+	    $this->whereBuilder('AND', $field, $sign, $value);
 
-        $this->setQuery(sprintf(
-            "AND %s %s (%s) ",
-            $field,
-            $sign,
-            '?'
-        ));
-        return $this;
+	    return $this;
     }
 
-    /**
-     * Create OR WHERE template
-     *
-     * @param  string $field - name of field
-     * @param  string $sign - sign for compare
-     * @param  DatabaseContract $value - value to compare
-     * @return ContinueWhere
-     */
-    public function orWhere(string $field, string $sign, mixed $value): ContinueWhere
+	/**
+	 * {@inheritDoc}
+	 */
+    public function orWhere(string|callable $field, string $sign = '', mixed $value = ''): ContinueWhere
     {
-        $this->setVarStack($value);
+	    $this->whereBuilder('OR', $field, $sign, $value);
 
-        $this->setQuery(sprintf(
-            "OR %s %s (%s) ",
-            $field,
-            $sign,
-            '?'
-        ));
-
-        return $this;
+		return $this;
     }
 
-    /**
-     * Create INNER JOIN template
-     *
-     * @param  string $table - name of table
-     * @param  array<string, string> $condition - ON condition by fliedName = filedName
-     * @return SelectQuery
-     */
+	private function whereBuilder(string $operator,
+	                              string|callable $field,
+	                              string $sign = '',
+	                              mixed $value = ''): void
+	{
+		if (is_callable($field)) {
+			$closureBuilder = new SQLClosureBuilder($this);
+
+			$field($closureBuilder);
+
+			$this->setQuery(sprintf(
+				"%s (\n%s\n) ",
+					$operator, $closureBuilder->getClosureQuery()
+				)
+			);
+		} else {
+			$this->setVarStack($value);
+
+			$this->setQuery(sprintf(
+				"%s %s %s (%s) ",
+				$operator,
+				$field,
+				$sign,
+				'?'
+			));
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
     public function innerJoin(string $table, array $condition): SelectQuery
     {
         $this->setQuery(sprintf(
@@ -294,13 +260,9 @@ class SQLBuilder implements
         return $this;
     }
 
-    /**
-     * Create LEFT OUTER JOIN template
-     *
-     * @param  string $table - name of table
-     * @param  array<string, string> $condition - ON condition by fliedName = filedName
-     * @return SelectQuery
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function leftJoin(string $table, array $condition): SelectQuery
     {
         $this->setQuery(sprintf(
@@ -311,13 +273,9 @@ class SQLBuilder implements
         return $this;
     }
 
-    /**
-     * Create RIGHT OUTER JOIN template
-     *
-     * @param  string $table - name of table
-     * @param  array<string, string> $condition - ON condition by fliedName = filedName
-     * @return SelectQuery
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function rightJoin(string $table, array $condition): SelectQuery
     {
         $this->setQuery(sprintf(
@@ -328,28 +286,22 @@ class SQLBuilder implements
         return $this;
     }
 
-    /**
-     * Create LIMIT $count template
-     * @param  positive-int $count - limit count
-     * @return EndQuery
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function limit(int $count): EndQuery
     {
         $this->setQuery(sprintf(
-            "LIMIT %s\n",
+            "\nLIMIT %s",
             $count
         ));
 
         return $this;
     }
 
-    /**
-     * Creating ORDER BY template
-     *
-     * @param  string $field - name of field
-     * @param  bool|boolean $asc - type of sort
-     * @return EndQuery
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function orderBy(string $field, bool $asc = true): endQuery
     {
         $this->setQuery(sprintf(
@@ -362,11 +314,9 @@ class SQLBuilder implements
     }
 
 
-    /**
-     * Save and execute query
-     *
-     * @return array<mixed>
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function save(): array
     {
         if (!empty($this->getQuery())) {
@@ -378,22 +328,17 @@ class SQLBuilder implements
         return $this->getDb()->fetchAll(DBAdapter::PDO_F_ALL);
     }
 
-    /**
-     * Check if template with name $checkName exists
-     * @param  string $checkName - name of template
-     * @return bool
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function nameExist(string $checkName): bool
     {
         return array_key_exists($checkName, $this->userTemplates);
     }
 
-    /**
-     * Create template with name $name
-     *
-     * @param  string $name - name of template
-     * @return void
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function name(string $name): void
     {
         if (!$this->nameExist($name)) {
@@ -403,12 +348,9 @@ class SQLBuilder implements
         }
     }
 
-    /**
-     * Execute template with name $templateName by $values
-     * @param  array<DatabaseContract> $values - values to execute
-     * @param  string|null $templateName - name of template
-     * @return array<mixed>
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function execute(array $values, ?string $templateName = null): array
     {
         $fetch = [];
@@ -424,30 +366,30 @@ class SQLBuilder implements
         return $fetch;
     }
 
-    /**
-     * Reset query buffer
-     * @return QueryModel
-     */
+	/**
+	 * {@inheritDoc}
+	 */
     public function reset(): QueryModel
     {
-        $this->setQuery();
-        $this->setVarStack();
+        $this->resetQuery();
+        $this->resetVarStack();
         return $this;
     }
 
     /**
      * Set query property
      *
-     * @param string|null $query - value to concatenate (null to make empty)
+     * @param string $query - value to concatenate (null to make empty)
      */
-    private function setQuery(?string $query = null): void
+    private function setQuery(string $query): void
     {
-        if (null === $query) {
-            $this->query = '';
-        } else {
-            $this->query .= $query;
-        }
+        $this->query .= $query;
     }
+
+	private function resetQuery(): void
+	{
+		$this->query = '';
+	}
 
     /**
      * Return query
@@ -487,15 +429,12 @@ class SQLBuilder implements
     /**
      * Rules for add values in value stack
      *
-     * @param DatabaseContract|array<DatabaseContract>|null $value
+     * @param DatabaseContract|array<DatabaseContract> $value
      * @return void
      */
-    public function setVarStack(mixed $value = null): void
+    public function setVarStack(mixed $value): void
     {
-        if (null === $value) {
-            $this->valueStack = [];
-            $this->valuesRequire = 0;
-        } elseif (is_array($value)) {
+        if (is_array($value)) {
             $this->valueStack = array_merge($this->valueStack, array_values($value));
             $this->valuesRequire += count($value);
         } else {
@@ -503,6 +442,17 @@ class SQLBuilder implements
             $this->valuesRequire++;
         }
     }
+
+	/**
+	 * Reset query
+	 *
+	 * @return void
+	 */
+	private function resetVarStack(): void
+	{
+		$this->valueStack = [];
+		$this->valuesRequire = 0;
+	}
 
     /**
      * Check if table name are exist and return create exception if non

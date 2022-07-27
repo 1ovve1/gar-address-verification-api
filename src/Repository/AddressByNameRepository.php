@@ -14,7 +14,7 @@ class AddressByNameRepository extends BaseRepo
     /**
      * Return full address by fragment of $halfAddress
      * @param  array<string>  $halfAddress - exploided input address fragment
-     * @return array<string, array<mixed>> - trully full address
+     * @return array<int, array<string, array<string, mixed>>> - trully full address
      */
     public function getFullAddress(array $halfAddress): array
     {
@@ -28,20 +28,20 @@ class AddressByNameRepository extends BaseRepo
                 $fullAddress[][(empty($singleName)) ? 'variants' : $singleName] = $checkLikeAddress;
             }
         } else {
-            $objectId = [];
+            $objectid = [];
 
             for ($parent = 0, $chiled = 1; $chiled < count($halfAddress); ++$parent, ++$chiled) {
-                $objectId = $this->getAddressObjectIdByName($halfAddress[$parent], $halfAddress[$chiled]);
-                if (count($objectId) === 1) {
+                $objectid = $this->getAddressObjectIdByName($halfAddress[$parent], $halfAddress[$chiled]);
+                if (count($objectid) === 1) {
                     break;
                 }
             }
 
-            if (count($objectId) === 1) {
-                $objectIdCursor = $this->getObjectIdFromResult($objectId);
+            if (count($objectid) === 1) {
+                $pointObjectId = $this->getObjectIdAndRegionFromResult($objectid);
 
                 // upper
-                $upperChiledObjectId = $objectIdCursor;
+                $upperChiledObjectId = $pointObjectId;
                 $parentName = '';
 
                 for (; ; --$parent) {
@@ -68,23 +68,23 @@ class AddressByNameRepository extends BaseRepo
                     } else {
                         break;
                     }
-                    $upperChiledObjectId = $this->getObjectIdFromResult(end($fullAddress)[$parentName]);
+                    $upperChiledObjectId = $this->getObjectIdAndRegionFromResult(end($fullAddress)[$parentName]);
                 }
                 //reverse
                 $fullAddress = array_reverse($fullAddress);
 
                 //middle
-                $fullAddress[][$halfAddress[$chiled - 1]] = $this->getSingleNameByObjectId($objectIdCursor);
+                $fullAddress[][$halfAddress[$chiled - 1]] = $this->getSingleNameByObjectId($pointObjectId);
 
                 // down
-                $downChiledObjectId = $objectIdCursor;
+                $downChiledObjectId = $pointObjectId;
 
                 for (; $chiled < count($halfAddress); ++$chiled) {
                     $chiledName = $halfAddress[$chiled];
                     $chiledVariant = $this->getChiledNameByObjectIdAndName($downChiledObjectId, $chiledName);
                     if (count($chiledVariant) === 1 && $chiledName !== '') {
                         $fullAddress[][$chiledName] = $chiledVariant;
-                        $downChiledObjectId = $this->getObjectIdFromResult(end($fullAddress)[$chiledName]);
+                        $downChiledObjectId = $this->getObjectIdAndRegionFromResult(end($fullAddress)[$chiledName]);
                     } elseif (!empty($chiledVariant)) {
                         $fullAddress[]['variant'] = $chiledVariant;
                         break;
@@ -113,14 +113,17 @@ class AddressByNameRepository extends BaseRepo
         $hierarchy = $this->getDatabase();
 
         if (!$hierarchy->nameExist('getSingleNameByObjectId')) {
-            $hierarchy->select(['addr.name', 'addr.typename', 'addr.objectid'], [
-                'addr' => 'addr_obj',
-            ])
-      ->where('addr.objectid', '=', $objectId)
-      ->name('getSingleNameByObjectId');
+            $hierarchy->select(
+				['addr.name', 'addr.typename', 'addr.objectid'],
+				['addr' => 'addr_obj',]
+            )->where(
+	            'addr.objectid', '=', $objectId
+            )->name('getSingleNameByObjectId');
         }
 
-        return $hierarchy->execute([$objectId], 'getSingleNameByObjectId');
+        return $hierarchy->execute(
+			[$objectId],
+			'getSingleNameByObjectId');
     }
 
     /**
@@ -134,28 +137,31 @@ class AddressByNameRepository extends BaseRepo
         $hierarchy = $this->getDatabase();
 
         if (!$hierarchy->nameExist('getChiledNameByObjectIdAndName')) {
-            $hierarchy->select(['chiled.name', 'chiled.typename', 'chiled.objectid'], [
-                'mun' => 'mun_hierarchy',
-            ])
-        ->innerJoin('addr_obj as chiled', [
-            'chiled.objectid' => 'mun.chiledobjid_addr',
-        ])
-        ->where('mun.parentobjid_addr', '=', $parentObjectId)
-        ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
-        ->orWhere('mun.parentobjid_addr', '=', $parentObjectId)
-        ->andWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%')
-        ->limit(50)
-        ->name('getChiledNameByObjectIdAndName');
+            $hierarchy
+	            ->select(
+					['chiled.name', 'chiled.typename', 'chiled.objectid',],
+		            ['mun' => 'mun_hierarchy',]
+	            )->innerJoin(
+					'addr_obj as chiled',
+					['chiled.objectid' => 'mun.chiledobjid_addr',]
+	            )->where(
+					'mun.parentobjid_addr', '=', $parentObjectId
+	            )->andWhere(function($builder) use ($chiledName) {
+					$builder->where("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
+						->orWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%');
+                })->limit(
+					50
+	            )->name('getChiledNameByObjectIdAndName');
         }
 
-        return $hierarchy->execute([
-            $parentObjectId, $chiledName . '%',
-            $parentObjectId, $chiledName . '%', ], 'getChiledNameByObjectIdAndName');
+        return $hierarchy->execute(
+			[$parentObjectId, $chiledName . '%', $chiledName . '%',],
+			'getChiledNameByObjectIdAndName');
     }
 
     /**
      * Return parent name using chiled address objectid
-     * @param  int    $chiledObjectId - chiled address objectid
+     * @param int $chiledObjectId - chiled address objectid
      * @return array<mixed>
      */
     protected function getParentNameByObjectId(int $chiledObjectId): array
@@ -165,15 +171,17 @@ class AddressByNameRepository extends BaseRepo
         if (!$hierarchy->nameExist('getParentNameByObjectId')) {
             $hierarchy->select(['parent.name', 'parent.typename', 'parent.objectid'], [
                 'mun' => 'mun_hierarchy',
-            ])
-        ->innerJoin('addr_obj as parent', [
-            'parent.objectid' => 'mun.parentobjid_addr',
-        ])
-        ->where('mun.chiledobjid_addr', '=', $chiledObjectId)
-        ->name('getParentNameByObjectId');
+            ])->innerJoin('addr_obj as parent', [
+                'parent.objectid' => 'mun.parentobjid_addr',
+            ])->where(
+	            'mun.chiledobjid_addr', '=', $chiledObjectId
+            )->name('getParentNameByObjectId');
         }
 
-        return $hierarchy->execute([$chiledObjectId], 'getParentNameByObjectId');
+        return $hierarchy->execute(
+			[$chiledObjectId],
+			'getParentNameByObjectId'
+        );
     }
 
     /**
@@ -188,31 +196,30 @@ class AddressByNameRepository extends BaseRepo
         if (!$hierarchy->nameExist('getHousesByObjectId')) {
             $hierarchy->select([
                 "TRIM(' ' FROM CONCAT(
-          COALESCE(ht.short, ''), ' ', COALESCE(chiled.housenum, ''), ' ',
-          COALESCE(addht1.short, ''), ' ', COALESCE(chiled.addnum1, ''), ' ',
-          COALESCE(addht2.short, ''), ' ', COALESCE(chiled.addnum2, '')
-        )) as house",
+                COALESCE(ht.short, ''), ' ', COALESCE(chiled.housenum, ''), ' ',
+		          COALESCE(addht1.short, ''), ' ', COALESCE(chiled.addnum1, ''), ' ',
+		          COALESCE(addht2.short, ''), ' ', COALESCE(chiled.addnum2, '')
+		        )) as house",
             ], [
                 'mun' => 'mun_hierarchy',
-            ])
-      ->innerJoin('houses as chiled', [
-          'chiled.objectid' => 'mun.chiledobjid_houses',
-      ])
-      ->leftJoin('housetype as ht', [
-          'ht.id' => 'chiled.id_housetype',
-      ])
-      ->leftJoin('addhousetype as addht1', [
-          'addht1.id' => 'chiled.id_addtype1',
-      ])
-      ->leftJoin('addhousetype as addht2', [
-          'addht2.id' => 'chiled.id_addtype2',
-      ])
-      ->where('mun.parentobjid_addr', '=', $objectId)
-      ->name('getHousesByObjectId');
+            ])->innerJoin(
+				'houses as chiled',
+				['chiled.objectid' => 'mun.chiledobjid_houses',]
+            )->leftJoin(
+				'housetype as ht',
+				['ht.id' => 'chiled.id_housetype',]
+            )->leftJoin(
+				'addhousetype as addht1',
+				['addht1.id' => 'chiled.id_addtype1',]
+            )->leftJoin(
+				'addhousetype as addht2',
+				['addht2.id' => 'chiled.id_addtype2',]
+            )->where(
+				'mun.parentobjid_addr', '=', $objectId
+            )->name('getHousesByObjectId');
         }
 
-        return $hierarchy
-      ->execute([$objectId], 'getHousesByObjectId');
+        return $hierarchy->execute([$objectId], 'getHousesByObjectId');
     }
 
     /**
@@ -228,34 +235,38 @@ class AddressByNameRepository extends BaseRepo
         if (!$hierarchy->nameExist('getAddressObjectIdByName')) {
             $hierarchy->select(['DISTINCT(parent.objectid)'], [
                 'mun' => 'mun_hierarchy',
-            ])
-        ->innerJoin('addr_obj as parent', [
-            'parent.objectid' => 'mun.parentobjid_addr',
-        ])
-        ->leftJoin('addr_obj as chiled', [
-            'chiled.objectid' => 'mun.chiledobjid_addr',
-        ])
-        ->where("CONCAT(parent.name, ' ', parent.typename)", 'LIKE', $parentName . '%')
-        ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
-        ->andWhere('parent.id_level', '<=', LEVEL)
-        ->orWhere("CONCAT(parent.typename, ' ',parent.name)", 'LIKE', $parentName . '%')
-        ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
-        ->andWhere('parent.id_level', '<=', LEVEL)
-        ->orWhere("CONCAT(parent.typename, ' ', parent.name)", 'LIKE', $parentName . '%')
-        ->andWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%')
-        ->andWhere('parent.id_level', '<=', LEVEL)
-        ->orWhere("CONCAT(parent.name, ' ', parent.typename)", 'LIKE', $parentName . '%')
-        ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
-        ->andWhere('parent.id_level', '<=', LEVEL)
-        ->limit(2)
-        ->name('getAddressObjectIdByName');
+            ])->innerJoin('addr_obj as parent', [
+                'parent.objectid' => 'mun.parentobjid_addr',
+            ])->leftJoin('addr_obj as chiled', [
+                'chiled.objectid' => 'mun.chiledobjid_addr',
+            ])->where(
+				'parent.id_level', '<=', LEVEL
+            )->andWhere(function ($builder) use ($parentName, $chiledName) {
+	            $builder->where(function ($builder) use ($parentName, $chiledName) {
+		            $builder->where("CONCAT(parent.name, ' ', parent.typename)", 'LIKE', $parentName)
+			            ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName);
+	            })->orWhere(function ($builder) use ($parentName, $chiledName) {
+		            $builder->where("CONCAT(parent.typename, ' ',parent.name)", 'LIKE', $parentName . '%')
+			            ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%');
+	            })->orWhere(function ($builder) use ($parentName, $chiledName) {
+		            $builder->where("CONCAT(parent.name, ' ', parent.typename)", 'LIKE', $parentName . '%')
+			            ->andWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%');
+	            })->orWhere(function ($builder) use ($parentName, $chiledName) {
+		            $builder->where("CONCAT(parent.typename, ' ', parent.name)", 'LIKE', $parentName . '%')
+			            ->andWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%');
+	            });
+            })->limit(
+				2
+            )->name('getAddressObjectIdByName');
         }
 
         return $hierarchy->execute([
-            $parentName . '%', $chiledName . '%', LEVEL,
-            $parentName . '%', $chiledName . '%', LEVEL,
-            $parentName . '%', $chiledName . '%', LEVEL,
-            $parentName . '%', $chiledName . '%', LEVEL, ], 'getAddressObjectIdByName');
+			LEVEL,
+            $parentName . '%', $chiledName . '%',
+            $parentName . '%', $chiledName . '%',
+            $parentName . '%', $chiledName . '%',
+            $parentName . '%', $chiledName . '%',
+        ], 'getAddressObjectIdByName');
     }
 
     /**
@@ -268,20 +279,23 @@ class AddressByNameRepository extends BaseRepo
         $hierarchy = $this->getDatabase();
 
         if (!$hierarchy->nameExist('getLikeAddress')) {
-            $hierarchy->select(['addr.name', 'addr.typename', 'addr.objectid'], [
-                'addr' => 'addr_obj',
-            ])
-        ->where("CONCAT(addr.name, ' ', addr.typename)", 'LIKE', $halfAddress . '%')
-        ->andWhere('id_level', '<=', LEVEL)
-        ->orWhere("CONCAT(addr.typename, ' ', addr.name)", 'LIKE', $halfAddress . '%')
-        ->andWhere('id_level', '<=', LEVEL)
-        ->limit(100)
-        ->name('getLikeAddress');
+            $hierarchy->select(
+				['addr.name', 'addr.typename', 'addr.objectid'],
+				['addr' => 'addr_obj',]
+            )->where(
+	            'id_level', '<=', LEVEL
+            )->andWhere(function ($builder) use ($halfAddress) {
+				$builder->where("CONCAT(addr.name, ' ', addr.typename)", 'LIKE', $halfAddress . '%')
+					->andWhere("CONCAT(addr.typename, ' ', addr.name)", 'LIKE', $halfAddress . '%');
+            })->limit(
+				100
+            )->name('getLikeAddress');
         }
 
         return $hierarchy->execute([
-            $halfAddress . '%', LEVEL,
-            $halfAddress . '%', LEVEL,
+            LEVEL,
+	        $halfAddress . '%',
+	        $halfAddress . '%',
         ], 'getLikeAddress');
     }
 
@@ -315,19 +329,20 @@ class AddressByNameRepository extends BaseRepo
      * @return int
      * @throws \RuntimeException
      */
-    protected function getObjectIdFromResult(array $queryResult): int
+    protected function getObjectIdAndRegionFromResult(array $queryResult): int
     {
         if (is_array($queryResult[0])) {
             if (key_exists('objectid', $queryResult[0])) {
-                $data = $queryResult[0]['objectid'];
-                if (is_int($data)) {
-                    return $data;
+                $objectid = $queryResult[0]['objectid'];
+                if (is_int($objectid)) {
+                     return $objectid;
                 } else {
                     throw new \RuntimeException("AddressByNameRepository error: objectid are not int");
                 }
             } else {
                 throw new \RuntimeException("AddressByNameRepository error: field 'objectid' are not exists");
             }
+
         } else {
             throw new \RuntimeException("AddressByNameRepository error: queryResult is empty");
         }

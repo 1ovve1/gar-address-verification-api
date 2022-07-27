@@ -14,22 +14,22 @@ interface ContinueWhere
     /**
      * Create AND WHERE template
      *
-     * @param  string $field - name of field
+     * @param  string|callable $field - name of field or callback [AND (...)]
      * @param  string $sign - sign for compare
      * @param  DatabaseContract $value - value to compare
      * @return ContinueWhere
      */
-    public function andWhere(string $field, string $sign, mixed $value): ContinueWhere;
+    public function andWhere(string|callable $field, string $sign = '', mixed $value = ''): ContinueWhere;
 
     /**
      * Create OR WHERE template
      *
-     * @param  string $field - name of field
+     * @param  string|callable $field - name of field or callback [OR (...)]
      * @param  string $sign - sign for compare
      * @param  DatabaseContract $value - value to compare
      * @return ContinueWhere
      */
-    public function orWhere(string $field, string $sign, mixed $value): ContinueWhere;
+    public function orWhere(string|callable $field, string $sign = '', mixed $value = ''): ContinueWhere;
 
     /**
      * Creating ORDER BY template
