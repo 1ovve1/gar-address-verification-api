@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
+define('TEST_ENV', __DIR__ . '/../.env.test');
+
 require __DIR__ . '/../../bootstrap.php';
 
 use Slim\Container;
