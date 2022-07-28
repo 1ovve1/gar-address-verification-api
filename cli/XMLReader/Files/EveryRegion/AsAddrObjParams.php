@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Files\EveryRegion;
+namespace CLI\XMLReader\Files\EveryRegion;
 
 use GAR\Database\Table\SQL\QueryModel;
 use GAR\Entity\EntityFactory;
-use GAR\Util\XMLReader\Files\XMLFile;
+use CLI\XMLReader\Files\XMLFile;
 
 class AsAddrObjParams extends XMLFile
 {
@@ -55,8 +55,11 @@ class AsAddrObjParams extends XMLFile
         static $name = self::class . 'getFirstObjectIdAddrObj';
 
         if (!$model->nameExist($name)) {
-            $model->select(['objectid'], ['addr_obj'])->where('region', '=', $region)
-        ->andWhere('objectid', '=', $objectid)->limit(1)->name($name);
+            $model->select(['objectid'], ['addr_obj'])
+                ->where('region', '=', $region)
+                ->andWhere('objectid', '=', $objectid)
+                ->limit(1)
+                ->name($name);
         }
 
         return $model->execute([$region, $objectid], $name);

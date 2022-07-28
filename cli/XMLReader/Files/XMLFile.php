@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Files;
+namespace CLI\XMLReader\Files;
 
 use GAR\Database\Table\SQL\QueryModel;
 

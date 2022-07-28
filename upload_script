@@ -4,6 +4,8 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
+use CLI\XMLReader\XMLReaderClient;
+use CLI\ProcessManager;
 
 $time = microtime(true);
 
@@ -18,7 +20,7 @@ $processCount = $_SERVER['PROCESS_COUNT'];
 if (!is_int($processCount) && !$processCount > 0) {
 	return;
 }
-$manager = new \CLI\ProcessManager($processCount);
+$manager = new ProcessManager($processCount);
 
 
 $manager->newTask(fn() => 
@@ -40,7 +42,7 @@ $manager->waitAll();
 
 function parseRegion(?array $region, array $arguments = []): void
 {
-    (new \GAR\Util\XMLReader\XMLReaderClient())->run($region, $arguments);
+    (new XMLReaderClient())->run($region, $arguments);
 }
 
 echo PHP_EOL . 'Time to execute: ' . microtime(true) - $time . PHP_EOL;

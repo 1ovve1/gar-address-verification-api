@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Files\EveryRegion;
+namespace CLI\XMLReader\Files\EveryRegion;
 
 use GAR\Database\Table\SQL\QueryModel;
 use GAR\Entity\EntityFactory;
-use GAR\Util\XMLReader\Files\XMLFile;
+use CLI\XMLReader\Files\XMLFile;
 
-class AsAddrObj extends XMLFile
+class AsHouses extends XMLFile
 {
     public static function getQueryModel(): QueryModel
     {
-        return EntityFactory::getAddressObjectTable();
+        return EntityFactory::getHousesTable();
     }
 
     public static function getElement(): string
     {
-        return 'OBJECT';
+        return 'HOUSE';
     }
 
     public static function getAttributes(): array
@@ -28,9 +28,12 @@ class AsAddrObj extends XMLFile
 //            'ID' => 'int',
             'OBJECTID' => 'int',
 //            'OBJECTGUID' => 'string',
-            'LEVEL' => 'int',
-            'NAME' => 'string',
-            'TYPENAME' => 'string',
+            'HOUSENUM' => 'string',
+            'ADDNUM1' => 'string',
+            'ADDNUM2' => 'string',
+            'HOUSETYPE' => 'int',
+            'ADDTYPE1' => 'int',
+            'ADDTYPE2' => 'int',
         ];
     }
 
@@ -40,6 +43,10 @@ class AsAddrObj extends XMLFile
         $region = $this->getIntRegion();
 
         if (empty($this->getFirstObjectId($model, $values['OBJECTID'], $region))) {
+
+            foreach ($this::getAttributes() as $attr => $ignore) {
+                $values[$attr] ?? $values[$attr] = null;
+            }
             unset($values['ISACTUAL']); unset($values['ISACTIVE']);
 
             $values['REGION'] = $region;
@@ -53,8 +60,11 @@ class AsAddrObj extends XMLFile
         static $name = self::class . 'getFirstObjectId';
 
         if (!$model->nameExist($name)) {
-            $model->select(['objectid'])->where('region', '=', $region)
-        ->andWhere('objectid', '=', $objectid)->limit(1)->name($name);
+            $model->select(['region'])
+                ->where('region', '=', $region)
+                ->andWhere('objectid', '=', $objectid)
+                ->limit(1)
+                ->name($name);
         }
 
         return $model->execute([$region, $objectid], $name);

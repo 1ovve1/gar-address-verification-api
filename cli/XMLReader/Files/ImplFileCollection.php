@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Files;
+namespace CLI\XMLReader\Files;
 
-use GAR\Util\XMLReader\Reader\ReaderVisitor;
+use CLI\XMLReader\Reader\ReaderVisitor;
+use CLI\ProcessManager;
 use JetBrains\PhpStorm\ArrayShape;
 
 class ImplFileCollection implements FileCollection
@@ -112,23 +113,30 @@ class ImplFileCollection implements FileCollection
 
     private function readSingleRegions(ReaderVisitor &$reader): bool
     {
+        $manager = new ProcessManager(count($this->singleFiles));
+
         foreach ($this->singleFiles as $singleFile) {
-            $reader->read($singleFile);
-            $singleFile->saveChangesInQueryModel();
+            $manager->newTask(function () use ($singleFile, $reader) {
+                $reader->read($singleFile);
+                $singleFile->saveChangesInQueryModel();
+            });
         }
+
+        $manager->waitAll();
 
         return true;
     }
 
     private function readEveryRegions(ReaderVisitor &$reader): bool
     {
-        $manager = new \CLI\ProcessManager(2);
+        $manager = new ProcessManager(2);
 
         foreach ($this->listOfRegions as $region) {
             foreach ($this->everyRegionFiles as $everyRegionFile) {
-                $manager->newTask(function() use ($region, $reader, $everyRegionFile) {
-                    $reader->read($everyRegionFile->setRegion($region));
+                $everyRegionFile->setRegion($region);
 
+                $manager->newTask(function() use ($reader, $everyRegionFile) {
+                    $reader->read($everyRegionFile);
                     $everyRegionFile->saveChangesInQueryModel();    
                 }, true);
             }

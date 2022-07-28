@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace GAR\Util\XMLReader;
+namespace CLI\XMLReader;
 
-use GAR\Util\XMLReader\Files\ImplFileCollection;
-use GAR\Util\XMLReader\Reader\ImplReaderVisitor;
-use http\Exception\RuntimeException;
+use CLI\XMLReader\Files\ImplFileCollection;
+use CLI\XMLReader\Reader\ImplReaderVisitor;
 
 class XMLReaderClient
 {

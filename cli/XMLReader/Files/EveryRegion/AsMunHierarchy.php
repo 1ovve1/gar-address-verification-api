@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Files\EveryRegion;
+namespace CLI\XMLReader\Files\EveryRegion;
 
 use GAR\Database\Table\SQL\QueryModel;
 use GAR\Entity\EntityFactory;
-use GAR\Util\XMLReader\Files\XMLFile;
+use CLI\XMLReader\Files\XMLFile;
 
 class AsMunHierarchy extends XMLFile
 {
@@ -57,8 +57,11 @@ class AsMunHierarchy extends XMLFile
         static $name = self::class . 'getIdAddrObj';
 
         if (!$model->nameExist($name)) {
-            $model->select(['region'], ['addr_obj'])->where('region', '=', $region)
-        ->andWhere('objectid', '=', $objectid)->limit(1)->name($name);
+            $model->select(['region'], ['addr_obj'])
+                ->where('region', '=', $region)
+                ->andWhere('objectid', '=', $objectid)
+                ->limit(1)
+                ->name($name);
         }
 
         return $model->execute([$region, $objectid], $name);
@@ -69,8 +72,11 @@ class AsMunHierarchy extends XMLFile
         static $name = self::class . 'getFirstObjectIdHouses';
 
         if (!$model->nameExist($name)) {
-            $model->select(['region'], ['houses'])->where('region', '=', $region)
-        ->andWhere('objectid', '=', $objectid)->limit(1)->name($name);
+            $model->select(['region'], ['houses'])
+            ->where('region', '=', $region)
+            ->andWhere('objectid', '=', $objectid)
+            ->limit(1)
+            ->name($name);
         }
 
         return $model->execute([$region, $objectid], $name);

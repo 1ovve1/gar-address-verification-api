@@ -1,11 +1,13 @@
 <?php
 
-require __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
+
+use Dotenv\Dotenv;
 
 $basePath = __DIR__ . '/';
 
 // prepare and read data from /.env file
-$dotenv = \Dotenv\Dotenv::createImmutable($basePath);
+$dotenv = Dotenv::createImmutable($basePath);
 if (!file_exists($basePath . '.env')) {
 	echo "Error while read .env file" . PHP_EOL;
 	exit(-1);

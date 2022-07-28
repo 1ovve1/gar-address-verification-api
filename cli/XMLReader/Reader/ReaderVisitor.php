@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Reader;
+namespace CLI\XMLReader\Reader;
 
-use GAR\Util\XMLReader\Files\XMLFile;
+use CLI\XMLReader\Files\XMLFile;
 
 interface ReaderVisitor
 {

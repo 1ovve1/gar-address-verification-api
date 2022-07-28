@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace GAR\Util\XMLReader\Reader;
+namespace CLI\XMLReader\Reader;
 
 defined('DEFAULT_ZIP_PATH') ?:
-    define('DEFAULT_ZIP_PATH', __DIR__ . '/../../../../resources/archive/' . $_SERVER['GAR_ZIP_NAME']);
+    define('DEFAULT_ZIP_PATH', __DIR__ . '/../../../resources/archive/' . $_SERVER['GAR_ZIP_NAME']);
 defined('CACHE_PATH') ?:
-    define('CACHE_PATH', __DIR__ . '/../../../../cache');
+    define('CACHE_PATH', __DIR__ . '/../../../cache');
 
 class ZipExtract
 {
