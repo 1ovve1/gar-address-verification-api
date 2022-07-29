@@ -6,13 +6,10 @@ namespace Tests\Integration;
 
 define('TEST_ENV', __DIR__ . '/../.env.test');
 
-require __DIR__ . '/../../bootstrap.php';
+require_once __DIR__ . '/../../bootstrap.php';
 
-use Slim\Container;
 use Slim\Factory\AppFactory;
-use Slim\Psr7\Environment;
 use Slim\Psr7\Factory\ServerRequestFactory;
-use Slim\Psr7\Response;
 
 class BaseTestSetup extends \PHPUnit\Framework\TestCase
 {
@@ -22,7 +19,8 @@ class BaseTestSetup extends \PHPUnit\Framework\TestCase
         string $requestMethod,
         string $requestUri,
         string $requestParams,
-    ): Response {
+    ): \Psr\Http\Message\ResponseInterface
+    {
         $request = (new ServerRequestFactory())->createServerRequest($requestMethod, $requestUri . '?' . $requestParams);
 
         $basePath = __DIR__ . '/../../web/App';
