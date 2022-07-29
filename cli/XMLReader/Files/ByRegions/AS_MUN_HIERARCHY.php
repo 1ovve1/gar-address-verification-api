@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace CLI\XMLReader\Files\EveryRegion;
+namespace CLI\XMLReader\Files\ByRegions;
 
 use GAR\Database\Table\SQL\QueryModel;
 use GAR\Entity\EntityFactory;
 use CLI\XMLReader\Files\XMLFile;
 
-class AsMunHierarchy extends XMLFile
+class AS_MUN_HIERARCHY extends XMLFile
 {
     public static function getQueryModel(): QueryModel
     {

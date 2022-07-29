@@ -79,4 +79,11 @@ interface QueryModel
      * @return array<mixed>
      */
     public function execute(array $values, ?string $templateName = null): array;
+
+	/**
+	 * Save and execute query
+	 *
+	 * @return array<mixed>
+	 */
+	public function save(): array;
 }

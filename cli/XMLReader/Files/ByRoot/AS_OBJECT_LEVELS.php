@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace CLI\XMLReader\Files\Single;
+namespace CLI\XMLReader\Files\ByRoot;
 
 use GAR\Database\Table\SQL\QueryModel;
 use GAR\Entity\EntityFactory;
 use CLI\XMLReader\Files\XMLFile;
 
-class AsAddhouseTypes extends XMLFile
+class AS_OBJECT_LEVELS extends XMLFile
 {
     public static function getQueryModel(): QueryModel
     {
-        return EntityFactory::getAddhousetype();
+        return EntityFactory::getObjectLevels();
     }
 
     /**
@@ -21,7 +21,7 @@ class AsAddhouseTypes extends XMLFile
      */
     public static function getElement(): string
     {
-        return 'HOUSETYPE';
+        return 'OBJECTLEVEL';
     }
 
     /**
@@ -31,19 +31,19 @@ class AsAddhouseTypes extends XMLFile
     public static function getAttributes(): array
     {
         return [
-            'ID' => 'int',
-            'SHORTNAME' => 'string',
+            'LEVEL' => 'int',
             'NAME' => 'string',
+            'ISACTIVE' => 'bool',
         ];
     }
 
     /**
-     * procedure that contains main operations from exec method
-     * @param array $values current parse element
-     * @return void
+     * {@inheritdoc}
      */
     public function execDoWork(array &$values): void
     {
+        unset($values['ISACTIVE']);
+
         static::getQueryModel()->forceInsert($values);
     }
 }

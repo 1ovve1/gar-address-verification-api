@@ -11,7 +11,6 @@ abstract class XMLFile
     private string $fileName = '';
     private ?string $region = null;
     private ?int $intRegion = null;
-    private string $type;
 
     /**
      * @param string $fileName
@@ -26,7 +25,7 @@ abstract class XMLFile
         }
     }
 
-    public function __destruct()
+    public function save()
     {
         static::getQueryModel()->save();
     }
@@ -89,24 +88,6 @@ abstract class XMLFile
     }
 
     /**
-     * @return string
-     */
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    /**
-     * @param string $type
-     * @return XMLFile
-     */
-    public function bindType(string $type): self
-    {
-        $this->type = $type;
-        return $this;
-    }
-
-    /**
      * return concrete table model that support current file
      * @return QueryModel
      */
@@ -114,7 +95,7 @@ abstract class XMLFile
 
     public function saveChangesInQueryModel(): void
     {
-        $this::getQueryModel()->save();
+        static::getQueryModel()->save();
     }
 
     /**

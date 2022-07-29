@@ -12,7 +12,7 @@ $time = microtime(true);
 $options = $_SERVER['argv'];
 
 // load regions
-$regions = $_SERVER['CONFIG']('regions');
+$regions = $_SERVER['config']('regions');
 $sizeOfRegions = count($regions);
 
 // define our processes

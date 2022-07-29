@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace CLI\XMLReader\Files\EveryRegion;
+namespace CLI\XMLReader\Files\ByRegions;
 
 use GAR\Database\Table\SQL\QueryModel;
 use GAR\Entity\EntityFactory;
 use CLI\XMLReader\Files\XMLFile;
 
-class AsAddrObjParams extends XMLFile
+class AS_ADDR_OBJ_PARAMS extends XMLFile
 {
     public static function getQueryModel(): QueryModel
     {

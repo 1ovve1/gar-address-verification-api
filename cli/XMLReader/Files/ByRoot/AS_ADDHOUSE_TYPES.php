@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace CLI\XMLReader\Files\Single;
+namespace CLI\XMLReader\Files\ByRoot;
 
 use GAR\Database\Table\SQL\QueryModel;
 use GAR\Entity\EntityFactory;
 use CLI\XMLReader\Files\XMLFile;
 
-class AsHouseTypes extends XMLFile
+class AS_ADDHOUSE_TYPES extends XMLFile
 {
     public static function getQueryModel(): QueryModel
     {
-        return EntityFactory::getHousetype();
+        return EntityFactory::getAddhousetype();
     }
 
     /**

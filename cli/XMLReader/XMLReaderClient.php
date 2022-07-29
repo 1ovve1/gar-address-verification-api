@@ -30,15 +30,12 @@ class XMLReaderClient
      */
     public function run(array $customRegions = null, array $options = []) : void
     {
-        if (null === $customRegions) {
-            $customRegions = self::regions;
-        } else {
-            if (!in_array($customRegions[0], self::regions)) {
-                throw new \RuntimeException("Unknown region '{$customRegions[0]}' ");
-            }
-        }
+		$regions = match ($customRegions) {
+			null => self::regions,
+			default => $customRegions
+		};
 
-        $fileCollection = new ImplFileCollection($customRegions);
+        $fileCollection = new ImplFileCollection($regions);
         $reader = new ImplReaderVisitor();
         $fileCollection->exec($reader, $options);
     }
