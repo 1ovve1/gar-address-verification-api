@@ -29,14 +29,17 @@ $dotenv->load();
 
 // update some env values with __DIR__ prefix
 
-$_ENV['CACHE_PATH'] = __DIR__ . $_ENV['CACHE_PATH'];
-$_ENV['CONFIG_PATH'] = __DIR__ . $_ENV['CONFIG_PATH'];
-$_ENV['ARCHIVE_PATH'] = __DIR__ . $_ENV['ARCHIVE_PATH'];
-
+foreach ($_ENV as $index => &$param) {
+	if (is_string($param)) {
+		if (preg_match('/^.*_PATH$/', $index)) {
+			$param = __DIR__ . $param;
+		}
+	}
+}
 
 //prepare config getter
 if (!is_dir($_ENV['CONFIG_PATH'])) {
-	throw new \RuntimeException('Directory ' . getenv('CONFIG_PATH') . '/config was not found in the root of project' . PHP_EOL);
+	throw new \RuntimeException('Directory ' . $_ENV['CONFIG_PATH'] . ' was not found in the root of project' . PHP_EOL);
 }
 
 $_SERVER['config'] = function (string $filename) {

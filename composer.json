@@ -5,6 +5,7 @@
         "psr-4": {
             "GAR\\": "web/",
             "CLI\\": "cli/",
+            "DB\\": "database/",
             "Tests\\": "tests/"
         }
     },

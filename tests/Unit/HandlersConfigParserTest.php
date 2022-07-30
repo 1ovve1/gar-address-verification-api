@@ -5,8 +5,8 @@ namespace Tests\Unit;
 defined('TEST_ENV') ?: define('TEST_ENV', __DIR__ . '/../.env.test');
 require_once __DIR__ . '/../../bootstrap.php';
 
-use CLI\XMLReader\Files\HandlersConfigParser;
-use CLI\XMLReader\Files\XMLFile;
+use CLI\XMLParser\Files\HandlersConfigParser;
+use CLI\XMLParser\Files\XMLFile;
 use PHPUnit\Framework\TestCase;
 
 class HandlersConfigParserTest extends TestCase

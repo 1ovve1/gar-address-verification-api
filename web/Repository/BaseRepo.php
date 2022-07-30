@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace GAR\Repository;
 
-use GAR\Database\Table\SQL\QueryModel;
+use DB\ORM\Table\SQL\QueryModel;
 
 /**
- * Basic repository class, contains prodaction database
+ * Basic repository class, contains production database
  */
 class BaseRepo
 {
     /**
-     * @param QueryModel $database - prodaction databse
+     * @param QueryModel $database - production database
      */
     public function __construct(
         private readonly QueryModel $database
@@ -20,7 +20,7 @@ class BaseRepo
     }
 
     /**
-     * Return prodaction database accsessor $database
+     * Return production database accessor $database
      *
      * @return QueryModel
      */

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace GAR\Repository;
 
-use http\Exception\RuntimeException;
-
 /**
  * Repository for getting code by concrete objectid
  */

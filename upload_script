@@ -4,7 +4,7 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
-use CLI\XMLReader\XMLReaderClient;
+use CLI\XMLParser\XMLParserClient;
 use CLI\ProcessManager;
 
 $time = microtime(true);
@@ -42,7 +42,7 @@ $manager->waitAll();
 
 function parseRegion(?array $region, array $arguments = []): void
 {
-    (new XMLReaderClient())->run($region, $arguments);
+    (new XMLParserClient())->run($region, $arguments);
 }
 
 echo PHP_EOL . 'Time to execute: ' . microtime(true) - $time . PHP_EOL;

@@ -4,7 +4,7 @@ return [
 	//
 	'root' => [
 		'namespace' => [
-			'\\CLI\\XMLReader\\Files\\ByRoot\\',
+			'\\CLI\\XMLParser\\Files\\ByRoot\\',
 		],
 
 		'handlers' => [
@@ -16,7 +16,7 @@ return [
 
 	'regions' => [
 		'namespace' =>[
-			'\\CLI\\XMLReader\\Files\\ByRegions\\',
+			'\\CLI\\XMLParser\\Files\\ByRegions\\',
 		],
 
 		'handlers' => [
