@@ -11,7 +11,7 @@ use PDOException;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
-define('LOG_PATH', __DIR__ . '/../../logs');
+define('LOG_PATH', $_ENV['LOG_PATH']);
 set_exception_handler([Log::class, 'error']);
 
 /**

@@ -14,7 +14,7 @@ return function (Slim\App $app) {
     });
 
     $routeCollector = $app->getRouteCollector();
-    $routeCollector->setCacheFile(__DIR__ . '/../../cache/route_cache.file');
+    $routeCollector->setCacheFile($_ENV['CACHE_PATH'] . '/route_cache.file');
 
     return $app;
 };

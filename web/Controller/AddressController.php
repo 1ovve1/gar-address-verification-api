@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GAR\Controller;
 
-use GAR\Entity\EntityFactory;
+use DB\EntityFactory;
 use GAR\Repository\AddressByNameRepository;
 use GAR\Repository\CodeByObjectIdRepository;
 use Psr\Http\Message\ResponseInterface as Response;
