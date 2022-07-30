@@ -27,16 +27,16 @@ class MunHierarchy extends ConcreteTable
               'BIGINT UNSIGNED',
 
 	        'region' =>
-	            'TINYINT UNSIGNED NOT NULL'
+	            'TINYINT UNSIGNED NOT NULL',
 
-//            'FOREIGN KEY (parentobjid_addr)' =>
-//              'REFERENCES addr_obj (objectid)',
-//
-//            'FOREIGN KEY (chiledobjid_addr)' =>
-//              'REFERENCES addr_obj (objectid)',
-//
-//            'FOREIGN KEY (chiledobjid_houses)' =>
-//              'REFERENCES houses (objectid)',
+           'FOREIGN KEY (parentobjid_addr)' =>
+             'REFERENCES addr_obj (objectid)',
+
+           'FOREIGN KEY (chiledobjid_addr)' =>
+             'REFERENCES addr_obj (objectid)',
+
+           'FOREIGN KEY (chiledobjid_houses)' =>
+             'REFERENCES houses (objectid)',
         ];
     }
 }

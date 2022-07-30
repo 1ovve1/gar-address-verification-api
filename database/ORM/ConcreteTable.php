@@ -50,7 +50,7 @@ abstract class ConcreteTable
         static $instances = [];
 		$staticClass = static::class;
 
-        if (null === ($instances[$staticClass])) {
+        if (!isset($instances[$staticClass])) {
 			$db = DBFacade::getInstance();
             $instances[$staticClass] = new static($db, $createMetaTable);
         }
