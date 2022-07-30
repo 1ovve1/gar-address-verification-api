@@ -32,11 +32,7 @@ class EntityFactory
    */
     public static function getAddressObjectTable(): QueryModel
     {
-        static $model = null;
-        if (null === $model) {
-            $model = new AddrObj(DBFacade::getInstance());
-        }
-        return $model;
+        return AddrObj::getInstance(DBFacade::getInstance());
     }
 
     /**
@@ -46,11 +42,7 @@ class EntityFactory
      */
     public static function getAddressObjectParamsTable(): QueryModel
     {
-        static $model = null;
-        if (null === $model) {
-            $model = new AddrObjParams(DBFacade::getInstance());
-        }
-        return $model;
+		return AddrObjParams::getInstance(DBFacade::getInstance());
     }
 
     /**
@@ -60,11 +52,7 @@ class EntityFactory
      */
     public static function getHousesTable(): QueryModel
     {
-        static $model = null;
-        if (null === $model) {
-            $model = new Houses(DBFacade::getInstance());
-        }
-        return $model;
+		return Houses::getInstance(DBFacade::getInstance());
     }
 
     /**
@@ -74,11 +62,7 @@ class EntityFactory
      */
     public static function getMunTable(): QueryModel
     {
-        static $model = null;
-        if (null === $model) {
-            $model = new MunHierarchy(DBFacade::getInstance());
-        }
-        return $model;
+		return MunHierarchy::getInstance(DBFacade::getInstance());
     }
 
     /**
@@ -88,11 +72,7 @@ class EntityFactory
      */
     public static function getObjectLevels(): QueryModel
     {
-        static $model = null;
-        if (null === $model) {
-            $model = new ObjLevels(DBFacade::getInstance());
-        }
-        return $model;
+		return ObjLevels::getInstance(DBFacade::getInstance());
     }
 
     /**
@@ -102,11 +82,7 @@ class EntityFactory
      */
     public static function getHousetype(): QueryModel
     {
-        static $model = null;
-        if (null === $model) {
-            $model = new Housetype(DBFacade::getInstance());
-        }
-        return $model;
+		return Housetype::getInstance(DBFacade::getInstance());
     }
 
     /**
@@ -116,11 +92,7 @@ class EntityFactory
      */
     public static function getAddhousetype(): QueryModel
     {
-        static $model = null;
-        if (null === $model) {
-            $model = new Addhousetype(DBFacade::getInstance());
-        }
-        return $model;
+		return Addhousetype::getInstance(DBFacade::getInstance());
     }
 
     /**

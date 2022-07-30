@@ -6,14 +6,20 @@ namespace DB\ORM;
 
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\Table\MetaTable;
+use DB\ORM\Table\SQL\DeleteQuery;
+use DB\ORM\Table\SQL\EndQuery;
 use DB\ORM\Table\SQL\QueryModel;
+use DB\ORM\Table\SQL\SelectQuery;
+use DB\ORM\Table\SQL\UpdateQuery;
 use DB\ORM\Table\SQLBuilder;
 
 /**
  * Concrete table classs
  */
-abstract class ConcreteTable extends SQLBuilder
+abstract class ConcreteTable implements QueryModel
 {
+	private SQLBuilder $builder;
+
     /**
      * @param DBAdapter $db - database object
      * @param bool $createMetaTable - create table model option
@@ -27,7 +33,7 @@ abstract class ConcreteTable extends SQLBuilder
                 $this->fieldsToCreate()
             );
         }
-        parent::__construct(
+        $this->builder = new SQLBuilder(
             $db,
             ($createMetaTable) ? $metaTable : null,
             intval($_SERVER['DB_BUFF'])
@@ -43,16 +49,18 @@ abstract class ConcreteTable extends SQLBuilder
      */
     public static function getInstance(DBAdapter $db, bool $createMetaTable = true): QueryModel
     {
-        static $instance = null;
-        if (null === $instance) {
-            $instance = new static($db, $createMetaTable);
+        static $instances = [];
+		$staticClass = static::class;
+
+        if (!isset($instances[$staticClass])) {
+            $instances[$staticClass] = new static($db, $createMetaTable);
         }
 
-        return $instance;
+        return $instances[$staticClass];
     }
 
     /**
-     * return fields thath need to create in new table model
+     * return fields that need to create in new table model
      *
      * @return ?array<string, string>
      */
@@ -60,4 +68,52 @@ abstract class ConcreteTable extends SQLBuilder
     {
         return null;
     }
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function insert(array $values, ?string $tableName = null): EndQuery;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function forceInsert(array $values): EndQuery;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function update(string $field, mixed $value, ?string $tableName = null): UpdateQuery;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function delete(?string $tableName = null): DeleteQuery;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function select(array $fields, ?array $anotherTables = null): SelectQuery;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function findFirst(string $field, mixed $value, ?string $anotherTable = null): array;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function nameExist(string $checkName): bool;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function execute(array $values, ?string $templateName = null): array;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function save(): array
+	{
+
+	}
 }
