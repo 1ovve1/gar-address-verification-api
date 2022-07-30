@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace GAR\Repository;
 
+use DB\Models\Database;
+use RuntimeException;
+
 const LEVEL = 5;
 
 /**
@@ -110,17 +113,14 @@ class AddressByNameRepository extends BaseRepo
      */
     public function getSingleNameByObjectId(int $objectId): array
     {
-        $hierarchy = $this->getDatabase();
-
-        if (!$hierarchy->nameExist('getSingleNameByObjectId')) {
-            $hierarchy->select(['addr.name', 'addr.typename', 'addr.objectid'], [
+        if (!Database::nameExist('getSingleNameByObjectId')) {
+            Database::select(['addr.name', 'addr.typename', 'addr.objectid'], [
                 'addr' => 'addr_obj',
-            ])
-      ->where('addr.objectid', '=', $objectId)
-      ->name('getSingleNameByObjectId');
+            ])->where('addr.objectid', '=', $objectId)
+            ->name('getSingleNameByObjectId');
         }
 
-        return $hierarchy->execute([$objectId], 'getSingleNameByObjectId');
+        return Database::execute([$objectId], 'getSingleNameByObjectId');
     }
 
     /**
@@ -131,24 +131,21 @@ class AddressByNameRepository extends BaseRepo
      */
     protected function getChiledNameByObjectIdAndName(int $parentObjectId, string $chiledName): array
     {
-        $hierarchy = $this->getDatabase();
-
-        if (!$hierarchy->nameExist('getChiledNameByObjectIdAndName')) {
-            $hierarchy->select(['chiled.name', 'chiled.typename', 'chiled.objectid'], [
-                'mun' => 'mun_hierarchy',
-            ])
-        ->innerJoin('addr_obj as chiled', [
-            'chiled.objectid' => 'mun.chiledobjid_addr',
-        ])
-        ->where('mun.parentobjid_addr', '=', $parentObjectId)
-        ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
-        ->orWhere('mun.parentobjid_addr', '=', $parentObjectId)
-        ->andWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%')
-        ->limit(50)
-        ->name('getChiledNameByObjectIdAndName');
+        if (!Database::nameExist('getChiledNameByObjectIdAndName')) {
+            Database::select(
+				['chiled.name', 'chiled.typename', 'chiled.objectid'],
+	            ['mun' => 'mun_hierarchy',]
+            )->innerJoin('addr_obj as chiled', [
+		        'chiled.objectid' => 'mun.chiledobjid_addr',
+		    ])->where('mun.parentobjid_addr', '=', $parentObjectId)
+		    ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
+		    ->orWhere('mun.parentobjid_addr', '=', $parentObjectId)
+		    ->andWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%')
+		    ->limit(50)
+		    ->name('getChiledNameByObjectIdAndName');
         }
 
-        return $hierarchy->execute([
+        return Database::execute([
             $parentObjectId, $chiledName . '%',
             $parentObjectId, $chiledName . '%', ], 'getChiledNameByObjectIdAndName');
     }
@@ -160,20 +157,18 @@ class AddressByNameRepository extends BaseRepo
      */
     protected function getParentNameByObjectId(int $chiledObjectId): array
     {
-        $hierarchy = $this->getDatabase();
-
-        if (!$hierarchy->nameExist('getParentNameByObjectId')) {
-            $hierarchy->select(['parent.name', 'parent.typename', 'parent.objectid'], [
-                'mun' => 'mun_hierarchy',
-            ])
-        ->innerJoin('addr_obj as parent', [
-            'parent.objectid' => 'mun.parentobjid_addr',
-        ])
-        ->where('mun.chiledobjid_addr', '=', $chiledObjectId)
-        ->name('getParentNameByObjectId');
+        if (!Database::nameExist('getParentNameByObjectId')) {
+            Database::select(
+				['parent.name', 'parent.typename', 'parent.objectid'],
+				['mun' => 'mun_hierarchy',]
+            )->innerJoin(
+				'addr_obj as parent',
+				['parent.objectid' => 'mun.parentobjid_addr',]
+            )->where('mun.chiledobjid_addr', '=', $chiledObjectId)
+            ->name('getParentNameByObjectId');
         }
 
-        return $hierarchy->execute([$chiledObjectId], 'getParentNameByObjectId');
+        return Database::execute([$chiledObjectId], 'getParentNameByObjectId');
     }
 
     /**
@@ -183,36 +178,31 @@ class AddressByNameRepository extends BaseRepo
      */
     protected function getHousesByObjectId(int $objectId): array
     {
-        $hierarchy = $this->getDatabase();
-
-        if (!$hierarchy->nameExist('getHousesByObjectId')) {
-            $hierarchy->select([
-                "TRIM(' ' FROM CONCAT(
-          COALESCE(ht.short, ''), ' ', COALESCE(chiled.housenum, ''), ' ',
-          COALESCE(addht1.short, ''), ' ', COALESCE(chiled.addnum1, ''), ' ',
-          COALESCE(addht2.short, ''), ' ', COALESCE(chiled.addnum2, '')
-        )) as house",
+        if (!Database::nameExist('getHousesByObjectId')) {
+			Database::select(
+				["TRIM(' ' FROM CONCAT(COALESCE(ht.short, ''), ' ', COALESCE(chiled.housenum, ''), ' ', " .
+				 "COALESCE(addht1.short, ''), ' ', COALESCE(chiled.addnum1, ''), ' ', " .
+				 "COALESCE(addht2.short, ''), ' ', COALESCE(chiled.addnum2, ''))) as house",
             ], [
                 'mun' => 'mun_hierarchy',
-            ])
-      ->innerJoin('houses as chiled', [
-          'chiled.objectid' => 'mun.chiledobjid_houses',
-      ])
-      ->leftJoin('housetype as ht', [
-          'ht.id' => 'chiled.id_housetype',
-      ])
-      ->leftJoin('addhousetype as addht1', [
-          'addht1.id' => 'chiled.id_addtype1',
-      ])
-      ->leftJoin('addhousetype as addht2', [
-          'addht2.id' => 'chiled.id_addtype2',
-      ])
-      ->where('mun.parentobjid_addr', '=', $objectId)
-      ->name('getHousesByObjectId');
+            ]
+			)->innerJoin(
+				'houses as chiled',
+				['chiled.objectid' => 'mun.chiledobjid_houses',]
+			)->leftJoin(
+				'housetype as ht',
+				['ht.id' => 'chiled.id_housetype',]
+			)->leftJoin(
+				'addhousetype as addht1',
+				['addht1.id' => 'chiled.id_addtype1',]
+			)->leftJoin(
+				'addhousetype as addht2',
+				['addht2.id' => 'chiled.id_addtype2',]
+			)->where('mun.parentobjid_addr', '=', $objectId)
+            ->name('getHousesByObjectId');
         }
 
-        return $hierarchy
-      ->execute([$objectId], 'getHousesByObjectId');
+        return Database::execute([$objectId], 'getHousesByObjectId');
     }
 
     /**
@@ -223,39 +213,34 @@ class AddressByNameRepository extends BaseRepo
      */
     protected function getAddressObjectIdByName(string $parentName, string $chiledName): array
     {
-        $hierarchy = $this->getDatabase();
-
-        if (!$hierarchy->nameExist('getAddressObjectIdByName')) {
-            $hierarchy->select(['DISTINCT(parent.objectid)'], [
-                'mun' => 'mun_hierarchy',
-            ])
-        ->innerJoin('addr_obj as parent', [
-            'parent.objectid' => 'mun.parentobjid_addr',
-        ])
-        ->leftJoin('addr_obj as chiled', [
-            'chiled.objectid' => 'mun.chiledobjid_addr',
-        ])
-        ->where("CONCAT(parent.name, ' ', parent.typename)", 'LIKE', $parentName . '%')
-        ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
-        ->andWhere('parent.id_level', '<=', LEVEL)
-        ->orWhere("CONCAT(parent.typename, ' ',parent.name)", 'LIKE', $parentName . '%')
-        ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
-        ->andWhere('parent.id_level', '<=', LEVEL)
-        ->orWhere("CONCAT(parent.typename, ' ', parent.name)", 'LIKE', $parentName . '%')
-        ->andWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%')
-        ->andWhere('parent.id_level', '<=', LEVEL)
-        ->orWhere("CONCAT(parent.name, ' ', parent.typename)", 'LIKE', $parentName . '%')
-        ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
-        ->andWhere('parent.id_level', '<=', LEVEL)
-        ->limit(2)
-        ->name('getAddressObjectIdByName');
+        if (!Database::nameExist('getAddressObjectIdByName')) {
+            Database::select(
+				['DISTINCT(parent.objectid)'],
+	            ['mun' => 'mun_hierarchy',]
+            )->innerJoin(
+				'addr_obj as parent',
+				['parent.objectid' => 'mun.parentobjid_addr']
+            )->leftJoin(
+				'addr_obj as chiled',
+				['chiled.objectid' => 'mun.chiledobjid_addr',]
+            )->where('parent.id_level', '<=', LEVEL)
+            ->andWhere(function($builder) use ($parentName, $chiledName){
+				$builder->where(function($builder) use ($parentName) {
+					$builder->where("CONCAT(parent.name, ' ', parent.typename)", 'LIKE', $parentName . '%')
+						->orWhere("CONCAT(parent.typename, ' ',parent.name)", 'LIKE', $parentName . '%');
+				})->andWhere(function($builder) use ($chiledName) {
+					$builder->where("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
+						->orWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%');
+				});
+            })->limit(2)
+			->name('getAddressObjectIdByName');
         }
 
-        return $hierarchy->execute([
-            $parentName . '%', $chiledName . '%', LEVEL,
-            $parentName . '%', $chiledName . '%', LEVEL,
-            $parentName . '%', $chiledName . '%', LEVEL,
-            $parentName . '%', $chiledName . '%', LEVEL, ], 'getAddressObjectIdByName');
+        return Database::execute([
+            LEVEL,
+	        $parentName . '%', $parentName . '%',
+	        $chiledName . '%', $chiledName . '%',
+        ], 'getAddressObjectIdByName');
     }
 
     /**
@@ -265,23 +250,22 @@ class AddressByNameRepository extends BaseRepo
      */
     protected function getLikeAddress(string $halfAddress): array
     {
-        $hierarchy = $this->getDatabase();
-
-        if (!$hierarchy->nameExist('getLikeAddress')) {
-            $hierarchy->select(['addr.name', 'addr.typename', 'addr.objectid'], [
-                'addr' => 'addr_obj',
-            ])
-        ->where("CONCAT(addr.name, ' ', addr.typename)", 'LIKE', $halfAddress . '%')
-        ->andWhere('id_level', '<=', LEVEL)
-        ->orWhere("CONCAT(addr.typename, ' ', addr.name)", 'LIKE', $halfAddress . '%')
-        ->andWhere('id_level', '<=', LEVEL)
-        ->limit(100)
-        ->name('getLikeAddress');
+        if (!Database::nameExist('getLikeAddress')) {
+            Database::select(
+				['addr.name', 'addr.typename', 'addr.objectid'],
+				['addr' => 'addr_obj',]
+	        )->where('id_level', '<=', LEVEL)
+	        ->andWhere(function ($builder) use ($halfAddress) {
+				$builder->where("CONCAT(addr.name, ' ', addr.typename)", 'LIKE', $halfAddress . '%')
+					->orWhere("CONCAT(addr.typename, ' ', addr.name)", 'LIKE', $halfAddress . '%');
+	        })->limit(100)
+            ->name('getLikeAddress');
         }
 
-        return $hierarchy->execute([
-            $halfAddress . '%', LEVEL,
-            $halfAddress . '%', LEVEL,
+        return Database::execute([
+	        LEVEL,
+	        $halfAddress . '%',
+            $halfAddress . '%',
         ], 'getLikeAddress');
     }
 
@@ -313,7 +297,7 @@ class AddressByNameRepository extends BaseRepo
      * Save return 'objectid' field from query result
      * @param  array<mixed>  $queryResult - result of query
      * @return int
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     protected function getObjectIdFromResult(array $queryResult): int
     {
@@ -323,13 +307,13 @@ class AddressByNameRepository extends BaseRepo
                 if (is_int($data)) {
                     return $data;
                 } else {
-                    throw new \RuntimeException("AddressByNameRepository error: objectid are not int");
+                    throw new RuntimeException("AddressByNameRepository error: objectid are not int");
                 }
             } else {
-                throw new \RuntimeException("AddressByNameRepository error: field 'objectid' are not exists");
+                throw new RuntimeException("AddressByNameRepository error: field 'objectid' are not exists");
             }
         } else {
-            throw new \RuntimeException("AddressByNameRepository error: queryResult is empty");
+            throw new RuntimeException("AddressByNameRepository error: queryResult is empty");
         }
     }
 }

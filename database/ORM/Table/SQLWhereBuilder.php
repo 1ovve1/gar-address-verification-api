@@ -7,11 +7,10 @@ use DB\ORM\Table\SQL\ContinueWhere;
 use DB\ORM\Table\SQL\NestedWhereQuery;
 use RuntimeException;
 
-class NestedSQLBuilder implements NestedWhereQuery
+class SQLWhereBuilder implements NestedWhereQuery
 {
 	private SQLBuilder $refBuilder;
 	private string $query = '';
-	private bool $startFlag = false;
 
 	/**
 	 * @param SQLBuilder $refBuilder
@@ -28,10 +27,6 @@ class NestedSQLBuilder implements NestedWhereQuery
 	                      mixed $sign_or_value = null,
 	                      mixed $value = null): NestedWhereQuery
 	{
-		if ($this->startFlag) {
-			throw new RuntimeException("Try to call method 'where' after after another 'where'");
-		}
-
 		$query = self::genConditionByArguments(
 			$field_or_nested_clbk,
 			$sign_or_value,
@@ -49,10 +44,6 @@ class NestedSQLBuilder implements NestedWhereQuery
 	                         mixed $sign_or_value = null,
 	                         mixed $value = null): NestedWhereQuery
 	{
-		if (!$this->startFlag) {
-			throw new RuntimeException("Try to call method 'where' after after another 'where'");
-		}
-
 		$query = self::genConditionByArguments(
 			$field_or_nested_clbk,
 			$sign_or_value,
@@ -70,10 +61,6 @@ class NestedSQLBuilder implements NestedWhereQuery
 	                        mixed $sign_or_value = null,
 	                        mixed $value = null): NestedWhereQuery
 	{
-		if (!$this->startFlag) {
-			throw new RuntimeException("Try to call method 'where' after after another 'where'");
-		}
-
 		$query = self::genConditionByArguments(
 			$field_or_nested_clbk,
 			$sign_or_value,
@@ -104,15 +91,16 @@ class NestedSQLBuilder implements NestedWhereQuery
 		} else if (null === $value) {
 			$field = $field_or_nested_clbk;
 			$value = $sign_or_value;
+			$this->refBuilder->setVarStack($value);
 
-			$query = self::makeConditionByEquals($field, $value);
+			$query = self::makeConditionByEquals($field);
 
 		} else {
 			$field = $field_or_nested_clbk;
 			$sign = $sign_or_value;
-			$value = $sign_or_value;
+			$this->refBuilder->setVarStack($value);
 
-			$query = self::makeConditionBySign($field, $sign, $value);
+			$query = self::makeConditionBySign($field, $sign);
 
 		}
 
@@ -121,12 +109,13 @@ class NestedSQLBuilder implements NestedWhereQuery
 
 	/**
 	 * @param callable $nestedCallback
+	 * @param SQLBuilder $refOnBuilder
 	 * @return string
 	 */
 	private static function makeConditionByNestedCallback(callable $nestedCallback,
 	                                                      SQLBuilder $refOnBuilder): string
 	{
-		$nestedBuilder = new NestedSQLBuilder($refOnBuilder);
+		$nestedBuilder = new SQLWhereBuilder($refOnBuilder);
 		$nestedCallback($nestedBuilder);
 
 		return '(' . $nestedBuilder->getQuery() . ')';
@@ -134,27 +123,25 @@ class NestedSQLBuilder implements NestedWhereQuery
 
 	/**
 	 * @param string $field
-	 * @param mixed $value
 	 * @return string
 	 */
-	private static function makeConditionByEquals(string $field, mixed $value): string
+	private static function makeConditionByEquals(string $field): string
 	{
-		return $field . ' = ' . $value;
+		return $field . ' = (?)';
 	}
 
 	/**
 	 * @param string $field
 	 * @param mixed $sign
-	 * @param mixed $value
 	 * @return string
 	 */
-	private static function makeConditionBySign(string $field, mixed $sign, mixed $value): string
+	private static function makeConditionBySign(string $field, mixed $sign): string
 	{
 		if (!Conditions::tryFind($sign)) {
-			throw new RuntimeException("Unknown or unsupported sign '{$value}'");
+			throw new RuntimeException("Unknown or unsupported sign '{$sign}'");
 		}
 
-		return $field . ' ' . $sign . ' ' . $value;
+		return $field . ' ' . $sign . ' (?)';
 	}
 
 	/**

@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files\ByRoot;
 
-use DB\ORM\Table\SQL\QueryModel;
-use DB\EntityFactory;
+use DB\Models\ObjLevels;
 use CLI\XMLParser\Files\XMLFile;
 
 class AS_OBJECT_LEVELS extends XMLFile
 {
-    public static function getQueryModel(): QueryModel
+    public function save(): void
     {
-        return EntityFactory::getObjectLevels();
+        ObjLevels::save();
     }
 
     /**
@@ -44,6 +43,6 @@ class AS_OBJECT_LEVELS extends XMLFile
     {
         unset($values['ISACTIVE']);
 
-        static::getQueryModel()->forceInsert($values);
+        ObjLevels::forceInsert($values);
     }
 }

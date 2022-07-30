@@ -12,10 +12,8 @@ if (defined('TEST_ENV')) {
 	$basePath = __DIR__ . '/';
 }
 
-// check context (cli or web)
-if (!key_exists('argv', $_SERVER)){
-	return;
-}
+
+
 
 // prepare and read data from /.env file
 $dotenv = Dotenv::createImmutable($basePath, $envName);
@@ -26,7 +24,10 @@ if (!file_exists($basePath . $envName)) {
 $dotenv->load();
 
 
-
+// check context (cli or web)
+if (defined('SERVER_START')){
+	return;
+}
 // update some env values with __DIR__ prefix
 
 foreach ($_ENV as $index => &$param) {

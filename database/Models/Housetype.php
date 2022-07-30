@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace DB\Models;
 
 use DB\ORM\ConcreteTable;
-use DB\ORM\Table\SQL\QueryModel;
 
-class Housetype extends ConcreteTable implements QueryModel
+
+class Housetype extends ConcreteTable 
 {
     /**
      * Return fields that need to create in model

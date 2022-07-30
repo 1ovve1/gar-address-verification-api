@@ -7,7 +7,7 @@ namespace DB\Models;
 use DB\ORM\ConcreteTable;
 
 
-class DBProd extends ConcreteTable
+class Database extends ConcreteTable
 {
 	/**
 	 * @inheritDoc

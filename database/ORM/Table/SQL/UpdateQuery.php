@@ -11,19 +11,22 @@ namespace DB\ORM\Table\SQL;
  */
 interface UpdateQuery
 {
+	/**
+	 * Create WHERE template
+	 *
+	 * @param  string|callable $field_or_nested_clbk - name of field or callback for nested-or-where [OR (...)]
+	 * @param  DatabaseContract|string|null $sign_or_value - sign for compare or value for default '=' compare
+	 * @param  DatabaseContract|null $value - value to compare
+	 * @return ContinueWhere
+	 */
+	public function where(string|callable $field_or_nested_clbk,
+	                      mixed $sign_or_value = null,
+	                      mixed $value = null): ContinueWhere;
+
     /**
-     * Create WHERE template
-     *
-     * @param  string $field - name of field
-     * @param  string $sign - sign for compare
-     * @param  DatabaseContract $value - value to compare
-     * @return ContinueWhere
-     */
-    public function where(string $field, string $sign, mixed $value): ContinueWhere;
-    /**
-   * Reset query buffer
-   * @return QueryModel
-   */
+     * Reset query buffer
+	 * @return QueryModel
+	 */
     public function reset(): QueryModel;
 
     /**

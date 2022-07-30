@@ -14,7 +14,7 @@ use DB\Models\{
     Housetype,
     MunHierarchy,
     ObjLevels,
-    Production
+    Database
 };
 
 /**
@@ -102,7 +102,7 @@ class EntityFactory
      */
     public static function getProductionDB(): QueryModel
     {
-        return Production::getInstance(
+        return Database::getInstance(
             db: DBFacade::getInstance(),
             createMetaTable: false
         );

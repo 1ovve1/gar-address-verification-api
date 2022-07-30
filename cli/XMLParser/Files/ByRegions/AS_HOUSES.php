@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files\ByRegions;
 
-use DB\ORM\Table\SQL\QueryModel;
-use DB\EntityFactory;
+use DB\Models\Houses;
 use CLI\XMLParser\Files\XMLFile;
 
 class AS_HOUSES extends XMLFile
 {
-    public static function getQueryModel(): QueryModel
+    public function save(): void
     {
-        return EntityFactory::getHousesTable();
+		Houses::save();
     }
 
     public static function getElement(): string
@@ -39,10 +38,9 @@ class AS_HOUSES extends XMLFile
 
     public function execDoWork(array &$values): void
     {
-        $model = static::getQueryModel();
         $region = $this->getIntRegion();
 
-        if (empty($this->getFirstObjectId($model, $values['OBJECTID'], $region))) {
+        if (empty($this->getFirstObjectId($values['OBJECTID'], $region))) {
 
             foreach ($this::getAttributes() as $attr => $ignore) {
                 $values[$attr] ?? $values[$attr] = null;
@@ -51,22 +49,22 @@ class AS_HOUSES extends XMLFile
 
             $values['REGION'] = $region;
 
-            $model->forceInsert($values);
+            Houses::forceInsert($values);
         }
     }
 
-    private function getFirstObjectId(QueryModel $model, int $objectid, int $region): array
+    private function getFirstObjectId(int $objectid, int $region): array
     {
         static $name = self::class . 'getFirstObjectId';
 
-        if (!$model->nameExist($name)) {
-            $model->select(['region'])
-                ->where('region', '=', $region)
-                ->andWhere('objectid', '=', $objectid)
+        if (!Houses::nameExist($name)) {
+	        Houses::select(['region'])
+                ->where('region', $region)
+                ->andWhere('objectid', $objectid)
                 ->limit(1)
                 ->name($name);
         }
 
-        return $model->execute([$region, $objectid], $name);
+        return Houses::execute([$region, $objectid], $name);
     }
 }

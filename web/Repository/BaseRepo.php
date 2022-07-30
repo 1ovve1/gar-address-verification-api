@@ -11,21 +11,15 @@ use DB\ORM\Table\SQL\QueryModel;
  */
 class BaseRepo
 {
-    /**
-     * @param QueryModel $database - production database
-     */
     public function __construct(
-        private readonly QueryModel $database
     ) {
     }
 
     /**
      * Return production database accessor $database
      *
-     * @return QueryModel
      */
-    public function getDatabase(): QueryModel
+    public function getDatabase(): void
     {
-        return $this->database;
     }
 }

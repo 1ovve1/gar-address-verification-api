@@ -25,11 +25,11 @@ abstract class XMLFile
         }
     }
 
-    public function save()
-    {
-        static::getQueryModel()->save();
-    }
-
+	/**
+	 * Operation that will be called after using this file
+	 * @return void
+	 */
+    abstract function save() : void;
 
     /**
      * @return string
@@ -85,17 +85,6 @@ abstract class XMLFile
         } else {
             return $this->region . '/' . $this->fileName;
         }
-    }
-
-    /**
-     * return concrete table model that support current file
-     * @return QueryModel
-     */
-    abstract public static function getQueryModel(): QueryModel;
-
-    public function saveChangesInQueryModel(): void
-    {
-        static::getQueryModel()->save();
     }
 
     /**

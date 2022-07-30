@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files\ByRoot;
 
-use DB\ORM\Table\SQL\QueryModel;
-use DB\EntityFactory;
+use DB\Models\Addhousetype;
 use CLI\XMLParser\Files\XMLFile;
 
 class AS_ADDHOUSE_TYPES extends XMLFile
 {
-    public static function getQueryModel(): QueryModel
+    public function save(): void
     {
-        return EntityFactory::getAddhousetype();
+        Addhousetype::save();
     }
 
     /**
@@ -44,6 +43,6 @@ class AS_ADDHOUSE_TYPES extends XMLFile
      */
     public function execDoWork(array &$values): void
     {
-        static::getQueryModel()->forceInsert($values);
+        Addhousetype::forceInsert($values);
     }
 }

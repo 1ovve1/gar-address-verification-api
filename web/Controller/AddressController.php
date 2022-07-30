@@ -24,8 +24,8 @@ class AddressController
 
     public function __construct(
   ) {
-        $this->addressByNameRepo = new AddressByNameRepository(EntityFactory::getProductionDB());
-        $this->addressByCodeRepo = new CodeByObjectIdRepository(EntityFactory::getProductionDB());
+        $this->addressByNameRepo = new AddressByNameRepository();
+        $this->addressByCodeRepo = new CodeByObjectIdRepository();
     }
 
     public function getAddressByName(Request $request, Response $response): Response

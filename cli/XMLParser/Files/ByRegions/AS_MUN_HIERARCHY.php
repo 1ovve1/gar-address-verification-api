@@ -1,18 +1,15 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace CLI\XMLParser\Files\ByRegions;
 
-use DB\ORM\Table\SQL\QueryModel;
-use DB\EntityFactory;
+use DB\Models\MunHierarchy;
 use CLI\XMLParser\Files\XMLFile;
 
 class AS_MUN_HIERARCHY extends XMLFile
 {
-    public static function getQueryModel(): QueryModel
+    public function save(): void
     {
-        return EntityFactory::getMunTable();
+        MunHierarchy::save();
     }
 
     public static function getElement(): string
@@ -31,18 +28,17 @@ class AS_MUN_HIERARCHY extends XMLFile
     public function execDoWork(array &$values): void
     {
         $region = $this->getIntRegion();
-        $model = static::getQueryModel();
 
-        if (isset($values['PARENTOBJID']) && !empty($this->getIdAddrObj($model, $values['PARENTOBJID'], $region))) {
-            if (!empty($this->getIdAddrObj($model, $values['OBJECTID'], $region))) {
-                $model->forceInsert([
+        if (isset($values['PARENTOBJID']) && !empty($this->getIdAddrObj($values['PARENTOBJID'], $region))) {
+            if (!empty(self::getIdAddrObj($values['OBJECTID'], $region))) {
+                MunHierarchy::forceInsert([
                     $values['PARENTOBJID'],
                     $values['OBJECTID'],
                     null,
 	                $region,
                 ]);
-            } elseif (!empty($this->getIdHouses($model, $values['OBJECTID'], $region))) {
-                $model->forceInsert([
+            } elseif (!empty(self::getIdHouses($values['OBJECTID'], $region))) {
+                MunHierarchy::forceInsert([
                     $values['PARENTOBJID'],
                     null,
                     $values['OBJECTID'],
@@ -52,33 +48,33 @@ class AS_MUN_HIERARCHY extends XMLFile
         }
     }
 
-    private function getIdAddrObj(QueryModel $model, int $objectid, int $region): array
+    private static function getIdAddrObj(int $objectid, int $region): array
     {
         static $name = self::class . 'getIdAddrObj';
 
-        if (!$model->nameExist($name)) {
-            $model->select(['region'], ['addr_obj'])
-                ->where('region', '=', $region)
-                ->andWhere('objectid', '=', $objectid)
+        if (!MunHierarchy::nameExist($name)) {
+            MunHierarchy::select(['region'], ['addr_obj'])
+                ->where('region', $region)
+                ->andWhere('objectid', $objectid)
                 ->limit(1)
                 ->name($name);
         }
 
-        return $model->execute([$region, $objectid], $name);
+        return MunHierarchy::execute([$region, $objectid], $name);
     }
 
-    private function getIdHouses(QueryModel $model, int $objectid, int $region): array
+    private static function getIdHouses(int $objectid, int $region): array
     {
         static $name = self::class . 'getFirstObjectIdHouses';
 
-        if (!$model->nameExist($name)) {
-            $model->select(['region'], ['houses'])
-            ->where('region', '=', $region)
-            ->andWhere('objectid', '=', $objectid)
+        if (!MunHierarchy::nameExist($name)) {
+	        MunHierarchy::select(['region'], ['houses'])
+            ->where('region', $region)
+            ->andWhere('objectid', $objectid)
             ->limit(1)
             ->name($name);
         }
 
-        return $model->execute([$region, $objectid], $name);
+        return MunHierarchy::execute([$region, $objectid], $name);
     }
 }

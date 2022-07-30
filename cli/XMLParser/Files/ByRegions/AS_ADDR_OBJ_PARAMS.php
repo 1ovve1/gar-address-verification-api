@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files\ByRegions;
 
-use DB\ORM\Table\SQL\QueryModel;
-use DB\EntityFactory;
 use CLI\XMLParser\Files\XMLFile;
+use DB\Models\AddrObjParams;
 
 class AS_ADDR_OBJ_PARAMS extends XMLFile
 {
-    public static function getQueryModel(): QueryModel
+    public function save(): void
     {
-        return EntityFactory::getAddressObjectParamsTable();
+		AddrObjParams::save();
     }
 
     public static function getElement(): string
@@ -32,10 +31,9 @@ class AS_ADDR_OBJ_PARAMS extends XMLFile
     public function execDoWork(array &$values): void
     {
         $region = $this->getIntRegion();
-        $model = static::getQueryModel();
 
         if (in_array($values['TYPEID'], [6, 7, 10], true)) {
-            if (!empty($this->getFirstObjectIdAddrObj($model, $values['OBJECTID'], $region))) {
+            if (!empty($this->getFirstObjectIdAddrObj($values['OBJECTID'], $region))) {
                 $values['TYPEID'] = match ($values['TYPEID']) {
                     6 => 'OKATO',
                     7 => 'OKTMO',
@@ -44,24 +42,24 @@ class AS_ADDR_OBJ_PARAMS extends XMLFile
 
                 $values['REGION'] = $region;
 
-                $model->forceInsert($values);
+                AddrObjParams::forceInsert($values);
             }
         }
     }
 
 
-    private function getFirstObjectIdAddrObj(QueryModel $model, int $objectid, int $region): array
+    private function getFirstObjectIdAddrObj(int $objectid, int $region): array
     {
         static $name = self::class . 'getFirstObjectIdAddrObj';
 
-        if (!$model->nameExist($name)) {
-            $model->select(['objectid'], ['addr_obj'])
-                ->where('region', '=', $region)
-                ->andWhere('objectid', '=', $objectid)
+        if (!AddrObjParams::nameExist($name)) {
+	        AddrObjParams::select(['objectid'], ['addr_obj'])
+                ->where('region', $region)
+                ->andWhere('objectid', $objectid)
                 ->limit(1)
                 ->name($name);
         }
 
-        return $model->execute([$region, $objectid], $name);
+        return AddrObjParams::execute([$region, $objectid], $name);
     }
 }
