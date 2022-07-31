@@ -26,6 +26,8 @@ class ProcessManager
 
 	function newTask(callable $taskCallback, bool $queueMod = false): void
 	{
+		$this->updateInfoAboutActiveProcesses();
+
 		if (!$this->isProcessBufferNotFull()) {
 			match ($queueMod) {
 				true    => $this->waitQueue(),
@@ -48,12 +50,9 @@ class ProcessManager
 
 	function waitAsync(): void
 	{
-		while(!$this->isProcessBufferNotFull()) {
-			foreach ($this->processBuffer as $process) {
-				$process->updateStatus();
-			}
-			$this->updateInfoAboutActiveProcesses();
-		}
+		Process::waitUntilLastProcessComplete();		
+
+		$this->updateInfoAboutActiveProcesses();
 	}
 
 	function waitQueue(): void

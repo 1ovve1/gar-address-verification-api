@@ -2,29 +2,35 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-$basePath = __DIR__ . '/';
+use Dotenv\Dotenv;
+
+if (defined('TEST_ENV')) {
+	$envName = '.env.test';
+	$basePath = str_replace('.env.test', '', TEST_ENV);
+} else {
+	$envName = '.env';
+	$basePath = __DIR__ . '/';
+}
 
 // prepare and read data from /.env file
-$dotenv = \Dotenv\Dotenv::createImmutable($basePath);
-if (!file_exists($basePath . '.env')) {
-	echo "Error while read .env file" . PHP_EOL;
+$dotenv = Dotenv::createImmutable($basePath, $envName);
+if (!file_exists($basePath . $envName)) {
+	echo "Error while read '{$envName}' file in '{$basePath}'" . PHP_EOL;
 	exit(-1);
 }
 $dotenv->load();
 
-//prepare config handler
-if (!is_dir($basePath . 'config')) {
-	echo 'Directory ' . $basePath . 'config was not found in the root of project' . PHP_EOL;
-	exit(-1);
+// update some env values with __DIR__ prefix
+
+foreach ($_ENV as $index => &$param) {
+	if (is_string($param)) {
+		if (preg_match('/^.*_PATH$/', $index)) {
+			$param = __DIR__ . $param;
+		}
+	}
 }
 
-$_SERVER['CONFIG'] = function (string $filename) use ($basePath) {
-	$path = $basePath . 'config/' . $filename . '.php';
-
-	if (!file_exists($path)) {
-		echo 'File ' . $path . ' was not found' . PHP_EOL;
-		exit - 1;
-	}
-
-	return require($path);
-};
+// check context (cli or web)
+if (!defined('SERVER_START')){
+	require_once __DIR__ . '/cli/cli_bootstrap.php';
+}

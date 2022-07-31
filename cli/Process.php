@@ -48,6 +48,15 @@ class Process
 		$this->wait(WNOHANG);
 	}
 
+	static function waitUntilLastProcessComplete(): int
+	{
+		$status = 0;
+
+		pcntl_wait($status);
+
+		return $status;
+	}
+
 	private function isParentTime(): bool 
 	{
 		return $this->pid > 0;
@@ -71,4 +80,5 @@ class Process
 	{
 		return $this->pid;
 	}
+
 }

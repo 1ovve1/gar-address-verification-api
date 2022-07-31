@@ -3,8 +3,9 @@
     "type": "project",
     "autoload": {
         "psr-4": {
-            "GAR\\": "src/",
+            "GAR\\": "web/",
             "CLI\\": "cli/",
+            "DB\\": "database/",
             "Tests\\": "tests/"
         }
     },

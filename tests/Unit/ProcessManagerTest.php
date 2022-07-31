@@ -6,6 +6,8 @@ use PHPUnit\Framework\TestCase;
 
 use CLI\ProcessManager;
 
+defined('TEST_ENV') ?: define('TEST_ENV', __DIR__ . '/../.env.test');
+require_once __DIR__ . '/../../bootstrap.php';
 
 class ProcessManagerTest extends TestCase
 {

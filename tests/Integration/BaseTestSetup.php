@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
-use Slim\Container;
+defined('TEST_ENV') ?: define('TEST_ENV', __DIR__ . '/../.env.test');
+require_once __DIR__ . '/../../bootstrap.php';
+
 use Slim\Factory\AppFactory;
-use Slim\Psr7\Environment;
 use Slim\Psr7\Factory\ServerRequestFactory;
-use Slim\Psr7\Response;
 
 class BaseTestSetup extends \PHPUnit\Framework\TestCase
 {
@@ -18,17 +18,11 @@ class BaseTestSetup extends \PHPUnit\Framework\TestCase
         string $requestMethod,
         string $requestUri,
         string $requestParams,
-    ): Response {
+    ): \Psr\Http\Message\ResponseInterface
+    {
         $request = (new ServerRequestFactory())->createServerRequest($requestMethod, $requestUri . '?' . $requestParams);
 
-        $baseDir = __DIR__ . '/../../';
-        $dotenv = \Dotenv\Dotenv::createUnsafeImmutable($baseDir);
-        $envFile = $baseDir . '.env';
-        if (file_exists($envFile)) {
-            $dotenv->load();
-        }
-
-        $basePath = __DIR__ . '/../../src/App';
+        $basePath = __DIR__ . '/../../web/App';
 
         $app = AppFactory::create();
 
