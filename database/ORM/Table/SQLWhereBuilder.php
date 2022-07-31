@@ -3,7 +3,7 @@
 namespace DB\ORM\Table;
 
 use DB\ORM\Table\SQL\Conditions;
-use DB\ORM\Table\SQL\ContinueWhere;
+use DB\ORM\Table\SQL\WhereQuery;
 use DB\ORM\Table\SQL\NestedWhereQuery;
 use RuntimeException;
 

@@ -6,6 +6,7 @@ namespace DB\ORM;
 
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\PDO\PDOObject;
+use \RuntimeException;
 use InvalidArgumentException;
 use PDOException;
 
@@ -60,22 +61,33 @@ class DBFacade
      */
     public static function genTableNameByClassName(string $className): string
     {
-        // remove some ..\\..\\..\\ClassName prefix
-        $arrStr = explode('\\', $className);
-        $className = end($arrStr);
+	    $negStrLen = -strlen($className);
+	    $tableName = '';
 
-        $tableName = '';
-        foreach (str_split(strtolower($className)) as $key => $char) {
-            if ($key !== 0 && ctype_upper($className[$key])) {
-                $tableName .= '_';
-            }
-            $tableName .= $char;
-        }
+	    for ($index = -1, $char = $className[$index];
+	         $index >= $negStrLen && $char !== '\\';
+	         --$index, $char = $className[$index]) {
 
-        if (!preg_match('/^[a-zA-Z][a-zA-Z_]{1,18}$/', $tableName)) {
-            throw new InvalidArgumentException('invalid table name :' . $tableName);
-        }
+		    if (ctype_upper($char)) {
+			    $tableName = '_' . strtolower($char) . $tableName;
+		    } else {
+			    $tableName = $char . $tableName;
+		    }
 
-        return $tableName;
+	    }
+
+	    return substr($tableName, 1);
     }
+
+	public static function dumpException(mixed $item, string $message, array $params): void
+	{
+		echo 'Dump of current item...' . PHP_EOL;
+		echo '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' . PHP_EOL;
+		var_dump($item);
+		echo 'Params:' . PHP_EOL;
+		var_dump($params);
+		echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' . PHP_EOL;
+
+		throw new RuntimeException($message);
+	}
 }

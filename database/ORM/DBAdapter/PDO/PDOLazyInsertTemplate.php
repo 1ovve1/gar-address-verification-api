@@ -10,7 +10,7 @@ use DB\ORM\DBAdapter\{
 };
 
 /**
- * Lazy Insert Template object Using PDO
+ * Lazy Insert SQL object Using PDO
  *
  * That is the simple decarator that implements QueryTemplate and contains
  * simple QueryTemplate state inside. Then you call exec method of this class
