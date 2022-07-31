@@ -12,9 +12,6 @@ if (defined('TEST_ENV')) {
 	$basePath = __DIR__ . '/';
 }
 
-
-
-
 // prepare and read data from /.env file
 $dotenv = Dotenv::createImmutable($basePath, $envName);
 if (!file_exists($basePath . $envName)) {
@@ -23,11 +20,6 @@ if (!file_exists($basePath . $envName)) {
 }
 $dotenv->load();
 
-
-// check context (cli or web)
-if (defined('SERVER_START')){
-	return;
-}
 // update some env values with __DIR__ prefix
 
 foreach ($_ENV as $index => &$param) {
@@ -38,16 +30,7 @@ foreach ($_ENV as $index => &$param) {
 	}
 }
 
-//prepare config getter
-if (!is_dir($_ENV['CONFIG_PATH'])) {
-	throw new \RuntimeException('Directory ' . $_ENV['CONFIG_PATH'] . ' was not found in the root of project' . PHP_EOL);
+// check context (cli or web)
+if (!defined('SERVER_START')){
+	require_once __DIR__ . '\cli\cli_bootstrap.php';
 }
-
-$_SERVER['config'] = function (string $filename) {
-	$path = $_ENV['CONFIG_PATH'] . "/{$filename}.php";
-	if (!file_exists($path)) {
-		throw new \RuntimeException('File ' . $path . ' was not found' . PHP_EOL);
-	}
-
-	return require($path);
-};
