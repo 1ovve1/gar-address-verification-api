@@ -1,31 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace DB\ORM\QueryBuilder;
+namespace DB\ORM\QueryBuilder\Utils;
 
-use DB\ORM\QueryBuilder\AbstractSQL\Conditions;
-use DB\ORM\QueryBuilder\AbstractSQL\WhereQuery;
-use DB\ORM\QueryBuilder\AbstractSQL\NestedWhereQuery;
 use RuntimeException;
 
-class SQLWhereBuilder implements NestedWhereQuery
+class SQLNestedWhereConstructor
 {
-	private array $refToBuffer;
+	private array $buffer = [];
 	private string $query = '';
 
 	/**
 	 * @param array $refToBuffer
 	 */
 	public function __construct()
-	{
-		$this->refToBuffer = $refToBuffer;
-	}
+	{}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public function where(callable|string $field_or_nested_clbk,
 	                      mixed $sign_or_value = null,
-	                      mixed $value = null): NestedWhereQuery
+	                      mixed $value = null): self
 	{
 		$query = self::genConditionByArguments(
 			$field_or_nested_clbk,
@@ -33,7 +28,7 @@ class SQLWhereBuilder implements NestedWhereQuery
 			$value
 		);
 
-		$this->setQuery(' ' . $query);
+		$this->setQuery($query);
 		return $this;
 	}
 
@@ -42,7 +37,7 @@ class SQLWhereBuilder implements NestedWhereQuery
 	 */
 	public function andWhere(callable|string $field_or_nested_clbk,
 	                         mixed $sign_or_value = null,
-	                         mixed $value = null): NestedWhereQuery
+	                         mixed $value = null): self
 	{
 		$query = self::genConditionByArguments(
 			$field_or_nested_clbk,
@@ -59,7 +54,7 @@ class SQLWhereBuilder implements NestedWhereQuery
 	 */
 	public function orWhere(callable|string $field_or_nested_clbk,
 	                        mixed $sign_or_value = null,
-	                        mixed $value = null): NestedWhereQuery
+	                        mixed $value = null): self
 	{
 		$query = self::genConditionByArguments(
 			$field_or_nested_clbk,
@@ -79,26 +74,26 @@ class SQLWhereBuilder implements NestedWhereQuery
 	 * @param mixed|null $value
 	 * @return string
 	 */
-	private function genConditionByArguments(callable|string $field_or_nested_clbk,
+	protected function genConditionByArguments(callable|string $field_or_nested_clbk,
                                              mixed $sign_or_value = null,
                                              mixed $value = null) : string
 	{
 		$query = '';
 
 		if (is_callable($callback = $field_or_nested_clbk)) {
-			$query = self::makeConditionByNestedCallback($callback, $this->refToBuffer);
+			$query = self::makeConditionByNestedCallback($callback);
 
 		} else if (null === $value) {
 			$field = $field_or_nested_clbk;
 			$value = $sign_or_value;
-			$this->refToBuffer->setVarStack($value);
+			$this->setBuffer($value);
 
 			$query = self::makeConditionByEquals($field);
 
 		} else {
 			$field = $field_or_nested_clbk;
 			$sign = $sign_or_value;
-			$this->refToBuffer->setVarStack($value);
+			$this->setBuffer($value);
 
 			$query = self::makeConditionBySign($field, $sign);
 
@@ -109,23 +104,22 @@ class SQLWhereBuilder implements NestedWhereQuery
 
 	/**
 	 * @param callable $nestedCallback
-	 * @param SQLBuilder $refOnBuilder
-	 * @return string
+	 * @return void
 	 */
-	private static function makeConditionByNestedCallback(callable $nestedCallback,
-	                                                      SQLBuilder $refOnBuilder): string
+	protected static function makeConditionByNestedCallback(callable $nestedCallback): void
 	{
-		$nestedBuilder = new SQLWhereBuilder($refOnBuilder);
+		$nestedBuilder = new self();
 		$nestedCallback($nestedBuilder);
 
-		return '(' . $nestedBuilder->getQuery() . ')';
+		$this->setQuery(' (' . $nestedBuilder->getQuery() . ')');
+		$this->setBuffer($nestedBuilder->getBuffer());
 	}
 
 	/**
 	 * @param string $field
 	 * @return string
 	 */
-	private static function makeConditionByEquals(string $field): string
+	protected static function makeConditionByEquals(string $field): string
 	{
 		return $field . ' = (?)';
 	}
@@ -135,7 +129,7 @@ class SQLWhereBuilder implements NestedWhereQuery
 	 * @param mixed $sign
 	 * @return string
 	 */
-	private static function makeConditionBySign(string $field, mixed $sign): string
+	protected static function makeConditionBySign(string $field, mixed $sign): string
 	{
 		if (!Conditions::tryFind($sign)) {
 			throw new RuntimeException("Unknown or unsupported sign '{$sign}'");
@@ -155,8 +149,21 @@ class SQLWhereBuilder implements NestedWhereQuery
 	/**
 	 * @param string $query
 	 */
-	public function setQuery(string $query): void
+	protected function setQuery(string $query): void
 	{
 		$this->query .= $query;
+	}
+
+	public function getBuffer(): array
+	{
+		return $this->buffer;
+	}
+
+	protected function setBuffer(mixed $values): void
+	{
+		if (!is_array($values)) {
+			$values = [$values];
+		}
+		$this->buffer = array_merge($this->buffer, $values);
 	}
 }
