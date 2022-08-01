@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files;
 
-use DB\ORM\Table\SQL\QueryModel;
+use DB\ORM\QueryBuilder\AbstractSQL\QueryModel;
 
 abstract class XMLFile
 {

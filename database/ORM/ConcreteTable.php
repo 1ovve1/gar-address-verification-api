@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace DB\ORM;
 
 use DB\ORM\DBAdapter\DBAdapter;
-use DB\ORM\Table\MetaTable;
-use DB\ORM\Table\SQL\DeleteQuery;
-use DB\ORM\Table\SQL\EndQuery;
-use DB\ORM\Table\SQL\SelectQuery;
-use DB\ORM\Table\SQL\UpdateQuery;
-use DB\ORM\Table\SQLBuilder;
+use DB\ORM\QueryBuilder\MetaTable;
+use DB\ORM\QueryBuilder\AbstractSQL\DeleteQuery;
+use DB\ORM\QueryBuilder\AbstractSQL\EndQuery;
+use DB\ORM\QueryBuilder\AbstractSQL\SelectQuery;
+use DB\ORM\QueryBuilder\AbstractSQL\UpdateQuery;
+use DB\ORM\QueryBuilder\SQLBuilder;
 
 /**
  * Concrete table classs

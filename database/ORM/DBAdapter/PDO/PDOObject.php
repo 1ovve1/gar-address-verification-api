@@ -7,7 +7,7 @@ namespace DB\ORM\DBAdapter\PDO;
 use DB\ORM\DBAdapter\{
 	DBAdapter, QueryTemplate
 };
-use DB\ORM\Table\Container\Query;
+use DB\ORM\QueryBuilder\Container\Query;
 use PDO;
 use PDOStatement;
 use RuntimeException;

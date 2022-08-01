@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DB;
 
 use DB\ORM\DBFacade;
-use DB\ORM\Table\SQL\QueryModel;
+use DB\ORM\QueryBuilder\AbstractSQL\QueryModel;
 use DB\Models\{
     Addhousetype,
     AddrObj,
