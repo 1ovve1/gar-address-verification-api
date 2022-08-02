@@ -41,28 +41,22 @@ class CodeByObjectIdRepository extends BaseRepo
      */
     public function getCodeByObjectId(int $objectId, string $type): array
     {
-        static $name = 'getCode';
+		$data = Database::select(
+			['params' => 'value'],
+			['params' => 'addr_obj_params']
+		)->where(
+			['params' => 'objectid_addr'],
+			$objectId
+		)->andWhere(
+			['params' => 'type'],
+			$type
+		)->limit(1)->save();
 
-        $type = strtoupper($type);
+		if (!empty($data)) {
+			$data = [strtoupper($type) => $data[0]['value']];
+		}
 
-        if (!Database::nameExist($name)) {
-            Database::select(["params.value"], [
-                'params' => 'addr_obj_params',
-            ])
-	        ->where('params.objectid_addr', '=', $objectId)
-	        ->andWhere('params.type', '=', $type)
-	        ->limit(1)
-	        ->name($name);
-        }
-
-        $queryResult = Database::execute([$objectId, $type], $name);
-        if (empty($queryResult)) {
-            return [];
-        }
-
-        return [
-            $type => $queryResult[0]['value'],
-        ];
+		return $data;
     }
 
     /**
@@ -80,21 +74,21 @@ class CodeByObjectIdRepository extends BaseRepo
             Codes::KLADR->value,
         ];
 
-        if (!Database::nameExist($name)) {
-            Database::select(["params.value, params.type"], [
-                'params' => 'addr_obj_params',
-            ])
-		    ->where('params.objectid_addr', '=', $objectId)
-		    ->name($name);
-	    }
 
-        $response = [];
-        $queryResult = Database::execute([$objectId], $name);
+        $queryResult = Database::select(
+	        ['params' => ['value', 'type']],
+	        ['params' => 'addr_obj_params'],
+        )->where(
+	        ['params' => 'objectid_addr'],
+	        $objectId
+        )->save();
+
         if (empty($queryResult)) {
             return [];
         }
 
-        foreach ($types as $type) {
+	    $response = [];
+	    foreach ($types as $type) {
             $type = strtoupper($type);
 
             foreach ($queryResult as $data) {

@@ -2,7 +2,7 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\OrderBy;
 
-class ImplOrderBy
+class ImplOrderBy extends OrderByQuery
 {
 
 }

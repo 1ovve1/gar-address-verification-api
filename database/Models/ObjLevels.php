@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace DB\Models;
 
-use DB\ORM\ConcreteTable;
+use DB\ORM\QueryBuilder\QueryBuilder;
 
 
-class ObjLevels extends ConcreteTable 
+class ObjLevels extends QueryBuilder 
 {
     /**
      * Return fields that need to create in model

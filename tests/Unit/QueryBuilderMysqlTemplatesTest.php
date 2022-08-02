@@ -1,37 +1,33 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Integration;
+namespace Tests\Unit;
 
 use DB\ORM\QueryBuilder\QueryBuilder;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\Templates\SQL;
+use PHPUnit\Framework\TestCase;
 
 class AddrObj extends QueryBuilder {}
 
-class QueryBuilderTest extends BaseTestSetup
+class QueryBuilderMysqlTemplatesTest extends TestCase
 {
-	function testSimplSelect(): void
+	const SELECT_RESULT = 'SELECT addr.one, addr.two, rose, house.free FROM AddrObj as addr, Houses as house';
+
+	function testSelect(): void
 	{
-		$db = DBFacade::getInstance();
-		// $template = $db->prepare("SELECT * FROM addr_obj WHERE name = ?")->getTemplate();
-		// $template = AddrObj::select('*')->where('name', 'Калмыкия');
-
-		for ($iter = 0; $iter < 10; ++$iter) {
-			// $result = $db->prepare("SELECT * FROM addr_obj WHERE name = ?")->getTemplate()->exec(['Калмыкия']);
-			// $result = $template->exec(['Калмыкия']);	
-			$result = AddrObj::select('*')
-				->where(function($builder) {
-					$builder->where('id_level', 2)
-					->orWhere('id_level', 3);
-				})->orWhere('name', 'Калмыкия')
-				->limit(2)
-				->execute([2, 3, 'Калмыкия']);
-				// ->getQueryBox()->querySnapshot;
-			// $result = $template->execute(['Калмыкия']);
-		}
+		$result = AddrObj::select([
+			'addr' => [
+				'one', 'two'
+			],
+			'rose',
+			'house' => 'free'
+		], [
+			'addr' => 'AddrObj',
+			'house' => 'Houses'
+		])->getQueryBox()->querySnapshot;
 
 
-		$this->assertNotEmpty($result);
+		$this->assertEquals(self::SELECT_RESULT . SQL::SEPARATOR->value, $result);
 	}
 
 	const INSERT_RESULT = "INSERT INTO addr_obj (one, two, free) VALUES (?, ?, ?),(?, ?, ?)";

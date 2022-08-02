@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DB\ORM\DBAdapter\PDO;
 
 
+use DB\ORM\DBFacade;
 use DB\ORM\DBAdapter\{
 	DBAdapter, LazyInsert, QueryTemplate
 };
@@ -67,24 +68,6 @@ class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
         );
 
         return $template;
-    }
-
-    /**
-     * Generate vars for prepared statement (in PDO: '?')
-     * Return example: (?, ..., ?) ... (?, ... , ?)
-     *
-     * @return string - string of vars
-     */
-    public function genVarsFromCurrentGroupNumber(): string
-    {
-        $vars = sprintf(
-            "(%s),",
-            substr(str_repeat("?, ", $this->getTableFieldsCount()), 0, -2)
-        );
-
-        $groupedVars = str_repeat($vars, $this->getCurrentNumberOfGroups());
-
-        return substr($groupedVars, 0, -1);
     }
 
 

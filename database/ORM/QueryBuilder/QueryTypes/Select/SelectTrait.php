@@ -15,14 +15,14 @@ trait SelectTrait
 
 		$fields = match(gettype($fields)) {
 			"string" => $fields,
-			"array" => implode(', ', $fields)
+			"array" => DBFacade::fieldsWithPseudonymsToString($fields)
 		};
 		$anotherTables = match(gettype($anotherTables)) {
 			"NULL" => DBFacade::genTableNameByClassName(static::class),
 			"string" => $anotherTables,
-			"array" => implode(', ', $anotherTables)
+			"array" => DBFacade::tableNamesWithPseudonymsToString($anotherTables)
 		};
 
-		return new SelectQueryImpl($fields, $anotherTables);
+		return new ImplSelect($fields, $anotherTables);
 	}
 }

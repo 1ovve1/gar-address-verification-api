@@ -4,6 +4,7 @@ namespace DB\ORM\QueryBuilder;
 
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\AbstractSQL\EndQuery;
+use DB\ORM\QueryBuilder\Utils\ActiveRecord;
 
 
 /**
@@ -29,10 +30,9 @@ interface BuilderOptions
 	 * Check if state $tryState exists and implement $stateInstruction if state does not exist
 	 * @param mixed $tryState
 	 * @param callable $stateInstruction
-	 * @return bool
+	 * @return ActiveRecord
 	 */
 	public static function createStateIfNotExist(mixed $tryState,
-	                                             callable $stateInstruction): bool;
+	                                             callable $stateInstruction): ActiveRecord;
 
-	public static function getTableNameFromClassname(): string;
 }

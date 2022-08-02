@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files;
 
+use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\AbstractSQL\QueryModel;
+use DB\ORM\QueryBuilder\MetaTable;
 
 abstract class XMLFile
 {
@@ -24,6 +26,14 @@ abstract class XMLFile
             $this->intRegion = (int) $region;
         }
     }
+
+	abstract function getTableName(): string;
+
+	function connectWithTable(): void
+	{
+		$db = DBFacade::getInstance();
+		$tableName = $this->getTableName();
+	}
 
 	/**
 	 * Operation that will be called after using this file

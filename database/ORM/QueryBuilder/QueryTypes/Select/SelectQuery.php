@@ -2,17 +2,20 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Select;
 
-use DB\ORM\QueryBuilder\QueryTypes\Join\JoinAble;
-use DB\ORM\QueryBuilder\QueryTypes\Join\JoinTrait;
-use DB\ORM\QueryBuilder\QueryTypes\Where\WhereAble;
-use DB\ORM\QueryBuilder\QueryTypes\Where\WhereTrait;
-use DB\ORM\QueryBuilder\Utils\ActiveRecord;
+use DB\ORM\QueryBuilder\QueryTypes\{Join\JoinAble,
+	Join\JoinTrait,
+	Limit\LimitAble,
+	Limit\LimitTrait,
+	OrderBy\OrderByAble,
+	OrderBy\OrderByTrait,
+	Where\WhereAble,
+	Where\WhereTrait};
 use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
 
 abstract class SelectQuery
 	extends ActiveRecordImpl
-	implements WhereAble, JoinAble
+	implements WhereAble, JoinAble, LimitAble, OrderByAble
 {
-use WhereTrait, JoinTrait;
+use WhereTrait, JoinTrait, LimitTrait, OrderByTrait;
 
 }

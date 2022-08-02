@@ -10,7 +10,10 @@ use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
 
 class ImplWhereOr extends ContinueWhereQuery
 {
-	public function __construct(ActiveRecord $parent, string $field, string $sign, float|bool|int|string $value)
+	public function __construct(ActiveRecord $parent,
+	                            string $field,
+	                            string $sign,
+	                            float|int|bool|string|null $value)
 	{
 		parent::__construct(
 			$this::createQueryBox(

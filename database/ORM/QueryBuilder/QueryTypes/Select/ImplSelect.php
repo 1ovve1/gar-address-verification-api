@@ -2,11 +2,9 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Select;
 
-use DB\ORM\DBFacade;
-use DB\ORM\QueryBuilder\QueryTypes\EndQuery\OrderByImpl;
 use DB\ORM\QueryBuilder\Templates\SQL;
 
-class ImplSelectQuery extends SelectQuery
+class ImplSelect extends SelectQuery
 {
 	/**
 	 * @param string $fields

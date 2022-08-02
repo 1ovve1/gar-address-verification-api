@@ -9,12 +9,12 @@ interface WhereAble
 	/**
 	 * Create WHERE template
 	 *
-	 * @param string|callable $field_or_nested_clbk - name of field or callback for nested-or-where [OR (...)]
-	 * @param int|float|bool|string $sign_or_value - sign for compare or value for default '=' compare
+	 * @param callable|array|string $field_or_nested_clbk - name of field or callback for nested-or-where [OR (...)]
+	 * @param int|float|bool|string|null $sign_or_value - sign for compare or value for default '=' compare
 	 * @param float|int|bool|string|null $value - value to compare
 	 * @return WhereQuery
 	 */
-	public function where(string|callable $field_or_nested_clbk,
-	                      int|float|bool|string $sign_or_value = '',
+	public function where(callable|array|string $field_or_nested_clbk,
+	                      int|float|bool|string|null $sign_or_value = '',
 	                      float|int|bool|string|null $value = null): WhereQuery;
 }

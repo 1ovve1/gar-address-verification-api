@@ -2,22 +2,27 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Where;
 
-use DB\ORM\QueryBuilder\QueryTypes\Where\WhereQuery;
+use DB\ORM\DBFacade;
+use DB\ORM\QueryBuilder\QueryTypes\NestedCondition\ClientNestedCondition;
 use DB\ORM\QueryBuilder\Utils\ActiveRecord;
-use DB\ORM\QueryBuilder\Utils\QueryBox;
-use DB\ORM\QueryBuilder\Utils\SQLNestedWhereConstructor;
 use DB\ORM\QueryBuilder\Templates\SQL;
 
 class ImplNestedWhere extends WhereQuery
 {
 	public function __construct(ActiveRecord $parent, callable $callback)
 	{
-		$nestedBuilder = new SQLNestedWhereConstructor();
-		$callback($nestedBuilder);
+		$record = $callback(new ClientNestedCondition());
+		if (!($record instanceof ActiveRecord)) {
+			DBFacade::dumpException($this, 'Callback should return ActiveRecord implement!', func_get_args());
+		}
+
+		$callbackQueryBox = $record->getQueryBox();
 		parent::__construct(
 			$this->createQueryBox(
-				SQL::WHERE_NESTED, [$nestedBuilder->getQuery()],
-				$nestedBuilder->getBuffer(), $parent->getQueryBox()
+				template: SQL::NESTED_WHERE,
+				clearArgs: [trim($callbackQueryBox->querySnapshot)],
+				dryArgs: $callbackQueryBox->dryArgs,
+				parentBox: $parent->getQueryBox()
 			)
 		);
 	}

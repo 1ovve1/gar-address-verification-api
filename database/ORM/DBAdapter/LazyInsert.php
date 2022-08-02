@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DB\ORM\DBAdapter;
 
+use DB\ORM\DBFacade;
 use RuntimeException;
 
 /**
@@ -68,6 +69,13 @@ abstract class LazyInsert
             );
         }
     }
+
+	public function genVarsFromCurrentGroupNumber(): string
+	{
+		return DBFacade::genInsertVars(
+			$this->getTableFieldsCount(), $this->getCurrentNumberOfGroups()
+		);
+	}
 
     /**
      * Return table name

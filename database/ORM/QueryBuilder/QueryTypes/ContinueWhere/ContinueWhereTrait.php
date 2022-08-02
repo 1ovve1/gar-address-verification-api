@@ -1,28 +1,25 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DB\ORM\QueryBuilder\QueryTypes\ContinueWhere;
 
-
-use DB\ORM\QueryBuilder\Utils\WhereArgsHandler;
+use DB\ORM\DBFacade;
 
 trait ContinueWhereTrait
 {
-use WhereArgsHandler;
 
 	/**
 	 * @inheritDoc
 	 */
-	public function andWhere(callable|string $field_or_nested_clbk,
-	                         mixed $sign_or_value = null,
-	                         mixed $value = null): ContinueWhereQuery
+	public function andWhere(callable|array|string $field_or_nested_clbk,
+	                         int|float|bool|string|null $sign_or_value = null,
+	                         float|int|bool|string|null $value = null): ContinueWhereQuery
 	{
-		// if it first arg are callback then we use nested where
-		if (is_callable($callback = $field_or_nested_clbk)) {
-//			return new ImplNestedWhere($this, $callback);
+		if (is_callable($field_or_nested_clbk)) {
+			return new ImplNestedWhereAnd($this, $field_or_nested_clbk);
 		}
-		$field = $field_or_nested_clbk;
 
-		[$field, $sign, $value] = $this::handleWhereArgs($field, $sign_or_value, $value);
+		[$field, $sign, $value] = DBFacade::whereArgsHandler($field_or_nested_clbk, $sign_or_value, $value);
+
 
 		return new ImplWhereAnd($this, $field, $sign, $value);
 	}
@@ -30,17 +27,15 @@ use WhereArgsHandler;
 	/**
 	 * @inheritDoc
 	 */
-	public function orWhere(callable|string $field_or_nested_clbk,
-	                        mixed $sign_or_value = null,
-	                        mixed $value = null): ContinueWhereQuery
+	public function orWhere(callable|array|string $field_or_nested_clbk,
+	                        int|float|bool|string|null $sign_or_value = null,
+	                        float|int|bool|string|null $value = null): ContinueWhereQuery
 	{
-		// if it first arg are callback then we use nested where
-		if (is_callable($callback = $field_or_nested_clbk)) {
-//			return new ImplNestedWhere($this, $callback);
+		if (is_callable($field_or_nested_clbk)) {
+			return new ImplNestedWhereOr($this, $field_or_nested_clbk);
 		}
-		$field = $field_or_nested_clbk;
 
-		[$field, $sign, $value] = $this::handleWhereArgs($field, $sign_or_value, $value);
+		[$field, $sign, $value] = DBFacade::whereArgsHandler($field_or_nested_clbk, $sign_or_value, $value);
 
 		return new ImplWhereOr($this, $field, $sign, $value);
 	}

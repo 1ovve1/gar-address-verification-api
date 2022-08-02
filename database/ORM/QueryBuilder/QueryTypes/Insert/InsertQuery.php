@@ -1,8 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Insert;
 
-class InsertQuery
+use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
+
+abstract class InsertQuery
+	extends ActiveRecordImpl
 {
 
 }

@@ -4,8 +4,8 @@ namespace DB\ORM\QueryBuilder\QueryTypes\OrderBy;
 
 trait OrderByTrait
 {
-	public function orderBy(string $field, bool $asc = true): ImplOrderBy
+	public function orderBy(string $field, bool $asc = true): OrderByQuery
 	{
-		return new OrderByImpl($this, $field, $asc);
+		return new ImplOrderBy($this, $field, $asc);
 	}
 }

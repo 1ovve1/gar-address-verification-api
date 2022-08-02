@@ -14,24 +14,24 @@ interface ContinueWhereAble
 	/**
 	 * Create AND WHERE template
 	 *
-	 * @param  callable|string $field_or_nested_clbk - name of field or callback for nested-or-where [OR (...)]
-	 * @param  DatabaseContract|string|null $sign_or_value - sign for compare or value for default '=' compare
-	 * @param  DatabaseContract|null $value - value to compare
+	 * @param callable|array<string, string>|string $field_or_nested_clbk - name of field or callback for nested-or-where [OR (...)]
+	 * @param int|float|bool|string|null $sign_or_value - sign for compare or value for default '=' compare
+	 * @param float|int|bool|string|null $value - value to compare
 	 * @return ContinueWhereQuery
 	 */
-	public function andWhere(callable|string $field_or_nested_clbk,
-	                         mixed $sign_or_value = null,
-	                         mixed $value = null): ContinueWhereQuery;
+	public function andWhere(callable|array|string $field_or_nested_clbk,
+	                         int|float|bool|string|null $sign_or_value = null,
+	                         float|int|bool|string|null $value = null): ContinueWhereQuery;
 
 	/**
 	 * Create OR WHERE template
 	 *
-	 * @param string|callable $field_or_nested_clbk - name of field or callback for nested-or-where [OR (...)]
-	 * @param DatabaseContract|string|null $sign_or_value - sign for compare or value for default '=' compare
-	 * @param DatabaseContract|null $value - value to compare
+	 * @param callable|array<string, string>|string $field_or_nested_clbk - name of field or callback for nested-or-where [OR (...)]
+	 * @param int|float|bool|string|null $sign_or_value - sign for compare or value for default '=' compare
+	 * @param float|int|bool|string|null $value - value to compare
 	 * @return ContinueWhereQuery
 	 */
-	public function orWhere(callable|string $field_or_nested_clbk,
-	                        mixed $sign_or_value = null,
-	                        mixed $value = null): ContinueWhereQuery;
+	public function orWhere(callable|array|string $field_or_nested_clbk,
+	                        int|float|bool|string|null $sign_or_value = null,
+	                        float|int|bool|string|null $value = null): ContinueWhereQuery;
 }

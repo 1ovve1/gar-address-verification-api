@@ -113,14 +113,18 @@ class AddressByNameRepository extends BaseRepo
      */
     public function getSingleNameByObjectId(int $objectId): array
     {
-        if (!Database::nameExist('getSingleNameByObjectId')) {
-            Database::select(['addr.name', 'addr.typename', 'addr.objectid'], [
-                'addr' => 'addr_obj',
-            ])->where('addr.objectid', '=', $objectId)
-            ->name('getSingleNameByObjectId');
-        }
+		static $state = null;
 
-        return Database::execute([$objectId], 'getSingleNameByObjectId');
+		$state = Database::createStateIfNotExist($state,
+			fn() => Database::select(
+				['addr' => ['name', 'typename', 'objectid']],
+				['addr' => 'addr_obj']
+			)->where(
+				['addr' => 'objectid'], $objectId
+			)
+		);
+
+        return $state->execute([$objectId]);
     }
 
     /**
@@ -131,23 +135,25 @@ class AddressByNameRepository extends BaseRepo
      */
     protected function getChiledNameByObjectIdAndName(int $parentObjectId, string $chiledName): array
     {
-        if (!Database::nameExist('getChiledNameByObjectIdAndName')) {
-            Database::select(
-				['chiled.name', 'chiled.typename', 'chiled.objectid'],
-	            ['mun' => 'mun_hierarchy',]
-            )->innerJoin('addr_obj as chiled', [
-		        'chiled.objectid' => 'mun.chiledobjid_addr',
-		    ])->where('mun.parentobjid_addr', '=', $parentObjectId)
-		    ->andWhere("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
-		    ->orWhere('mun.parentobjid_addr', '=', $parentObjectId)
-		    ->andWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%')
-		    ->limit(50)
-		    ->name('getChiledNameByObjectIdAndName');
-        }
 
-        return Database::execute([
-            $parentObjectId, $chiledName . '%',
-            $parentObjectId, $chiledName . '%', ], 'getChiledNameByObjectIdAndName');
+		$state = Database::select(
+			['chiled' => ['name', 'typename', 'objectid']],
+			['mun' => 'mun_hierarchy']
+		)->innerJoin(
+			['chiled' => 'addr_obj'],
+			['chiled' => 'objectid', 'mun' => 'chiledobjid_addr']
+		)->where(
+			['mun' => 'parentobjid_addr'], $parentObjectId
+		)->andWhere(
+			fn($builder) =>
+			$builder->where(
+				"CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', "{$chiledName}%"
+			)->orWhere(
+				"CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', "{$chiledName}%"
+			)
+		);
+
+        return $state->save();
     }
 
     /**
@@ -157,18 +163,16 @@ class AddressByNameRepository extends BaseRepo
      */
     protected function getParentNameByObjectId(int $chiledObjectId): array
     {
-        if (!Database::nameExist('getParentNameByObjectId')) {
-            Database::select(
-				['parent.name', 'parent.typename', 'parent.objectid'],
-				['mun' => 'mun_hierarchy',]
-            )->innerJoin(
-				'addr_obj as parent',
-				['parent.objectid' => 'mun.parentobjid_addr',]
-            )->where('mun.chiledobjid_addr', '=', $chiledObjectId)
-            ->name('getParentNameByObjectId');
-        }
-
-        return Database::execute([$chiledObjectId], 'getParentNameByObjectId');
+		return Database::select(
+			['parent' => ['name', 'typename', 'objectid']],
+			['mun' => 'mun_hierarchy']
+		)->innerJoin(
+			['parent' => 'addr_obj'],
+			['parent' => 'objectid', 'mun' => 'parentobjid_addr']
+		)->where(
+			['mun' => 'chiledobjid_addr'],
+			$chiledObjectId
+		)->save();
     }
 
     /**
@@ -178,31 +182,31 @@ class AddressByNameRepository extends BaseRepo
      */
     protected function getHousesByObjectId(int $objectId): array
     {
-        if (!Database::nameExist('getHousesByObjectId')) {
-			Database::select(
-				["TRIM(' ' FROM CONCAT(COALESCE(ht.short, ''), ' ', COALESCE(chiled.housenum, ''), ' ', " .
-				 "COALESCE(addht1.short, ''), ' ', COALESCE(chiled.addnum1, ''), ' ', " .
-				 "COALESCE(addht2.short, ''), ' ', COALESCE(chiled.addnum2, ''))) as house",
-            ], [
-                'mun' => 'mun_hierarchy',
-            ]
-			)->innerJoin(
-				'houses as chiled',
-				['chiled.objectid' => 'mun.chiledobjid_houses',]
-			)->leftJoin(
-				'housetype as ht',
-				['ht.id' => 'chiled.id_housetype',]
-			)->leftJoin(
-				'addhousetype as addht1',
-				['addht1.id' => 'chiled.id_addtype1',]
-			)->leftJoin(
-				'addhousetype as addht2',
-				['addht2.id' => 'chiled.id_addtype2',]
-			)->where('mun.parentobjid_addr', '=', $objectId)
-            ->name('getHousesByObjectId');
-        }
-
-        return Database::execute([$objectId], 'getHousesByObjectId');
+		return Database::select(
+			"TRIM(' ' FROM " .
+				"CONCAT(" .
+					"COALESCE(ht.short, ''), ' ', COALESCE(chiled.housenum, ''), ' ', " .
+					"COALESCE(addht1.short, ''), ' ', COALESCE(chiled.addnum1, ''), ' ', " .
+					"COALESCE(addht2.short, ''), ' ', COALESCE(chiled.addnum2, '')" .
+				")" .
+			") as house",
+			['mun' => 'mun_hierarchy']
+		)->innerJoin(
+			['chiled' => 'houses'],
+			['chiled' => 'objectid', 'mun' => 'chiledobjid_houses']
+		)->leftJoin(
+			['ht' => 'housetype'],
+			['ht' => 'id', 'chiled' => 'id_housetype']
+		)->leftJoin(
+			['addht1' => 'addhousetype'],
+			['addht1' => 'id', 'chiled' => 'id_addtype1']
+		)->leftJoin(
+			['addht2' => 'addhousetype'],
+			['addht2' => 'id', 'chiled' => 'id_addtype2']
+		)->where(
+			['mun' => 'parentobjid_addr'],
+			$objectId
+		)->save();
     }
 
     /**
@@ -213,34 +217,45 @@ class AddressByNameRepository extends BaseRepo
      */
     protected function getAddressObjectIdByName(string $parentName, string $chiledName): array
     {
-        if (!Database::nameExist('getAddressObjectIdByName')) {
-            Database::select(
-				['DISTINCT(parent.objectid)'],
-	            ['mun' => 'mun_hierarchy',]
-            )->innerJoin(
-				'addr_obj as parent',
-				['parent.objectid' => 'mun.parentobjid_addr']
-            )->leftJoin(
-				'addr_obj as chiled',
-				['chiled.objectid' => 'mun.chiledobjid_addr',]
-            )->where('parent.id_level', '<=', LEVEL)
-            ->andWhere(function($builder) use ($parentName, $chiledName){
-				$builder->where(function($builder) use ($parentName) {
-					$builder->where("CONCAT(parent.name, ' ', parent.typename)", 'LIKE', $parentName . '%')
-						->orWhere("CONCAT(parent.typename, ' ',parent.name)", 'LIKE', $parentName . '%');
-				})->andWhere(function($builder) use ($chiledName) {
-					$builder->where("CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', $chiledName . '%')
-						->orWhere("CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', $chiledName . '%');
-				});
-            })->limit(2)
-			->name('getAddressObjectIdByName');
-        }
-
-        return Database::execute([
-            LEVEL,
-	        $parentName . '%', $parentName . '%',
-	        $chiledName . '%', $chiledName . '%',
-        ], 'getAddressObjectIdByName');
+		return Database::select(
+			'DISTINCT(parent.objectid)',
+			['mun' => 'mun_hierarchy']
+		)->innerJoin(
+			['parent' => 'addr_obj'],
+			['parent' => 'objectid', 'mun' => 'parentobjid_addr']
+		)->leftJoin(
+			['chiled' => 'addr_obj'],
+			['chiled' => 'objectid', 'mun' => 'chiledobjid_addr']
+		)->where(
+			['parent' => 'id_level'],
+			'<=',
+	        LEVEL
+		)->andWhere(
+			fn($builder) =>
+			$builder->where(
+				fn($builder) =>
+				$builder->where(
+					"CONCAT(parent.name, ' ', parent.typename)",
+					'LIKE',
+					"{$parentName}%"
+				)->orWhere(
+					"CONCAT(parent.typename, ' ',parent.name)",
+					'LIKE',
+					"{$parentName}%"
+				)
+			)->andWhere(
+				fn($builder) =>
+				$builder->where(
+					"CONCAT(chiled.name, ' ', chiled.typename)",
+					'LIKE',
+					"{$chiledName}%"
+				)->orWhere(
+					"CONCAT(chiled.typename, ' ', chiled.name)",
+					'LIKE',
+					"{$chiledName}%"
+				)
+			)
+		)->limit(2)->save();
     }
 
     /**
@@ -250,23 +265,25 @@ class AddressByNameRepository extends BaseRepo
      */
     protected function getLikeAddress(string $halfAddress): array
     {
-        if (!Database::nameExist('getLikeAddress')) {
-            Database::select(
-				['addr.name', 'addr.typename', 'addr.objectid'],
-				['addr' => 'addr_obj',]
-	        )->where('id_level', '<=', LEVEL)
-	        ->andWhere(function ($builder) use ($halfAddress) {
-				$builder->where("CONCAT(addr.name, ' ', addr.typename)", 'LIKE', $halfAddress . '%')
-					->orWhere("CONCAT(addr.typename, ' ', addr.name)", 'LIKE', $halfAddress . '%');
-	        })->limit(100)
-            ->name('getLikeAddress');
-        }
-
-        return Database::execute([
-	        LEVEL,
-	        $halfAddress . '%',
-            $halfAddress . '%',
-        ], 'getLikeAddress');
+		return Database::select(
+			['addr' => ['name', 'typename', 'objectid']],
+			['addr' => 'addr_obj']
+		)->where(
+			['addr' => 'id_level'],
+			'<=',
+			LEVEL
+		)->andWhere(
+			fn($builder) =>
+			$builder->where(
+				"CONCAT(addr.name, ' ', addr.typename)",
+				'LIKE',
+				"{$halfAddress}%"
+			)->orWhere(
+				"CONCAT(addr.typename, ' ', addr.name)",
+				'LIKE',
+				"{$halfAddress}%"
+			)
+		)->limit(100)->save();
     }
 
     /**

@@ -2,8 +2,12 @@
 
 namespace DB\ORM\QueryBuilder;
 
+use DB\ORM\DBFacade;
+use DB\ORM\QueryBuilder\QueryTypes\Insert\InsertAble;
+use DB\ORM\QueryBuilder\QueryTypes\Insert\InsertTrait;
 use DB\ORM\QueryBuilder\QueryTypes\Select\SelectAble;
 use DB\ORM\QueryBuilder\QueryTypes\Select\SelectTrait;
+use DB\ORM\QueryBuilder\Utils\ActiveRecord;
 use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
 use DB\ORM\QueryBuilder\AbstractSQL\{
 	DeleteQuery, EndQuery, SelectQuery, UpdateQuery
@@ -16,9 +20,9 @@ use DB\ORM\QueryBuilder\AbstractSQL\{
  */
 abstract class QueryBuilderPrelude
 	extends ActiveRecordImpl
-	implements SelectAble
+	implements SelectAble, InsertAble, BuilderOptions
 {
-use SelectTrait;
+use SelectTrait, InsertTrait;
 //	/**
 //	 * Create insert template
 //	 *
@@ -49,5 +53,36 @@ use SelectTrait;
 //	 */
 
 //	public static function delete(?string $tableName = null): DeleteQuery;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function findFirst(string $field,
+	                                 mixed $value,
+	                                 ?string $anotherTable = null): array
+	{
+		return static::select($field, $anotherTable)->where($field, $value)->save();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function createStateIfNotExist(mixed $tryState, callable $stateInstruction): ActiveRecord
+	{
+		if (!($tryState instanceof ActiveRecord)) {
+			$tryCallback = $stateInstruction();
+			if (!($tryCallback instanceof ActiveRecord)) {
+				DBFacade::dumpException(
+					null,
+					'Callback should return ActiveRecord state, but return ' . gettype($tryCallback),
+					func_get_args()
+				);
+			}
+			$tryState = $tryCallback;
+		}
+
+		return $tryState;
+	}
+
 
 }
