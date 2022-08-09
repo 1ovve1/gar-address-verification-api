@@ -91,6 +91,10 @@ class DBFacade
 		return substr($groupedVars, 0, -1);
 	}
 
+	/**
+	 * @param array<int|string, string|String[]> $fieldsWithPseudonyms
+	 * @return string
+	 */
 	public static function fieldsWithPseudonymsToString(array $fieldsWithPseudonyms): string
 	{
 		$strCollection = [];
