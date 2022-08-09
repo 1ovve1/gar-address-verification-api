@@ -11,18 +11,18 @@ namespace DB\ORM\DBAdapter;
  */
 interface QueryTemplate
 {
-    /**
-     * Execute statement
-     *
-     * @param  array<DatabaseContract> $values - values to execute
-     * @return array<mixed>
-     */
-    public function exec(array $values): array;
+	/**
+	 * Execute statement
+	 *
+	 * @param array<int|string, DatabaseContract> $values - values to execute
+	 * @return QueryResult
+	 */
+    public function exec(array $values): QueryResult;
 
     /**
      * Accept changes in template (use for lazy insert)
      *
-     * @return mixed
+     * @return QueryResult
      */
-    public function save(): mixed;
+    public function save(): QueryResult;
 }

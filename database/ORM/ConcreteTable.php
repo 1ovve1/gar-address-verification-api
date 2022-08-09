@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace DB\ORM;
 
 use DB\ORM\DBAdapter\DBAdapter;
-use DB\ORM\Table\MetaTable;
-use DB\ORM\Table\SQL\DeleteQuery;
-use DB\ORM\Table\SQL\EndQuery;
-use DB\ORM\Table\SQL\SelectQuery;
-use DB\ORM\Table\SQL\UpdateQuery;
-use DB\ORM\Table\SQLBuilder;
+use DB\ORM\QueryBuilder\MetaTable;
+use DB\ORM\QueryBuilder\AbstractSQL\DeleteQuery;
+use DB\ORM\QueryBuilder\AbstractSQL\EndQuery;
+use DB\ORM\QueryBuilder\AbstractSQL\SelectQuery;
+use DB\ORM\QueryBuilder\AbstractSQL\UpdateQuery;
+use DB\ORM\QueryBuilder\SQLBuilder;
 
 /**
  * Concrete table classs
@@ -51,7 +51,7 @@ abstract class ConcreteTable
 		$staticClass = static::class;
 
         if (!isset($instances[$staticClass])) {
-			$db = DBFacade::getInstance();
+			$db = DBFacade::getDBInstance();
             $instances[$staticClass] = new static($db, $createMetaTable);
         }
 
@@ -68,74 +68,5 @@ abstract class ConcreteTable
         return null;
     }
 
-	public static function insert(array $values, ?string $tableName = null): EndQuery
-	{
-		$instance = static::getInstance();
 
-		return $instance->sqlBuilder->insert($values, $tableName);
-	}
-
-	public static function forceInsert(array $values): EndQuery
-	{
-		$instance = static::getInstance();
-
-		try {
-			return $instance->sqlBuilder->forceInsert($values);
-		} catch (\Exception $e) {
-			echo 'Error while uploading data via forceInsert' . PHP_EOL;
-			var_dump($values);
-			throw new RuntimeException();
-		}
-	}
-
-	public static function update(string $field,
-	                              mixed $value,
-	                              ?string $tableName = null): UpdateQuery
-	{
-		$instance = static::getInstance();
-
-		return $instance->sqlBuilder->update($field, $value, $tableName);
-	}
-
-	public static function delete(?string $tableName = null): DeleteQuery
-	{
-		$instance = static::getInstance();
-
-		return $instance->sqlBuilder->delete($tableName);
-	}
-
-	public static function select(array $fields, ?array $anotherTables = null): SelectQuery
-	{
-		$instance = static::getInstance();
-
-		return $instance->sqlBuilder->select($fields, $anotherTables);
-	}
-
-	public static function findFirst(string $field, mixed $value, ?string $anotherTable = null): array
-	{
-		$instance = static::getInstance();
-
-		return $instance->sqlBuilder->findFirst($field, $value, $anotherTable);
-	}
-
-	public static function nameExist(string $checkName): bool
-	{
-		$instance = static::getInstance();
-
-		return $instance->sqlBuilder->nameExist($checkName);
-	}
-
-	public static function execute(array $values, ?string $templateName = null): array
-	{
-		$instance = static::getInstance();
-
-		return $instance->sqlBuilder->execute($values, $templateName);
-	}
-
-	public static function save(): array
-	{
-		$instance = static::getInstance();
-
-		return $instance->sqlBuilder->save();
-	}
 }

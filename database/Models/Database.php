@@ -4,17 +4,9 @@ declare(strict_types=1);
 
 namespace DB\Models;
 
-use DB\ORM\ConcreteTable;
+use DB\ORM\QueryBuilder\QueryBuilder;
 
 
-class Database extends ConcreteTable
+class Database extends QueryBuilder
 {
-	/**
-	 * @inheritDoc
-	 */
-	public static function getInstance(bool $createMetaTable = false): ConcreteTable
-	{
-		return parent::getInstance($createMetaTable);
-	}
-
 }

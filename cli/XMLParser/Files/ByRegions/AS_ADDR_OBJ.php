@@ -6,13 +6,19 @@ namespace CLI\XMLParser\Files\ByRegions;
 
 use DB\Models\AddrObj;
 use CLI\XMLParser\Files\XMLFile;
+use DB\ORM\DBFacade;
 
 class AS_ADDR_OBJ extends XMLFile
 {
-    public function save(): void
+    function getTableName(): string
     {
-        AddrObj::save();
+        return DBFacade::genTableNameByClassName(AddrObj::class);
     }
+
+	function save(): void
+	{
+
+	}
 
     public static function getElement(): string
     {

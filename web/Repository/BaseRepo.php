@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GAR\Repository;
 
-use DB\ORM\Table\SQL\QueryModel;
+use DB\ORM\QueryBuilder\AbstractSQL\QueryModel;
 
 /**
  * Basic repository class, contains production database

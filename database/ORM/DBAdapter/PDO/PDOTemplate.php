@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace DB\ORM\DBAdapter\PDO;
 
-use DB\ORM\DBAdapter\{
-	DBAdapter, QueryTemplate
-};
+use DB\ORM\DBAdapter\{DBAdapter, QueryResult, QueryTemplate};
+use PDOStatement;
 
 /**
  * Simple PDOTemplate container
@@ -16,26 +15,22 @@ use DB\ORM\DBAdapter\{
 class PDOTemplate implements QueryTemplate
 {
     /**
-     * @var \PDOStatement - prepared stage object
+     * @var PDOStatement - prepared stage object
      */
-    protected readonly \PDOStatement $template;
+    protected readonly PDOStatement $template;
 
     /**
-     * @param \PDOStatement $template - prepared statement
+     * @param PDOStatement $template - prepared statement
      */
-    public function __construct(\PDOStatement $template)
+    public function __construct(PDOStatement $template)
     {
         $this->template = $template;
     }
 
-    /**
-     * Execute template and return result
-     *
-     * @param  array<DatabaseContract> $values - values to execute
-     * @return array<mixed>
-     * @throws \RuntimeException
-     */
-    public function exec(array $values): array
+	/**
+	 * {@inheritDoc}
+	 */
+    public function exec(array $values): QueryResult
     {
         try {
             $res = $this->template->execute($values);
@@ -45,16 +40,14 @@ class PDOTemplate implements QueryTemplate
         if ($res === false) {
             throw new \RuntimeException('PDOTemplate (QueryTemplate) error: bad execute');
         }
-        return $this->template->fetchAll(DBAdapter::PDO_F_ALL);
+        return new PDOQueryResult($this->template);
     }
 
-    /**
-     * Ignored in this implementation
-     *
-     * @return self
-     */
-    public function save(): self
+	/**
+	 * {@inheritDoc}
+	 */
+    public function save(): QueryResult
     {
-        return $this;
+		return $this->exec([]);
     }
 }
