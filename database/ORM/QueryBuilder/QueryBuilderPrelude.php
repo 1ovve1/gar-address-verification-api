@@ -3,7 +3,9 @@
 namespace DB\ORM\QueryBuilder;
 
 use DB\ORM\DBFacade;
-use DB\ORM\QueryBuilder\QueryTypes\{Insert\InsertAble,
+use DB\ORM\QueryBuilder\QueryTypes\{Delete\DeleteAble,
+	Delete\DeleteTrait,
+	Insert\InsertAble,
 	Insert\InsertTrait,
 	Select\SelectAble,
 	Select\SelectTrait,
@@ -19,18 +21,9 @@ use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
  */
 abstract class QueryBuilderPrelude
 	extends ActiveRecordImpl
-	implements SelectAble, InsertAble, UpdateAble, BuilderOptions
+	implements SelectAble, InsertAble, UpdateAble, DeleteAble, BuilderOptions
 {
-use SelectTrait, InsertTrait, UpdateTrait;
-
-//	/**
-//	 * Creating delete template
-//	 *
-//	 * @param  string|null $tableName - name of table
-//	 * @return DeleteQuery
-//	 */
-
-//	public static function delete(?string $tableName = null): DeleteQuery;
+use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 
 	/**
 	 * {@inheritDoc}

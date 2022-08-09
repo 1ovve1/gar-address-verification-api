@@ -26,8 +26,13 @@ enum SQL: string
 
 	case UPDATE = 'UPDATE %s SET %s = (?)';
 
+	case DELETE = 'DELETE FROM %s';
+
 	case EMPTY = '';
 	case NESTED_CONDITION = '(%s)';
 	case CONDITION = '%s %s (?)';
 	case SEPARATOR = ' ';
+
+	case PSEUDONYMS_FIELDS = '.';
+	case PSEUDONYMS_TABLES = ' as ';
 }
