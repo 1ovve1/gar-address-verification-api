@@ -142,7 +142,7 @@ class PDOObject implements DBAdapter
         array $fields,
         int $stagesCount = 1
     ): QueryTemplate {
-        return new PDOLazyInsertTemplate($this, $tableName, $fields, $stagesCount);
+        return new PDOForceInsertTemplate($this, $tableName, $fields, $stagesCount);
     }
 
 

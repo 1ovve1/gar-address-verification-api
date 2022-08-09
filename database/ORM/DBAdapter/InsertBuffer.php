@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace DB\ORM\DBAdapter;
 
@@ -12,7 +10,7 @@ use RuntimeException;
  *
  * @phpstan-import-type DatabaseContract from DBAdapter
  */
-abstract class LazyInsert
+abstract class InsertBuffer
 {
     /** @var string - name of table */
     private readonly string $tableName;

@@ -1,13 +1,11 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace DB\ORM\DBAdapter\PDO;
 
 
 use DB\ORM\DBFacade;
 use DB\ORM\DBAdapter\{
-	DBAdapter, LazyInsert, QueryTemplate
+	DBAdapter, InsertBuffer, QueryTemplate
 };
 
 /**
@@ -15,7 +13,7 @@ use DB\ORM\DBAdapter\{
  *
  * That is the simple decarator that implements QueryTemplate and contains
  * simple QueryTemplate state inside. Then you call exec method of this class
- * this PDOLazyInsertTemplate object fill values into self stageBuffer.
+ * this PDOForceInsertTemplate object fill values into self stageBuffer.
  * If you call exec method and stageBuffer is full off, object automaticly call save() method,
  * creating template and execute it, also calling reset() method to clear buffers.
  * You can also call save() method when you need it, but notice that
@@ -24,7 +22,7 @@ use DB\ORM\DBAdapter\{
  *
  * @phpstan-import-type DatabaseContract from DBAdapter
  */
-class PDOLazyInsertTemplate extends LazyInsert implements QueryTemplate
+class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 {
     /**
      * @var DBAdapter - curr database connection
