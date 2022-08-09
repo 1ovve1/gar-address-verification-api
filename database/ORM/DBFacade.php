@@ -5,6 +5,7 @@ namespace DB\ORM;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\PDO\PDOObject;
 use DB\ORM\QueryBuilder\Templates\Conditions;
+use DB\ORM\QueryBuilder\Templates\SQL;
 use \RuntimeException;
 use InvalidArgumentException;
 use PDOException;
@@ -105,7 +106,7 @@ class DBFacade
 			if (is_array($fields)) {
 				if (is_string($pseudonym)) {
 					foreach ($fields as $f) {
-						$strBuffer .= "{$pseudonym}.{$f}, ";
+						$strBuffer .= $pseudonym . SQL::PSEUDONYMS_FIELDS->value . $f . ", ";
 					}
 					$strBuffer = substr($strBuffer, 0, -2);
 				} else {
@@ -116,13 +117,13 @@ class DBFacade
 
 			} else {
 				if (is_string($pseudonym)) {
-					$strBuffer = "{$pseudonym}.{$fields}";
+					$strBuffer = $pseudonym . SQL::PSEUDONYMS_FIELDS->value . $fields;
 				} else {
-					$strBuffer = "{$fields}";
+					$strBuffer = $fields;
 				}
 			}
 
-			$strResult .= "{$strBuffer}, ";
+			$strResult .= $strBuffer . ", ";
 		}
 
 		return substr($strResult, 0, -2);
@@ -135,10 +136,10 @@ class DBFacade
 
 			if (is_string($tableName)) {
 				if (is_string($pseudonym)) {
-					$strBuffer .= "{$tableName} as {$pseudonym}, ";
+					$strBuffer .= $tableName . SQL::PSEUDONYMS_TABLES->value . $pseudonym . ", ";
 
 				} else {
-					$strBuffer .= "{$tableName}, ";
+					$strBuffer .= $tableName . ", ";
 				}
 			} else {
 				DBFacade::dumpException(
@@ -196,7 +197,7 @@ class DBFacade
 	public static function joinArgsHandler(array|string $tableName, array $condition): array
 	{
 		if (is_array($tableName)) {
-			$tableName = current($tableName) . ' as ' . key($tableName);
+			$tableName = current($tableName) . SQL::PSEUDONYMS_TABLES->value . key($tableName);
 		}
 		$condition = match (count($condition)) {
 			1 => [key($condition), current($condition)],
@@ -222,7 +223,7 @@ class DBFacade
 		foreach ($conditionWithPseudonym as $pseudonym => $field) {
 
 			if (is_string($pseudonym)) {
-				$converted[] = $pseudonym . '.' . $field;
+				$converted[] = $pseudonym . SQL::PSEUDONYMS_FIELDS->value . $field;
 			} else {
 				$converted[] = $field;
 			}
