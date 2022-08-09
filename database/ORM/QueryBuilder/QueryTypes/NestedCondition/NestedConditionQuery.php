@@ -5,7 +5,7 @@ namespace DB\ORM\QueryBuilder\QueryTypes\NestedCondition;
 use DB\ORM\QueryBuilder\QueryTypes\Where\WhereQuery;
 use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
 
-class NestedConditionQuery
+abstract class NestedConditionQuery
 	extends ActiveRecordImpl
 	implements NestedContinueConditionAble
 {

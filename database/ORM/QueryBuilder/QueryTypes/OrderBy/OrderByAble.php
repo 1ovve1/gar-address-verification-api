@@ -8,9 +8,9 @@ interface OrderByAble
 	/**
 	 * Creating ORDER BY template
 	 *
-	 * @param  string $field - field to sort
-	 * @param  bool $asc - type of sort
+	 * @param string|array<int|string, string|array<int, string>> $field - field to sort
+	 * @param bool $asc - type of sort
 	 * @return OrderByQuery
 	 */
-	public function orderBy(string $field, bool $asc = true): OrderByQuery;
+	public function orderBy(string|array $field, bool $asc = true): OrderByQuery;
 }

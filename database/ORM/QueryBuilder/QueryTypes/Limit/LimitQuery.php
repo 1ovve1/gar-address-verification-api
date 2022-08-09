@@ -4,7 +4,7 @@ namespace DB\ORM\QueryBuilder\QueryTypes\Limit;
 
 use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
 
-class LimitQuery extends ActiveRecordImpl
+abstract class LimitQuery extends ActiveRecordImpl
 {
 
 }

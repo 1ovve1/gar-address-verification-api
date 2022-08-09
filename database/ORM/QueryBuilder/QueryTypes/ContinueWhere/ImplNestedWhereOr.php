@@ -19,7 +19,7 @@ class ImplNestedWhereOr extends ContinueWhereQuery
 		$callbackQueryBox = $record->getQueryBox();
 		parent::__construct(
 			$this->createQueryBox(
-				template: SQL::WHERE_NESTED_AND,
+				template: SQL::WHERE_NESTED_OR,
 				clearArgs: [trim($callbackQueryBox->querySnapshot)],
 				dryArgs: $callbackQueryBox->dryArgs,
 				parentBox: $parent->getQueryBox()

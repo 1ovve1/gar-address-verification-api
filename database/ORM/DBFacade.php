@@ -97,7 +97,7 @@ class DBFacade
 	 */
 	public static function fieldsWithPseudonymsToString(array $fieldsWithPseudonyms): string
 	{
-		$strCollection = [];
+		$strResult = '';
 
 		foreach ($fieldsWithPseudonyms as $pseudonym => $fields) {
 			$strBuffer = '';
@@ -122,10 +122,10 @@ class DBFacade
 				}
 			}
 
-			$strCollection[] = $strBuffer;
+			$strResult .= "{$strBuffer}, ";
 		}
 
-		return implode(', ', $strCollection);
+		return substr($strResult, 0, -2);
 	}
 
 	public static function tableNamesWithPseudonymsToString(array $tableNamesWithPseudonyms): string
@@ -200,7 +200,7 @@ class DBFacade
 		}
 		$condition = match (count($condition)) {
 			1 => [key($condition), current($condition)],
-			2 => self::convertConditionWithPseudonym($condition),
+			2 => self::convertFieldsWithPseudonym($condition),
 			default => DBFacade::dumpException(
 				null,
 				'Condition count are incorrect (use [field1 => field2] or [field1, field2] notation]',
@@ -216,7 +216,7 @@ class DBFacade
 	 * @param array<string|int, string> $conditionWithPseudonym
 	 * @return array<String> - return format: [field1, field2]
 	 */
-	private static function convertConditionWithPseudonym(array $conditionWithPseudonym) : array
+	private static function convertFieldsWithPseudonym(array $conditionWithPseudonym) : array
 	{
 		$converted = [];
 		foreach ($conditionWithPseudonym as $pseudonym => $field) {
