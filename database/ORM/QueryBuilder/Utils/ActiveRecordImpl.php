@@ -19,16 +19,16 @@ abstract class ActiveRecordImpl implements ActiveRecord
 
 	public function execute(array $values): array
 	{
-		$db = DBFacade::getInstance();
-		$state = $db->prepare($this->queryBox->querySnapshot)->getTemplate();
-		return $state->exec($values);
+		$db = DBFacade::getDBInstance();
+		$state = $db->prepare($this->queryBox->querySnapshot);
+		return $state->exec($values)->fetchAll();
 	}
 
 	public function save(): array
 	{
-		$db = DBFacade::getInstance();
-		$state = $db->prepare($this->queryBox->querySnapshot)->getTemplate();
-		return $state->exec($this->queryBox->dryArgs);
+		$db = DBFacade::getDBInstance();
+		$state = $db->prepare($this->queryBox->querySnapshot);
+		return $state->exec($this->queryBox->dryArgs)->fetchAll();
 	}
 
 	public static function forceInsert(array $values, ?array $fields = null): EndQuery

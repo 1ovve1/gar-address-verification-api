@@ -32,7 +32,7 @@ class EntityFactory
    */
     public static function getAddressObjectTable(): QueryModel
     {
-        return AddrObj::getInstance(DBFacade::getInstance());
+        return AddrObj::getInstance(DBFacade::getDBInstance());
     }
 
     /**
@@ -42,7 +42,7 @@ class EntityFactory
      */
     public static function getAddressObjectParamsTable(): QueryModel
     {
-		return AddrObjParams::getInstance(DBFacade::getInstance());
+		return AddrObjParams::getInstance(DBFacade::getDBInstance());
     }
 
     /**
@@ -52,7 +52,7 @@ class EntityFactory
      */
     public static function getHousesTable(): QueryModel
     {
-		return Houses::getInstance(DBFacade::getInstance());
+		return Houses::getInstance(DBFacade::getDBInstance());
     }
 
     /**
@@ -62,7 +62,7 @@ class EntityFactory
      */
     public static function getMunTable(): QueryModel
     {
-		return MunHierarchy::getInstance(DBFacade::getInstance());
+		return MunHierarchy::getInstance(DBFacade::getDBInstance());
     }
 
     /**
@@ -72,7 +72,7 @@ class EntityFactory
      */
     public static function getObjectLevels(): QueryModel
     {
-		return ObjLevels::getInstance(DBFacade::getInstance());
+		return ObjLevels::getInstance(DBFacade::getDBInstance());
     }
 
     /**
@@ -82,7 +82,7 @@ class EntityFactory
      */
     public static function getHousetype(): QueryModel
     {
-		return Housetype::getInstance(DBFacade::getInstance());
+		return Housetype::getInstance(DBFacade::getDBInstance());
     }
 
     /**
@@ -92,7 +92,7 @@ class EntityFactory
      */
     public static function getAddhousetype(): QueryModel
     {
-		return Addhousetype::getInstance(DBFacade::getInstance());
+		return Addhousetype::getInstance(DBFacade::getDBInstance());
     }
 
     /**
@@ -103,7 +103,7 @@ class EntityFactory
     public static function getProductionDB(): QueryModel
     {
         return Database::getInstance(
-            db: DBFacade::getInstance(),
+            db: DBFacade::getDBInstance(),
             createMetaTable: false
         );
     }

@@ -4,6 +4,7 @@ namespace DB\ORM\DBAdapter;
 
 use DB\ORM\DBFacade;
 use RuntimeException;
+use SplFixedArray;
 
 /**
  * Lazy insert abstract class
@@ -20,8 +21,8 @@ abstract class InsertBuffer
     private readonly int $bufferSize;
     /** @var int - cursor of the buffer index */
     private int $bufferCursor = 0;
-    /** @var \SplFixedArray - buffer of stage values */
-    private \SplFixedArray $buffer;
+    /** @var SplFixedArray - buffer of stage values */
+    private SplFixedArray $buffer;
 
     /**
      * @param string $tableName - name of table
@@ -38,7 +39,7 @@ abstract class InsertBuffer
 
         $bufferSize = $groupInsertCount * count($tableFields);
         $this->bufferSize = $bufferSize;
-        $this->buffer = new \SplFixedArray($bufferSize);
+        $this->buffer = new SplFixedArray($bufferSize);
     }
 
 
@@ -171,7 +172,7 @@ abstract class InsertBuffer
      */
     public function getBufferSlice(): array
     {
-        $array = new \SplFixedArray($this->bufferCursor);
+        $array = new SplFixedArray($this->bufferCursor);
         for ($i = 0; $i < $this->bufferCursor; ++$i) {
             $array[$i] = $this->buffer[$i];
         }

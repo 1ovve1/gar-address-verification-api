@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace DB\ORM;
 
@@ -26,7 +24,7 @@ class DBFacade
      *
      * @return DBAdapter
      */
-    public static function getInstance(): DBAdapter
+    public static function getDBInstance(): DBAdapter
     {
         if (self::$instance === null) {
             self::$instance = self::connectViaPDO();
@@ -43,16 +41,11 @@ class DBFacade
      */
     public static function connectViaPDO(): PDOObject
     {
-        $PDO = new PDOObject(
-            $_SERVER['DB_TYPE'],
-            $_SERVER['DB_HOST'],
-            $_SERVER['DB_NAME'],
-            $_SERVER['DB_PORT'],
-        );
-
-        $PDO->connect($_SERVER['DB_USER'], $_SERVER['DB_PASS']);
-
-        return $PDO;
+	    return new PDOObject(
+	        $_ENV['DB_TYPE'], $_ENV['DB_HOST'],
+	        $_ENV['DB_NAME'], $_ENV['DB_PORT'],
+		    $_ENV['DB_USER'], $_ENV['DB_PASS']
+	    );
     }
 
     /**

@@ -3,10 +3,7 @@
 namespace DB\ORM\DBAdapter\PDO;
 
 
-use DB\ORM\DBFacade;
-use DB\ORM\DBAdapter\{
-	DBAdapter, InsertBuffer, QueryTemplate
-};
+use DB\ORM\DBAdapter\{DBAdapter, InsertBuffer, QueryResult, QueryTemplate};
 
 /**
  * Lazy Insert SQL object Using PDO
@@ -36,7 +33,7 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
     /**
      * @param DBAdapter $db - database connection
      * @param string $tableName - name of prepared table
-     * @param String[] $fields - fields of preapred table
+     * @param String[] $fields - fields of prepared table
      * @param int $stagesCount - default stages count
      */
     public function __construct(
@@ -58,71 +55,61 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
      */
     public function genNewTemplate(): string
     {
-        $template = sprintf(
-            'INSERT INTO %s (%s) VALUES %s',
-            $this->getTableName(),
-            implode(', ', $this->getTableFields()),
-            $this->genVarsFromCurrentGroupNumber(),
-        );
-
-        return $template;
+	    return sprintf(
+	        'INSERT INTO %s (%s) VALUES %s',
+	        $this->getTableName(),
+	        implode(', ', $this->getTableFields()),
+	        $this->genVarsFromCurrentGroupNumber(),
+	    );
     }
 
 
-    /**
-     * Update buffer (or execute query if buffer full) by $values
-     *
-     * @param array<DatabaseContract> $values - values to execute
-     * @return array<mixed> - ignore
-     */
-    public function exec(array $values): array
+	/**
+	 * {@inheritDoc}
+	 */
+    public function exec(array $values): QueryResult
     {
         $this->setBuffer($values);
 
         if ($this->isBufferFull()) {
-            $this->save();
+            $queryResult = $this->save();
         }
-        return [];
+        return $queryResult ?? new PDOQueryResult(null);
     }
 
-    /**
-     * Save changes in database and reset stage buffer
-     *
-     * @return self - self
-     */
-    public function save(): self
+	/**
+	 * {@inheritDoc}
+	 */
+    public function save(): QueryResult
     {
         if ($this->isBufferNotEmpty()) {
-            $tryGetState = $this->getState();
+            $tryGetState =
+	            $this->getState() ??
+	            $this->createNewStateWithCurrentGroupNumber();
 
-            if (is_bool($tryGetState)) {
-                $tryGetState = $this->createNewStateWithCurrentGroupNumber();
-            }
-
-            if ($this->isBufferFull()) {
-                $tryGetState->exec($this->getBuffer());
-            } else {
-                $tryGetState->exec($this->getBufferSlice());
-            }
-      
+	        $queryResult = match($this->isBufferFull()) {
+				true => $tryGetState->exec($this->getBuffer()),
+		        false => $tryGetState->exec($this->getBufferSlice())
+	        };
 
             $this->resetBufferCursor();
         }
-        return $this;
+
+        return $queryResult ?? new PDOQueryResult(null);
     }
 
 
     /**
      * Return state using cursor value
-     * @return QueryTemplate|bool
+     * @return QueryTemplate|null
      */
-    public function getState(): QueryTemplate|bool
+    public function getState(): QueryTemplate|null
     {
         $currentGroupNumber = $this->getCurrentNumberOfGroups();
         if (!array_key_exists($currentGroupNumber, $this->states)) {
             //todo rewrite this warning using logger facade
 //      trigger_error("not found index '{$stageIndex}' in stages: return false", E_USER_WARNING);
-            return false;
+            return null;
         }
         return $this->states[$currentGroupNumber];
     }
@@ -142,9 +129,7 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
      */
     private function setState(string $newTemplate): QueryTemplate
     {
-      $newTemplate = $this->db
-        ->prepare($newTemplate)
-        ->getTemplate();
+      $newTemplate = $this->db->prepare($newTemplate);
       $this->states[$this->getCurrentNumberOfGroups()] = $newTemplate;
 
       return $newTemplate;

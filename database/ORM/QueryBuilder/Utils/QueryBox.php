@@ -15,7 +15,7 @@ class QueryBox
 {
 	/** @var string  */
 	public readonly string $querySnapshot;
-	/** @var array<int, array<mixed>> */
+	/** @var array<int, DatabaseContract> */
 	public readonly array $dryArgs;
 
 	/**
