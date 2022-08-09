@@ -169,11 +169,11 @@ class DBFacade
 			$sign = Conditions::EQ->value;
 			$value = $sign_or_value;
 
-		} else if(Conditions::tryFind($sign_or_value)) {
-			$sign = Conditions::tryFind($sign_or_value);
-
 		} else {
-			DBFacade::dumpException(null, 'Incorrect params', func_get_args());
+			$sign = Conditions::tryFind($sign_or_value);
+			if (false === $sign) {
+				DBFacade::dumpException(null, 'Incorrect params', func_get_args());
+			}
 		}
 
 		return [$field, $sign, $value];
@@ -214,7 +214,7 @@ class DBFacade
 	/**
 	 * See DBFacade::joinArgsHandler
 	 * @param array<string|int, string> $conditionWithPseudonym
-	 * @return array
+	 * @return array<String> - return format: [field1, field2]
 	 */
 	private static function convertConditionWithPseudonym(array $conditionWithPseudonym) : array
 	{
@@ -231,14 +231,23 @@ class DBFacade
 		return $converted;
 	}
 
+	/**
+	 * Dump exception
+	 * @param mixed $item
+	 * @param string $message
+	 * @param array<mixed> $params
+	 * @return void
+	 */
 	public static function dumpException(mixed $item, string $message, array $params): void
 	{
-		echo 'Dump of current item...' . PHP_EOL;
-		echo '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' . PHP_EOL;
-		var_dump($item);
-		echo 'Params:' . PHP_EOL;
-		var_dump($params);
-		echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' . PHP_EOL;
+		if (!defined('SERVER_START')) {
+			echo 'Dump of current item...' . PHP_EOL;
+			echo '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' . PHP_EOL;
+			var_dump($item);
+			echo 'Params:' . PHP_EOL;
+			var_dump($params);
+			echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' . PHP_EOL;
+		}
 
 		throw new RuntimeException($message);
 	}
