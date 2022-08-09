@@ -41,7 +41,7 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 	const WHERE_RESULT = 'WHERE (addr.one = (?) OR rose < (?)) AND (house.free > (?) AND addr.two <= (?)) OR (rose >= (?))' . SEPARATOR;
 	const WHERE_DRY_ARGS = [2, 3, 2, 3, 2];
 
-	function testWhere(): void
+	function testWhereAndContinueWhereAndNestedWhere(): void
 	{
 		$result = AddrObj::select(
 			['addr' => ['one', 'two'], 'rose', 'house' => 'free'],
@@ -164,5 +164,18 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 
 		$this->assertEquals(self::UPDATE_RESULT, $result->querySnapshot);
 		$this->assertEquals(self::UPDATE_DRY_ARGS, $result->dryArgs);
+	}
+
+	/**************************
+	 * DELETE TEST
+	 *
+	 */
+	const DELETE_RESULT = "DELETE FROM addr_obj" . SEPARATOR;
+
+	function testDelete(): void
+	{
+		$result = AddrObj::delete()->queryBox;
+
+		$this->assertEquals(self::DELETE_RESULT, $result->querySnapshot);
 	}
 }
