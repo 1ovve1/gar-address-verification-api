@@ -150,4 +150,19 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 		$this->assertEquals(self::INSERT_RESULT, $queryBox->querySnapshot);
 		$this->assertEquals(self::INSERT_DRY_ARGS, $queryBox->dryArgs);
 	}
+
+	/**************************
+	 * UPDATE TEST
+	 *
+	 */
+	const UPDATE_RESULT = "UPDATE addr_obj SET one = (?)" . SEPARATOR;
+	const UPDATE_DRY_ARGS = [2];
+
+	function testUpdate(): void
+	{
+		$result = AddrObj::update('one', 2)->queryBox;
+
+		$this->assertEquals(self::UPDATE_RESULT, $result->querySnapshot);
+		$this->assertEquals(self::UPDATE_DRY_ARGS, $result->dryArgs);
+	}
 }

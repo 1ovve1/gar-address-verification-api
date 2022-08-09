@@ -24,6 +24,8 @@ enum SQL: string
 
 	case INSERT = 'INSERT INTO %s (%s) VALUES %s';
 
+	case UPDATE = 'UPDATE %s SET %s = (?)';
+
 	case EMPTY = '';
 	case NESTED_CONDITION = '(%s)';
 	case CONDITION = '%s %s (?)';

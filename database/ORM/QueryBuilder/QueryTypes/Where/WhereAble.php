@@ -15,6 +15,6 @@ interface WhereAble
 	 * @return WhereQuery
 	 */
 	public function where(callable|array|string $field_or_nested_clbk,
-	                      int|float|bool|string|null $sign_or_value = '',
+	                      float|int|bool|string|null $sign_or_value = '',
 	                      float|int|bool|string|null $value = null): WhereQuery;
 }
