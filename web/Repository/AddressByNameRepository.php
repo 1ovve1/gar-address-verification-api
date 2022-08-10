@@ -113,18 +113,12 @@ class AddressByNameRepository extends BaseRepo
      */
     public function getSingleNameByObjectId(int $objectId): array
     {
-		static $state = null;
-
-		$state = Database::createStateIfNotExist($state,
-			fn() => Database::select(
-				['addr' => ['name', 'typename', 'objectid']],
-				['addr' => 'addr_obj']
-			)->where(
-				['addr' => 'objectid'], $objectId
-			)
-		);
-
-        return $state->execute([$objectId]);
+		return Database::select(
+			['addr' => ['name', 'typename', 'objectid']],
+			['addr' => 'addr_obj']
+		)->where(
+			['addr' => 'objectid'], $objectId
+		)->save();
     }
 
     /**
