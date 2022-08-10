@@ -4,7 +4,7 @@ namespace DB\ORM\QueryBuilder;
 
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\AbstractSQL\EndQuery;
-use DB\ORM\QueryBuilder\Utils\ActiveRecord;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
 
 /**

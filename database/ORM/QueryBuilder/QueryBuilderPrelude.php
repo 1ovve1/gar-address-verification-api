@@ -10,7 +10,7 @@ use DB\ORM\QueryBuilder\QueryTypes\{Delete\DeleteAble,
 	Select\SelectTrait,
 	Update\UpdateAble,
 	Update\UpdateTrait};
-use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecordImpl;
 
 /**
  * Common interface for query builder

@@ -2,7 +2,7 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\NestedCondition;
 
-use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecordImpl;
 
 abstract class NestedContinueConditionQuery
 	extends ActiveRecordImpl

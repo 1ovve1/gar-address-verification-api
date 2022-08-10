@@ -3,7 +3,7 @@
 namespace DB\ORM\QueryBuilder\QueryTypes\NestedCondition;
 
 use DB\ORM\QueryBuilder\Templates\SQL;
-use DB\ORM\QueryBuilder\Utils\ActiveRecord;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
 class ImplNestedConditionAnd extends NestedContinueConditionQuery
 {

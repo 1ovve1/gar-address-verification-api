@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace DB\ORM\QueryBuilder\Utils;
+namespace DB\ORM\QueryBuilder\ActiveRecord;
 
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\Templates\SQL;
