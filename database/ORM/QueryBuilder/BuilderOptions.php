@@ -2,6 +2,7 @@
 
 namespace DB\ORM\QueryBuilder;
 
+use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\AbstractSQL\EndQuery;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
@@ -27,11 +28,17 @@ interface BuilderOptions
 	                                 ?string $anotherTable = null): array;
 
 	/**
-	 * Doing forceInsert into template
+	 * Doing force insert into table with huge SQL query
 	 *
 	 * @param array<DatabaseContract> $values - values for the force insert
-	 * @param String[]|null $fields - optional fields list fow more specific usage
-	 * @return EndQuery
+	 * @return QueryResult
 	 */
-	public function forceInsert(array $values, ?array $fields = null): EndQuery;
+	public function forceInsert(array $values): QueryResult;
+
+	/**
+	 * Save changes in forceInsert buffer
+	 *
+	 * @return QueryResult
+	 */
+	public function saveForceInsert(): QueryResult;
 }
