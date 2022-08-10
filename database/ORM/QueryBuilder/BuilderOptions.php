@@ -26,13 +26,4 @@ interface BuilderOptions
 	                                 mixed $value,
 	                                 ?string $anotherTable = null): array;
 
-	/**
-	 * Check if state $tryState exists and implement $stateInstruction if state does not exist
-	 * @param mixed $tryState
-	 * @param callable $stateInstruction
-	 * @return ActiveRecord
-	 */
-	public static function createStateIfNotExist(mixed $tryState,
-	                                             callable $stateInstruction): ActiveRecord;
-
 }

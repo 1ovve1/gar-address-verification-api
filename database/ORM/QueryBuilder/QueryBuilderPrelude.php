@@ -35,25 +35,5 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 		return static::select($field, $anotherTable)->where($field, $value)->save();
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public static function createStateIfNotExist(mixed $tryState, callable $stateInstruction): ActiveRecord
-	{
-		if (!($tryState instanceof ActiveRecord)) {
-			$tryCallback = $stateInstruction();
-			if (!($tryCallback instanceof ActiveRecord)) {
-				DBFacade::dumpException(
-					null,
-					'Callback should return ActiveRecord state, but return ' . gettype($tryCallback),
-					func_get_args()
-				);
-			}
-			$tryState = $tryCallback;
-		}
-
-		return $tryState;
-	}
-
 
 }
