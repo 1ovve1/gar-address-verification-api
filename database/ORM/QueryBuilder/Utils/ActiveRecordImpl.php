@@ -2,14 +2,11 @@
 
 namespace DB\ORM\QueryBuilder\Utils;
 
-use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBFacade;
-use DB\ORM\QueryBuilder\AbstractSQL\EndQuery;
 use DB\ORM\QueryBuilder\Templates\SQL;
 
 abstract class ActiveRecordImpl implements ActiveRecord
 {
-	private readonly DBAdapter $db;
 	public readonly QueryBox $queryBox;
 
 	public function __construct(QueryBox $queryBox)
@@ -17,6 +14,9 @@ abstract class ActiveRecordImpl implements ActiveRecord
 		$this->queryBox = $queryBox;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function execute(array $values): array
 	{
 		$db = DBFacade::getDBInstance();
@@ -24,6 +24,9 @@ abstract class ActiveRecordImpl implements ActiveRecord
 		return $state->exec($values)->fetchAll();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function save(): array
 	{
 		$db = DBFacade::getDBInstance();
@@ -31,9 +34,12 @@ abstract class ActiveRecordImpl implements ActiveRecord
 		return $state->exec($this->queryBox->dryArgs)->fetchAll();
 	}
 
-	public static function forceInsert(array $values, ?array $fields = null): EndQuery
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getQueryBox(): QueryBox
 	{
-		return new EndQuerydf();
+		return $this->queryBox;
 	}
 
 	/**
@@ -46,13 +52,8 @@ abstract class ActiveRecordImpl implements ActiveRecord
 	protected static function createQueryBox(SQL       $template,
 	                                         array     $clearArgs = [],
 	                                         array     $dryArgs = [],
-	                                         ?QueryBox $parentBox = null): QueryBox {
-
-		return new QueryBox($template, $clearArgs, $dryArgs, $parentBox);
-	}
-
-	public function getQueryBox(): QueryBox
+	                                         ?QueryBox $parentBox = null): QueryBox
 	{
-		return $this->queryBox;
+		return new QueryBox($template, $clearArgs, $dryArgs, $parentBox);
 	}
 }

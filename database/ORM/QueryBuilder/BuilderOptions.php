@@ -26,4 +26,12 @@ interface BuilderOptions
 	                                 mixed $value,
 	                                 ?string $anotherTable = null): array;
 
+	/**
+	 * Doing forceInsert into template
+	 *
+	 * @param array<DatabaseContract> $values - values for the force insert
+	 * @param String[]|null $fields - optional fields list fow more specific usage
+	 * @return EndQuery
+	 */
+	public function forceInsert(array $values, ?array $fields = null): EndQuery;
 }

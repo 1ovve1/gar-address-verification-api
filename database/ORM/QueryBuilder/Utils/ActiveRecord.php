@@ -28,13 +28,4 @@ interface ActiveRecord
 
 	/** Return immutable queryBox of current object */
 	public function getQueryBox(): QueryBox;
-
-	/**
-	 * Doing forceInsert into template
-	 *
-	 * @param array<DatabaseContract> $values - values for the force insert
-	 * @param String[]|null $fields - optional fields list fow more specific usage
-	 * @return EndQuery
-	 */
-	public static function forceInsert(array $values, ?array $fields = null): EndQuery;
 }
