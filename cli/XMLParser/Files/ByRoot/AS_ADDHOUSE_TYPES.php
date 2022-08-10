@@ -9,24 +9,33 @@ use CLI\XMLParser\Files\XMLFile;
 
 class AS_ADDHOUSE_TYPES extends XMLFile
 {
-    public function save(): void
-    {
-        Addhousetype::save();
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public static function getTable(): mixed
+	{
+		return new Addhousetype();
+	}
 
-    /**
-     * return elements of xml document
-     * @return string elements names
-     */
+	/**
+	 * @inheritDoc
+	 */
+	public static function callbackOperationWithTable(mixed $table): void
+	{
+		$table->saveForceInsert();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
     public static function getElement(): string
     {
         return 'HOUSETYPE';
     }
 
-    /**
-     * return attributes of elements in xml document
-     * @return array attributes names
-     */
+	/**
+	 * @inheritDoc
+	 */
     public static function getAttributes(): array
     {
         return [
@@ -36,13 +45,11 @@ class AS_ADDHOUSE_TYPES extends XMLFile
         ];
     }
 
-    /**
-     * procedure that contains main operations from exec method
-     * @param array $values current parse element
-     * @return void
-     */
-    public function execDoWork(array &$values): void
+	/**
+	 * @inheritDoc
+	 */
+    public function execDoWork(array &$values, mixed &$table): void
     {
-        Addhousetype::forceInsert($values);
+        $table->forceInsert($values);
     }
 }

@@ -9,6 +9,29 @@ use DB\ORM\QueryBuilder\QueryBuilder;
 
 class AddrObjParams extends QueryBuilder 
 {
+	/**
+	 * @inheritDoc
+	 */
+	protected function prepareStates(): array
+	{
+		return [
+			'getFirstObjectIdAddrObj' =>
+				AddrObj::select('objectid')
+				->where('region')
+				->andWhere('objectid')
+				->limit(1),
+		];
+	}
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	protected static function getFields(): ?array
+	{
+		return ['objectid_addr', 'type', 'value', 'region'];
+	}
+
     /**
      * Return fields that need to create in model
      *

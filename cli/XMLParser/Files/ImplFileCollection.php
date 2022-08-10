@@ -58,7 +58,6 @@ class ImplFileCollection implements FileCollection
         foreach ($this->singleFiles as $singleFile) {
             $manager->newTask(function () use ($singleFile, $reader) {
                 $reader->read($singleFile);
-                $singleFile->save();
             });
         }
 
@@ -77,7 +76,6 @@ class ImplFileCollection implements FileCollection
 
                 $manager->newTask(function() use ($reader, $everyRegionFile) {
                     $reader->read($everyRegionFile);
-                    $everyRegionFile->save();
                 }, true);
             }
             $manager->waitAll();

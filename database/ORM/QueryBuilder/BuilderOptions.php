@@ -41,4 +41,13 @@ interface BuilderOptions
 	 * @return QueryResult
 	 */
 	public function saveForceInsert(): QueryResult;
+
+	/**
+	 * Execute prepared states into pseudo-model
+	 *
+	 * @param string $name - name of template
+	 * @param array<mixed> $values - array of values
+	 * @return array<mixed>|false|null - query result
+	 */
+	public function executeTemplate(string $name, array $values = []): array|false|null;
 }

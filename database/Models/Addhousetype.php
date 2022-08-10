@@ -9,6 +9,14 @@ use DB\ORM\QueryBuilder\QueryBuilder;
 
 class Addhousetype extends QueryBuilder 
 {
+	/**
+	 * {@inheritDoc}
+	 */
+	protected static function getFields(): ?array
+	{
+		return ['id', 'short', 'disc'];
+	}
+
     /**
      * Return fields that need to create in model
      *

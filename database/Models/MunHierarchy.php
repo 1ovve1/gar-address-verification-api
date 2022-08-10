@@ -9,6 +9,34 @@ use DB\ORM\QueryBuilder\QueryBuilder;
 
 class MunHierarchy extends QueryBuilder 
 {
+	/**
+	 * @inheritDoc
+	 */
+	protected function prepareStates(): array
+	{
+		return [
+			'getIdAddrObj' =>
+				AddrObj::select('region')
+					->where('region')
+					->andWhere('objectid')
+					->limit(1),
+			'getIdHouses' =>
+				Houses::select('region')
+					->where('region')
+					->andWhere('objectid')
+					->limit(1),
+
+		];
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	protected static function getFields(): ?array
+	{
+		return ['parentobjid_addr', 'chiledobjid_addr', 'chiledobjid_houses', 'region'];
+	}
+
     /**
      * Return fields that need to create in model
      *

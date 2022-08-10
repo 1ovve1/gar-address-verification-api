@@ -9,6 +9,32 @@ use DB\ORM\QueryBuilder\QueryBuilder;
 
 class Houses extends QueryBuilder 
 {
+	/**
+	 * @inheritDoc
+	 */
+	protected function prepareStates(): array
+	{
+		return [
+			'getFirstObjectId' =>
+				Houses::select('region')
+					->where('region', '?')
+					->andWhere('objectid', '?')
+					->limit(1),
+		];
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	protected static function getFields(): ?array
+	{
+		return [
+			'objectid', 'housenum',
+			'addnum1', 'addnum2',
+			'id_housetype', 'id_addtype1',
+			'id_addtype2', 'region'];
+	}
+
     /**
      * Return fields that need to create in model
      *

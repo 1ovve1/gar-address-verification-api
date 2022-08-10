@@ -6,25 +6,39 @@ namespace CLI\XMLParser\Files\ByRegions;
 
 use DB\Models\AddrObj;
 use CLI\XMLParser\Files\XMLFile;
+use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBFacade;
+use DB\ORM\QueryBuilder\QueryBuilder;
 
 class AS_ADDR_OBJ extends XMLFile
 {
-    function getTableName(): string
-    {
-        return DBFacade::genTableNameByClassName(AddrObj::class);
-    }
-
-	function save(): void
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function getTable(): AddrObj
 	{
-
+		return new AddrObj();
 	}
 
-    public static function getElement(): string
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function callbackOperationWithTable(mixed $table): void
+	{
+		$table->saveForceInsert();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function getElement(): string
     {
         return 'OBJECT';
     }
 
+	/**
+	 * {@inheritDoc}
+	 */
     public static function getAttributes(): array
     {
         return [
@@ -39,31 +53,19 @@ class AS_ADDR_OBJ extends XMLFile
         ];
     }
 
-    public function execDoWork(array &$values): void
+	/**
+	 * {@inheritDoc}
+	 */
+    public function execDoWork(array &$values, mixed &$table): void
     {
         $region = $this->getIntRegion();
 
-        if (empty($this->getFirstObjectId($values['OBJECTID'], $region))) {
+        if (empty($table->executeTemplate('getFirstObjectId', [$values['OBJECTID'], $region]))) {
             unset($values['ISACTUAL']); unset($values['ISACTIVE']);
 
             $values['REGION'] = $region;
 
-            AddrObj::forceInsert($values);
+            $table->forceInsert($values);
         }
-    }
-
-    private function getFirstObjectId(int $objectid, int $region): array
-    {
-        static $name = self::class . 'getFirstObjectId';
-
-        if (!AddrObj::nameExist($name)) {
-            AddrObj::select(['objectid'])
-                ->where('region', $region)
-                ->andWhere('objectid', $objectid)
-                ->limit(1)
-                ->name($name);
-        }
-
-        return AddrObj::execute([$region, $objectid], $name);
     }
 }

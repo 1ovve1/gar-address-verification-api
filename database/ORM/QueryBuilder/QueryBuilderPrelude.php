@@ -6,6 +6,7 @@ use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 use DB\ORM\QueryBuilder\ActiveRecord\QueryBox;
 use DB\ORM\QueryBuilder\QueryTypes\{Delete\DeleteAble,
 	Delete\DeleteTrait,
@@ -16,6 +17,7 @@ use DB\ORM\QueryBuilder\QueryTypes\{Delete\DeleteAble,
 	Update\UpdateAble,
 	Update\UpdateTrait};
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecordImpl;
+use http\Exception\RuntimeException;
 
 /**
  * Common interface for query builder
@@ -27,6 +29,8 @@ abstract class QueryBuilderPrelude
 {
 use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 
+	/** @var ActiveRecord[] */
+	private readonly array $userStates;
 	/** @var QueryTemplate - force insert template */
 	private readonly QueryTemplate $forceInsertTemplate;
 
@@ -37,6 +41,8 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	public function __construct(?array $fields = null,
 	                            ?string $tableName = null)
 	{
+		$this->userStates = $this->prepareStates();
+
 		$db = DBFacade::getDBInstance();
 
 		$tableName ??= DBFacade::genTableNameByClassName(static::class);
@@ -68,6 +74,31 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	{
 		return null;
 	}
+
+	/**
+	 * Here you can declare states that you want to use in your pseudo-model
+	 *
+	 * @return ActiveRecord[]
+	 */
+	protected function prepareStates(): array
+	{
+		return [];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function executeTemplate(string $name, array $values = []) : array|false|null
+	{
+		$state = $this->userStates[$name] ?? null;
+
+		if (null === $state) {
+			throw new RuntimeException('Unknown state');
+		}
+
+		return $state->execute($values);
+	}
+
 
 	/**
 	 * @inheritDoc

@@ -9,6 +9,14 @@ use DB\ORM\QueryBuilder\QueryBuilder;
 
 class ObjLevels extends QueryBuilder 
 {
+	/**
+	 * {@inheritDoc}
+	 */
+	protected static function getFields(): ?array
+	{
+		return ['id', 'disc'];
+	}
+
     /**
      * Return fields that need to create in model
      *

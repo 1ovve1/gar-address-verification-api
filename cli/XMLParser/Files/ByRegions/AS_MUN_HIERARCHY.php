@@ -7,16 +7,33 @@ use CLI\XMLParser\Files\XMLFile;
 
 class AS_MUN_HIERARCHY extends XMLFile
 {
-    public function save(): void
-    {
-        MunHierarchy::save();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function getTable(): MunHierarchy
+	{
+		return new MunHierarchy();
+	}
 
-    public static function getElement(): string
+	/**
+	 * @inheritDoc
+	 */
+	public static function callbackOperationWithTable(mixed $table): void
+	{
+		$table->saveForceInsert();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function getElement(): string
     {
         return 'ITEM';
     }
 
+	/**
+	 * {@inheritDoc}
+	 */
     public static function getAttributes(): array
     {
         return [
@@ -25,20 +42,23 @@ class AS_MUN_HIERARCHY extends XMLFile
         ];
     }
 
-    public function execDoWork(array &$values): void
+	/**
+	 * {@inheritDoc}
+	 */
+    public function execDoWork(array &$values, mixed &$table): void
     {
         $region = $this->getIntRegion();
 
-        if (isset($values['PARENTOBJID']) && !empty($this->getIdAddrObj($values['PARENTOBJID'], $region))) {
-            if (!empty(self::getIdAddrObj($values['OBJECTID'], $region))) {
-                MunHierarchy::forceInsert([
+        if (isset($values['PARENTOBJID']) && !empty($table->executeTemplate('getIdAddrObj', [$region, $values['PARENTOBJID']]))) {
+            if (!empty($table->executeTemplate('getIdAddrObj', [$region, $values['OBJECTID']]))) {
+                $table->forceInsert([
                     $values['PARENTOBJID'],
                     $values['OBJECTID'],
                     null,
 	                $region,
                 ]);
-            } elseif (!empty(self::getIdHouses($values['OBJECTID'], $region))) {
-                MunHierarchy::forceInsert([
+            } elseif (!empty($table->executeTemplate('getIdHouses', [$region, $values['OBJECTID']]))) {
+	            $table->forceInsert([
                     $values['PARENTOBJID'],
                     null,
                     $values['OBJECTID'],
@@ -48,33 +68,5 @@ class AS_MUN_HIERARCHY extends XMLFile
         }
     }
 
-    private static function getIdAddrObj(int $objectid, int $region): array
-    {
-        static $name = self::class . 'getIdAddrObj';
 
-        if (!MunHierarchy::nameExist($name)) {
-            MunHierarchy::select(['region'], ['addr_obj'])
-                ->where('region', $region)
-                ->andWhere('objectid', $objectid)
-                ->limit(1)
-                ->name($name);
-        }
-
-        return MunHierarchy::execute([$region, $objectid], $name);
-    }
-
-    private static function getIdHouses(int $objectid, int $region): array
-    {
-        static $name = self::class . 'getFirstObjectIdHouses';
-
-        if (!MunHierarchy::nameExist($name)) {
-	        MunHierarchy::select(['region'], ['houses'])
-            ->where('region', $region)
-            ->andWhere('objectid', $objectid)
-            ->limit(1)
-            ->name($name);
-        }
-
-        return MunHierarchy::execute([$region, $objectid], $name);
-    }
 }

@@ -9,16 +9,33 @@ use CLI\XMLParser\Files\XMLFile;
 
 class AS_HOUSES extends XMLFile
 {
-    public function save(): void
-    {
-		Houses::save();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function getTable(): Houses
+	{
+		return new Houses();
+	}
 
-    public static function getElement(): string
+	/**
+	 * @inheritDoc
+	 */
+	public static function callbackOperationWithTable(mixed $table): void
+	{
+		$table->saveForceInsert();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function getElement(): string
     {
         return 'HOUSE';
     }
 
+	/**
+	 * {@inheritDoc}
+	 */
     public static function getAttributes(): array
     {
         return [
@@ -36,11 +53,14 @@ class AS_HOUSES extends XMLFile
         ];
     }
 
-    public function execDoWork(array &$values): void
+	/**
+	 * {@inheritDoc}
+	 */
+    public function execDoWork(array &$values, mixed &$table): void
     {
         $region = $this->getIntRegion();
 
-        if (empty($this->getFirstObjectId($values['OBJECTID'], $region))) {
+        if (empty($table->executeTemplate('getFirstObjectId', [$values['OBJECTID'], $region]))) {
 
             foreach ($this::getAttributes() as $attr => $ignore) {
                 $values[$attr] ?? $values[$attr] = null;
@@ -49,22 +69,7 @@ class AS_HOUSES extends XMLFile
 
             $values['REGION'] = $region;
 
-            Houses::forceInsert($values);
+            $table->forceInsert($values);
         }
-    }
-
-    private function getFirstObjectId(int $objectid, int $region): array
-    {
-        static $name = self::class . 'getFirstObjectId';
-
-        if (!Houses::nameExist($name)) {
-	        Houses::select(['region'])
-                ->where('region', $region)
-                ->andWhere('objectid', $objectid)
-                ->limit(1)
-                ->name($name);
-        }
-
-        return Houses::execute([$region, $objectid], $name);
     }
 }

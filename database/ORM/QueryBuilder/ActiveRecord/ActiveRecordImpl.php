@@ -17,7 +17,7 @@ abstract class ActiveRecordImpl implements ActiveRecord
 	/**
 	 * {@inheritDoc}
 	 */
-	public function execute(array $values): array
+	public function execute(array $values): array|false|null
 	{
 		$db = DBFacade::getDBInstance();
 		$state = $db->prepare($this->queryBox->querySnapshot);
@@ -27,7 +27,7 @@ abstract class ActiveRecordImpl implements ActiveRecord
 	/**
 	 * {@inheritDoc}
 	 */
-	public function save(): array
+	public function save(): array|false|null
 	{
 		$db = DBFacade::getDBInstance();
 		$state = $db->prepare($this->queryBox->querySnapshot);
