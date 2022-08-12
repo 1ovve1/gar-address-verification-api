@@ -2,12 +2,10 @@
 
 namespace DB\ORM\QueryBuilder;
 
-use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
-use DB\ORM\QueryBuilder\ActiveRecord\QueryBox;
 use DB\ORM\QueryBuilder\QueryTypes\{Delete\DeleteAble,
 	Delete\DeleteTrait,
 	Insert\InsertAble,
@@ -16,8 +14,6 @@ use DB\ORM\QueryBuilder\QueryTypes\{Delete\DeleteAble,
 	Select\SelectTrait,
 	Update\UpdateAble,
 	Update\UpdateTrait};
-use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecordImpl;
-use http\Exception\RuntimeException;
 
 /**
  * Common interface for query builder
@@ -86,19 +82,21 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	}
 
 	/**
-	 * @inheritDoc
+	 * Execute template by name
+	 * @param string $templateName
+	 * @param array<mixed> $queryArguments
+	 * @return array<mixed>|false|null
 	 */
-	public function executeTemplate(string $name, array $values = []) : array|false|null
+	public function __call(string $templateName, array $queryArguments)
 	{
-		$state = $this->userStates[$name] ?? null;
+		$state = $this->userStates[$templateName] ?? null;
 
 		if (null === $state) {
-			throw new RuntimeException('Unknown state');
+			throw new \RuntimeException('Unknown state');
 		}
 
-		return $state->execute($values);
+		return $state->execute($queryArguments);
 	}
-
 
 	/**
 	 * @inheritDoc

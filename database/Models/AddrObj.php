@@ -18,8 +18,8 @@ class AddrObj extends QueryBuilder
 		return [
 			'getFirstObjectId' =>
 				AddrObj::select('objectid')
-				->where('region', '?')
-				->andWhere('objectid', '?')
+				->where('region')
+				->andWhere('objectid')
 				->limit(1),
 
 		];

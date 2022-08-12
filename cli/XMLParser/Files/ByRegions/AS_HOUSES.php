@@ -60,7 +60,7 @@ class AS_HOUSES extends XMLFile
     {
         $region = $this->getIntRegion();
 
-        if (empty($table->executeTemplate('getFirstObjectId', [$values['OBJECTID'], $region]))) {
+        if (empty($table->getFirstObjectId($values['OBJECTID'], $region))) {
 
             foreach ($this::getAttributes() as $attr => $ignore) {
                 $values[$attr] ?? $values[$attr] = null;

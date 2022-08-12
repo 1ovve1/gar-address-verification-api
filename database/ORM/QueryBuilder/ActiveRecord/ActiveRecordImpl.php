@@ -1,17 +1,36 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
+use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\Templates\SQL;
 
 abstract class ActiveRecordImpl implements ActiveRecord
 {
+	/** @var QueryBox - query container */
 	public readonly QueryBox $queryBox;
+	/** @var QueryTemplate template of current queryBox */
+	public readonly QueryTemplate $state;
 
 	public function __construct(QueryBox $queryBox)
 	{
 		$this->queryBox = $queryBox;
+		$this->state = self::getState($queryBox);
+	}
+
+	/**
+	 * Generate QueryTemplate by QueryBox
+	 *
+	 * @param QueryBox $queryBox
+	 * @return QueryTemplate
+	 */
+	private static function getState(QueryBox $queryBox) : QueryTemplate
+	{
+		$db = DBFacade::getDBInstance();
+		$template = $queryBox->querySnapshot;
+
+		return $db->prepare($template);
 	}
 
 	/**
@@ -19,9 +38,7 @@ abstract class ActiveRecordImpl implements ActiveRecord
 	 */
 	public function execute(array $values): array|false|null
 	{
-		$db = DBFacade::getDBInstance();
-		$state = $db->prepare($this->queryBox->querySnapshot);
-		return $state->exec($values)->fetchAll();
+		return $this->state->exec($values)->fetchAll();
 	}
 
 	/**
@@ -29,9 +46,7 @@ abstract class ActiveRecordImpl implements ActiveRecord
 	 */
 	public function save(): array|false|null
 	{
-		$db = DBFacade::getDBInstance();
-		$state = $db->prepare($this->queryBox->querySnapshot);
-		return $state->exec($this->queryBox->dryArgs)->fetchAll();
+		return $this->state->exec($this->queryBox->dryArgs)->fetchAll();
 	}
 
 	/**

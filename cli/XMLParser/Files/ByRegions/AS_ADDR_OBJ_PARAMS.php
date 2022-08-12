@@ -52,18 +52,21 @@ class AS_ADDR_OBJ_PARAMS extends XMLFile
     {
         $region = $this->getIntRegion();
 
-        if (in_array($values['TYPEID'], [6, 7, 10], true)) {
-            if (!empty($table->executeTemplate('getFirstObjectIdAddrObj', [$region, $values['OBJECTID']]))) {
-                $values['TYPEID'] = match ($values['TYPEID']) {
-                    6 => 'OKATO',
-                    7 => 'OKTMO',
-                    10 => 'KLADR',
-                };
+	    switch ($values['TYPEID']) {
+		    case 6:
+				$values['TYPEID'] = 'OKATO'; break;
+		    case 7:
+			    $values['TYPEID'] = 'OKTMO'; break;
+		    case 10:
+			    $values['TYPEID'] = 'KLADR'; break;
+		    default:
+				return;
+	    };
 
-                $values['REGION'] = $region;
+        if ($table->getFirstObjectIdAddrObj($region, $values['OBJECTID'])) {
+            $values['REGION'] = $region;
 
-                $table->forceInsert($values);
-            }
+            $table->forceInsert($values);
         }
     }
 

@@ -49,15 +49,15 @@ class AS_MUN_HIERARCHY extends XMLFile
     {
         $region = $this->getIntRegion();
 
-        if (isset($values['PARENTOBJID']) && !empty($table->executeTemplate('getIdAddrObj', [$region, $values['PARENTOBJID']]))) {
-            if (!empty($table->executeTemplate('getIdAddrObj', [$region, $values['OBJECTID']]))) {
+        if (isset($values['PARENTOBJID']) && $table->getIdAddrObj($region, $values['PARENTOBJID'])) {
+            if ($table->getIdAddrObj($region, $values['OBJECTID'])) {
                 $table->forceInsert([
                     $values['PARENTOBJID'],
                     $values['OBJECTID'],
                     null,
 	                $region,
                 ]);
-            } elseif (!empty($table->executeTemplate('getIdHouses', [$region, $values['OBJECTID']]))) {
+            } elseif ($table->getIdHouses($region, $values['OBJECTID'])) {
 	            $table->forceInsert([
                     $values['PARENTOBJID'],
                     null,

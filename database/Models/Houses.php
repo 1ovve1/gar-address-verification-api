@@ -17,8 +17,8 @@ class Houses extends QueryBuilder
 		return [
 			'getFirstObjectId' =>
 				Houses::select('region')
-					->where('region', '?')
-					->andWhere('objectid', '?')
+					->where('region')
+					->andWhere('objectid')
 					->limit(1),
 		];
 	}
