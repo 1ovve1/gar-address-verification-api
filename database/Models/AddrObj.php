@@ -25,6 +25,11 @@ class AddrObj extends QueryBuilder
 		];
 	}
 
+	public function getFirstObjectId(int $region, int $objectId): array
+	{
+		return $this->userStates['getFirstObjectId']
+			->execute([$region, $objectId]);
+	}
 //    /**
 //     * Return fields that need to create in model
 //     *

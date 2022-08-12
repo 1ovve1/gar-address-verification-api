@@ -29,6 +29,18 @@ class MunHierarchy extends QueryBuilder
 		];
 	}
 
+	public function getIdAddrObj(int $region, int $objectid): array
+	{
+		return $this->userStates['getIdAddrObj']
+			->execute([$region, $objectid]);
+	}
+
+	public function getIdHouses(int $region, int $objectid): array
+	{
+		return $this->userStates['getIdHouses']
+			->execute([$region, $objectid]);
+	}
+
 //    /**
 //     * Return fields that need to create in model
 //     *

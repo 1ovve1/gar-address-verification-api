@@ -23,6 +23,11 @@ class Houses extends QueryBuilder
 		];
 	}
 
+	public function getFirstObjectId(int $region, int $objectid): array
+	{
+		return $this->userStates['getFirstObjectId']
+			->execute([$region, $objectid]);
+	}
 //    /**
 //     * Return fields that need to create in model
 //     *
