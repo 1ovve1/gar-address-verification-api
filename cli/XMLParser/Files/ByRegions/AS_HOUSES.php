@@ -14,7 +14,12 @@ class AS_HOUSES extends XMLFile
 	 */
 	public static function getTable(): Houses
 	{
-		return new Houses();
+		return new Houses([
+			'objectid', 'housenum',
+			'addnum1', 'addnum2',
+			'id_housetype', 'id_addtype1',
+			'id_addtype2', 'region'
+		]);
 	}
 
 	/**

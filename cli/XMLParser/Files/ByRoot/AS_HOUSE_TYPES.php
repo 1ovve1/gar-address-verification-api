@@ -14,7 +14,7 @@ class AS_HOUSE_TYPES extends XMLFile
 	 */
 	public static function getTable(): mixed
 	{
-		return new Housetype();
+		return new Housetype(['id', 'short', 'disc']);
 	}
 
 	/**
@@ -24,7 +24,6 @@ class AS_HOUSE_TYPES extends XMLFile
 	{
 		$table->saveForceInsert();
 	}
-
 
 	/**
 	 * @inheritDoc

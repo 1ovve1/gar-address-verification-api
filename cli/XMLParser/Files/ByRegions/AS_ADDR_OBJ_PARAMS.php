@@ -14,7 +14,7 @@ class AS_ADDR_OBJ_PARAMS extends XMLFile
 	 */
 	public static function getTable(): AddrObjParams
 	{
-		return new AddrObjParams();
+		return new AddrObjParams(['objectid_addr', 'type', 'value', 'region']);
 	}
 
 	/**

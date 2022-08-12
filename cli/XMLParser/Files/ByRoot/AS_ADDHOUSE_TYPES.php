@@ -14,7 +14,7 @@ class AS_ADDHOUSE_TYPES extends XMLFile
 	 */
 	public static function getTable(): mixed
 	{
-		return new Addhousetype();
+		return new Addhousetype(['id', 'short', 'disc']);
 	}
 
 	/**

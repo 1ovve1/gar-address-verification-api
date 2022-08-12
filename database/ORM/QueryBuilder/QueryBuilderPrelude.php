@@ -31,10 +31,10 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	private readonly QueryTemplate $forceInsertTemplate;
 
 	/**
-	 * @param array<string>|null $fields
+	 * @param array<string> $fields
 	 * @param string|null $tableName
 	 */
-	public function __construct(?array $fields = null,
+	public function __construct(array $fields,
 	                            ?string $tableName = null)
 	{
 		$this->userStates = $this->prepareStates();
@@ -42,8 +42,6 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 		$db = DBFacade::getDBInstance();
 
 		$tableName ??= DBFacade::genTableNameByClassName(static::class);
-		$fields ??= static::getFields() ??
-			throw new \RuntimeException('Unknown model fields: please override getFields method or put $fields into constructor params');
 
 		$this->forceInsertTemplate = $db->getForceInsertTemplate(
 			tableName: $tableName,
@@ -60,15 +58,6 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	                                 ?string $anotherTable = null): array
 	{
 		return static::select($field, $anotherTable)->where($field, $value)->save();
-	}
-
-	/**
-	 * Can be overridden in static class for forceInsert option
-	 * @return ?array<string>
-	 */
-	protected static function getFields(): ?array
-	{
-		return null;
 	}
 
 	/**

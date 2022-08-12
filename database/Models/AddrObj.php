@@ -25,14 +25,6 @@ class AddrObj extends QueryBuilder
 		];
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	protected static function getFields(): ?array
-	{
-		return ['objectid', 'id_level', 'name', 'typename', 'region'];
-	}
-
 //    /**
 //     * Return fields that need to create in model
 //     *

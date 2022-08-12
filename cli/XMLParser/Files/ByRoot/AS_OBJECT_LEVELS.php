@@ -14,7 +14,7 @@ class AS_OBJECT_LEVELS extends XMLFile
 	 */
 	public static function getTable(): mixed
 	{
-		return new ObjLevels();
+		return new ObjLevels(['id', 'disc']);
 	}
 
 	/**
