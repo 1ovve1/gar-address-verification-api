@@ -2,7 +2,7 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Limit;
 
-use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecordImpl;
 
 abstract class LimitQuery extends ActiveRecordImpl
 {

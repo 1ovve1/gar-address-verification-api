@@ -2,7 +2,10 @@
 
 namespace DB\ORM\QueryBuilder;
 
+use DB\ORM\DBAdapter\QueryResult;
+use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 use DB\ORM\QueryBuilder\QueryTypes\{Delete\DeleteAble,
 	Delete\DeleteTrait,
 	Insert\InsertAble,
@@ -11,8 +14,6 @@ use DB\ORM\QueryBuilder\QueryTypes\{Delete\DeleteAble,
 	Select\SelectTrait,
 	Update\UpdateAble,
 	Update\UpdateTrait};
-use DB\ORM\QueryBuilder\Utils\ActiveRecord;
-use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
 
 /**
  * Common interface for query builder
@@ -20,10 +21,35 @@ use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
  * @phpstan-import-type DatabaseContract from \DB\ORM\DBAdapter\DBAdapter
  */
 abstract class QueryBuilderPrelude
-	extends ActiveRecordImpl
 	implements SelectAble, InsertAble, UpdateAble, DeleteAble, BuilderOptions
 {
 use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
+
+	/** @var ActiveRecord[] */
+	protected readonly array $userStates;
+	/** @var QueryTemplate - force insert template */
+	private readonly QueryTemplate $forceInsertTemplate;
+
+	/**
+	 * @param array<string> $fields
+	 * @param string|null $tableName
+	 */
+	public function __construct(array $fields = [],
+	                            ?string $tableName = null)
+	{
+		$this->userStates = $this->prepareStates();
+
+		$tableName ??= DBFacade::genTableNameByClassName(static::class);
+
+		if (!empty($fields)) {
+			$db = DBFacade::getDBInstance();
+			$this->forceInsertTemplate = $db->getForceInsertTemplate(
+				tableName: $tableName,
+				fields: $fields,
+				stagesCount: (int)$_ENV['DB_BUFF']
+			);
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -36,23 +62,46 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	}
 
 	/**
-	 * @inheritDoc
+	 * Here you can declare states that you want to use in your pseudo-model
+	 *
+	 * @return ActiveRecord[]
 	 */
-	public static function createStateIfNotExist(mixed $tryState, callable $stateInstruction): ActiveRecord
+	protected function prepareStates(): array
 	{
-		if (!($tryState instanceof ActiveRecord)) {
-			$tryCallback = $stateInstruction();
-			if (!($tryCallback instanceof ActiveRecord)) {
-				DBFacade::dumpException(
-					null,
-					'Callback should return ActiveRecord state, but return ' . gettype($tryCallback),
-					func_get_args()
-				);
-			}
-			$tryState = $tryCallback;
+		return [];
+	}
+
+	/**
+	 * Execute template by name
+	 * @param string $templateName
+	 * @param array<mixed> $queryArguments
+	 * @return array<mixed>|false|null
+	 */
+	public function __call(string $templateName, array $queryArguments)
+	{
+		$state = $this->userStates[$templateName] ?? null;
+
+		if (null === $state) {
+			throw new \RuntimeException('Unknown state');
 		}
 
-		return $tryState;
+		return $state->execute($queryArguments);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function forceInsert(array $values): QueryResult
+	{
+		return $this->forceInsertTemplate->exec($values);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function saveForceInsert(): QueryResult
+	{
+		return $this->forceInsertTemplate->save();
 	}
 
 

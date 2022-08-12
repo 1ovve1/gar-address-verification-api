@@ -4,7 +4,7 @@ namespace DB\ORM\QueryBuilder\QueryTypes\Update;
 
 use DB\ORM\QueryBuilder\QueryTypes\Where\WhereAble;
 use DB\ORM\QueryBuilder\QueryTypes\Where\WhereTrait;
-use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecordImpl;
 
 abstract class UpdateQuery
 	extends ActiveRecordImpl

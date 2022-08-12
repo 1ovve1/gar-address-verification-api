@@ -39,7 +39,9 @@ class ImplReaderVisitor implements
 
         $this->openXmlFile($extractedPath);
 
-        $this->parseXml($file);
+		$table = $file::getTable();
+        $this->parseXml($file, $table);
+		$file::callbackOperationWithTable($table);
 
         $this->closeReadSessionAndDeleteCache($extractedPath);
     }
@@ -67,29 +69,33 @@ class ImplReaderVisitor implements
         $this->xmlReader = $tryOpenXml;
     }
 
-    /**
-     * @param XMLFile $file
-     * @return void
-     */
-    private function parseXml(XMLFile &$file): void
+	/**
+	 * @param XMLFile $file
+	 * @param mixed $table
+	 * @return void
+	 */
+    private function parseXml(XMLFile &$file, mixed &$table): void
     {
         $elem = $file::getElement();
         $reader = $this->xmlReader;
 
         while ($reader->read()) {
             if ($reader->nodeType === XMLReader::ELEMENT && $reader->localName === $elem) {
-                self::handleElement($file, $reader);
+                self::handleElement($file, $reader, $table);
                 break;
             }
         }
     }
 
-    /**
-     * @param XMLFile $file
-     * @param XMLReader $readerFocusedOnCurrElem
-     * @return void
-     */
-    private static function handleElement(XMLFile &$file, XMLReader &$readerFocusedOnCurrElem): void
+	/**
+	 * @param XMLFile $file
+	 * @param XMLReader $readerFocusedOnCurrElem
+	 * @param mixed $table
+	 * @return void
+	 */
+    private static function handleElement(XMLFile &$file,
+                                          XMLReader &$readerFocusedOnCurrElem,
+                                          mixed &$table): void
     {
         $attributesOfElement = $file::getAttributes();
         $elemName = $file::getElement();
@@ -98,7 +104,7 @@ class ImplReaderVisitor implements
             $data = self::parseElement($attributesOfElement, $readerFocusedOnCurrElem);
 
             if (null !== $data) {
-                self::tryUploadDataInTable($file, $data);
+                self::tryUploadDataInTable($file, $table, $data);
             }
         } while ($readerFocusedOnCurrElem->next($elemName));
     }
@@ -165,16 +171,16 @@ class ImplReaderVisitor implements
             E_USER_WARNING);
     }
 
-    /**
-     * @param XMLFile $file
-     * @param Mixed[] $data
-     * @return void
-     * @throws RuntimeException
-     */
-    private static function tryUploadDataInTable(XMLFile &$file, array &$data): void
+	/**
+	 * @param XMLFile $file
+	 * @param mixed $table
+	 * @param Mixed[] $data
+	 * @return void
+	 */
+    private static function tryUploadDataInTable(XMLFile &$file, mixed &$table, array &$data): void
     {
         try {
-            $file->execDoWork($data);
+            $file->execDoWork($data, $table);
         } catch (\Throwable $e) {
             echo 'values that was tried to upload: ' . PHP_EOL;
             var_dump($data);

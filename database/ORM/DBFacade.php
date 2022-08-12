@@ -17,7 +17,7 @@ class DBFacade
 {
     /**
      * @var DBAdapter|null - database static object
-   */
+     */
     public static ?DBAdapter $instance = null;
 
     /**

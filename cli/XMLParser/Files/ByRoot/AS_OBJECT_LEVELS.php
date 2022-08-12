@@ -9,24 +9,34 @@ use CLI\XMLParser\Files\XMLFile;
 
 class AS_OBJECT_LEVELS extends XMLFile
 {
-    public function save(): void
-    {
-        ObjLevels::save();
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public static function getTable(): mixed
+	{
+		return new ObjLevels(['id', 'disc']);
+	}
 
-    /**
-     * return elements of xml document
-     * @return string elements names
-     */
+	/**
+	 * @inheritDoc
+	 */
+	public static function callbackOperationWithTable(mixed $table): void
+	{
+		$table->saveForceInsert();
+	}
+
+
+	/**
+	 * @inheritDoc
+	 */
     public static function getElement(): string
     {
         return 'OBJECTLEVEL';
     }
 
-    /**
-     * return attributes of elements in xml document
-     * @return array attributes names
-     */
+	/**
+	 * @inheritDoc
+	 */
     public static function getAttributes(): array
     {
         return [
@@ -39,10 +49,10 @@ class AS_OBJECT_LEVELS extends XMLFile
     /**
      * {@inheritdoc}
      */
-    public function execDoWork(array &$values): void
+    public function execDoWork(array &$values, mixed &$table): void
     {
         unset($values['ISACTIVE']);
 
-        ObjLevels::forceInsert($values);
+        $table->forceInsert($values);
     }
 }

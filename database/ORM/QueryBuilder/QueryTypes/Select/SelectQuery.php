@@ -10,7 +10,7 @@ use DB\ORM\QueryBuilder\QueryTypes\{Join\JoinAble,
 	OrderBy\OrderByTrait,
 	Where\WhereAble,
 	Where\WhereTrait};
-use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecordImpl;
 
 abstract class SelectQuery
 	extends ActiveRecordImpl

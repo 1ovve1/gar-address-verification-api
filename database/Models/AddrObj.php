@@ -9,37 +9,58 @@ use DB\ORM\QueryBuilder\QueryBuilder;
 
 class AddrObj extends QueryBuilder 
 {
-    /**
-     * Return fields that need to create in model
-     *
-     * @return array<string, string>|null
-     */
-    public function fieldsToCreate(): ?array
-    {
-        return [
-//            'id' =>
-//                'INT UNSIGNED NOT NULL',
 
-            'objectid' =>
-                'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
-        
-//            'objectguid' =>
-//                'CHAR(36) NOT NULL',
-    
-            'id_level' =>
-              'TINYINT UNSIGNED NOT NULL',
+	/**
+	 * @inheritDoc
+	 */
+	protected function prepareStates(): array
+	{
+		return [
+			'getFirstObjectId' =>
+				AddrObj::select('objectid')
+				->where('region')
+				->andWhere('objectid')
+				->limit(1),
 
-            'name' =>
-                'VARCHAR(255) NOT NULL',
-        
-            'typename' =>
-                'VARCHAR(31) NOT NULL',
+		];
+	}
 
-            'region' =>
-              'TINYINT UNSIGNED NOT NULL',
-    
-            'FOREIGN KEY (id_level)' =>
-              'REFERENCES obj_levels (id)',
-        ];
-    }
+	public function getFirstObjectId(int $region, int $objectId): array
+	{
+		return $this->userStates['getFirstObjectId']
+			->execute([$region, $objectId]);
+	}
+//    /**
+//     * Return fields that need to create in model
+//     *
+//     * @return array<string, string>|null
+//     */
+//    public function fieldsToCreate(): ?array
+//    {
+//        return [
+////            'id' =>
+////                'INT UNSIGNED NOT NULL',
+//
+//            'objectid' =>
+//                'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
+//
+////            'objectguid' =>
+////                'CHAR(36) NOT NULL',
+//
+//            'id_level' =>
+//              'TINYINT UNSIGNED NOT NULL',
+//
+//            'name' =>
+//                'VARCHAR(255) NOT NULL',
+//
+//            'typename' =>
+//                'VARCHAR(31) NOT NULL',
+//
+//            'region' =>
+//              'TINYINT UNSIGNED NOT NULL',
+//
+//            'FOREIGN KEY (id_level)' =>
+//              'REFERENCES obj_levels (id)',
+//        ];
+//    }
 }

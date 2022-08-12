@@ -6,8 +6,8 @@ use DB\ORM\QueryBuilder\QueryTypes\ContinueWhere\ContinueWhereAble;
 use DB\ORM\QueryBuilder\QueryTypes\ContinueWhere\ContinueWhereTrait;
 use DB\ORM\QueryBuilder\QueryTypes\Limit\LimitAble;
 use DB\ORM\QueryBuilder\QueryTypes\Limit\LimitTrait;
-use DB\ORM\QueryBuilder\Utils\ActiveRecord;
-use DB\ORM\QueryBuilder\Utils\ActiveRecordImpl;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecordImpl;
 
 abstract class WhereQuery
 	extends ActiveRecordImpl

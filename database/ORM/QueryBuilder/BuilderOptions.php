@@ -2,9 +2,10 @@
 
 namespace DB\ORM\QueryBuilder;
 
+use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\AbstractSQL\EndQuery;
-use DB\ORM\QueryBuilder\Utils\ActiveRecord;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
 
 /**
@@ -27,12 +28,18 @@ interface BuilderOptions
 	                                 ?string $anotherTable = null): array;
 
 	/**
-	 * Check if state $tryState exists and implement $stateInstruction if state does not exist
-	 * @param mixed $tryState
-	 * @param callable $stateInstruction
-	 * @return ActiveRecord
+	 * Doing force insert into table with huge SQL query
+	 *
+	 * @param array<DatabaseContract> $values - values for the force insert
+	 * @return QueryResult
 	 */
-	public static function createStateIfNotExist(mixed $tryState,
-	                                             callable $stateInstruction): ActiveRecord;
+	public function forceInsert(array $values): QueryResult;
+
+	/**
+	 * Save changes in forceInsert buffer
+	 *
+	 * @return QueryResult
+	 */
+	public function saveForceInsert(): QueryResult;
 
 }

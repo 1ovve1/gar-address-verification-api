@@ -3,7 +3,7 @@
 namespace DB\ORM\QueryBuilder\QueryTypes\Join;
 
 use DB\ORM\QueryBuilder\Templates\SQL;
-use DB\ORM\QueryBuilder\Utils\ActiveRecord;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
 class ImplLeftJoin extends JoinQuery
 {

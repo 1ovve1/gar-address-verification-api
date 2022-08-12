@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files;
 
-use DB\ORM\DBFacade;
-use DB\ORM\QueryBuilder\AbstractSQL\QueryModel;
-use DB\ORM\QueryBuilder\MetaTable;
-
 abstract class XMLFile
 {
     private string $fileName = '';
@@ -26,20 +22,6 @@ abstract class XMLFile
             $this->intRegion = (int) $region;
         }
     }
-
-	abstract function getTableName(): string;
-
-	function connectWithTable(): void
-	{
-		$db = DBFacade::getInstance();
-		$tableName = $this->getTableName();
-	}
-
-	/**
-	 * Operation that will be called after using this file
-	 * @return void
-	 */
-    abstract function save() : void;
 
     /**
      * @return string
@@ -109,11 +91,27 @@ abstract class XMLFile
      */
     abstract public static function getAttributes(): array;
 
+	/**
+	 * Here you declare table model that you want to use in your parser model
+	 *
+	 * @return mixed - db table accessor
+	 */
+	abstract public static function getTable(): mixed;
 
-    /**
-     * procedure that contains main operations from exec method
-     * @param array &$values current parse element
-     * @return void
-     */
-    abstract public function execDoWork(array &$values): void;
+	/**
+	 * Contains callback procedure that will be executed when file parse is done (using getTable() as argument)
+	 * Default do nothing
+	 * @param mixed $table - db table accessor from getTable()
+	 * @return void
+	 */
+	public static function callbackOperationWithTable(mixed $table): void
+	{}
+
+	/**
+	 * procedure that contains main operations from exec method
+	 * @param array<mixed> &$values - current parse element
+	 * @param mixed $table - table that you return int getTable() method
+	 * @return void
+	 */
+    abstract public function execDoWork(array &$values, mixed &$table): void;
 }
