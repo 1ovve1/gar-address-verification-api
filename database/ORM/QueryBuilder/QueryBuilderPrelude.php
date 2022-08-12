@@ -34,7 +34,7 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	 * @param array<string> $fields
 	 * @param string|null $tableName
 	 */
-	public function __construct(array $fields,
+	public function __construct(array $fields = [],
 	                            ?string $tableName = null)
 	{
 		$this->userStates = $this->prepareStates();
