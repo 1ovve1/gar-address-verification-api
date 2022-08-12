@@ -28,7 +28,7 @@ class CodeByObjectIdRepository extends BaseRepo
                 $code = $this->getCodeByObjectId($objectId, $type);
             }
         } else {
-            throw new RuntimeException('type of code not found');
+            throw new \RuntimeException('type of code not found');
         }
         return $code;
     }
@@ -66,8 +66,6 @@ class CodeByObjectIdRepository extends BaseRepo
      */
     public function getAllCodesByObjectId(int $objectId): array
     {
-        static $name = 'getAllCodes';
-
         $types = [
             Codes::OKATO->value,
             Codes::OKTMO->value,

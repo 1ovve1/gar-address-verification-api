@@ -26,7 +26,7 @@ abstract class QueryBuilderPrelude
 use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 
 	/** @var ActiveRecord[] */
-	private readonly array $userStates;
+	protected readonly array $userStates;
 	/** @var QueryTemplate - force insert template */
 	private readonly QueryTemplate $forceInsertTemplate;
 
@@ -39,15 +39,16 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	{
 		$this->userStates = $this->prepareStates();
 
-		$db = DBFacade::getDBInstance();
-
 		$tableName ??= DBFacade::genTableNameByClassName(static::class);
 
-		$this->forceInsertTemplate = $db->getForceInsertTemplate(
-			tableName: $tableName,
-			fields: $fields,
-			stagesCount: (int)$_ENV['DB_BUFF']
-		);
+		if (!empty($fields)) {
+			$db = DBFacade::getDBInstance();
+			$this->forceInsertTemplate = $db->getForceInsertTemplate(
+				tableName: $tableName,
+				fields: $fields,
+				stagesCount: (int)$_ENV['DB_BUFF']
+			);
+		}
 	}
 
 	/**

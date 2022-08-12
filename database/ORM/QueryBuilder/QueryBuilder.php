@@ -4,5 +4,4 @@ namespace DB\ORM\QueryBuilder;
 
 class QueryBuilder extends QueryBuilderPrelude
 {
-
 }

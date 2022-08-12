@@ -10,13 +10,10 @@ abstract class ActiveRecordImpl implements ActiveRecord
 {
 	/** @var QueryBox - query container */
 	public readonly QueryBox $queryBox;
-	/** @var QueryTemplate template of current queryBox */
-	public readonly QueryTemplate $state;
 
 	public function __construct(QueryBox $queryBox)
 	{
 		$this->queryBox = $queryBox;
-		$this->state = self::getState($queryBox);
 	}
 
 	/**
@@ -38,7 +35,8 @@ abstract class ActiveRecordImpl implements ActiveRecord
 	 */
 	public function execute(array $values): array|false|null
 	{
-		return $this->state->exec($values)->fetchAll();
+		$state = self::getState($this->queryBox);
+		return $state->exec($values)->fetchAll();
 	}
 
 	/**
@@ -46,7 +44,8 @@ abstract class ActiveRecordImpl implements ActiveRecord
 	 */
 	public function save(): array|false|null
 	{
-		return $this->state->exec($this->queryBox->dryArgs)->fetchAll();
+		$state = self::getState($this->queryBox);
+		return $state->exec($this->queryBox->dryArgs)->fetchAll();
 	}
 
 	/**

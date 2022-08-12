@@ -22,11 +22,11 @@ class AddressByNameRepository extends BaseRepo
     public function getFullAddress(array $halfAddress): array
     {
         $fullAddress = [];
-
+		$table = $this->getDatabase();
 
         if (count($halfAddress) === 1) {
             $singleName = $halfAddress[0];
-            $checkLikeAddress = $this->getLikeAddress($singleName);
+            $checkLikeAddress = $table->getLikeAddress($singleName);
             if (!empty($checkLikeAddress)) {
                 $fullAddress[][(empty($singleName)) ? 'variants' : $singleName] = $checkLikeAddress;
             }
@@ -34,7 +34,7 @@ class AddressByNameRepository extends BaseRepo
             $objectid = [];
 
             for ($parent = 0, $chiled = 1; $chiled < count($halfAddress); ++$parent, ++$chiled) {
-                $objectid = $this->getAddressObjectIdByName($halfAddress[$parent], $halfAddress[$chiled]);
+                $objectid = $table->getAddressObjectIdByName($halfAddress[$parent], $halfAddress[$chiled]);
                 if (count($objectid) === 1) {
                     break;
                 }
@@ -48,7 +48,7 @@ class AddressByNameRepository extends BaseRepo
                 $parentName = '';
 
                 for (; ; --$parent) {
-                    $parentCheck = $this->getParentNameByObjectId($upperChiledObjectId);
+                    $parentCheck = $table->getParentNameByObjectId($upperChiledObjectId);
 
                     if ($parent >= 0) {
                         $parentName = $halfAddress[$parent];
@@ -77,14 +77,14 @@ class AddressByNameRepository extends BaseRepo
                 $fullAddress = array_reverse($fullAddress);
 
                 //middle
-                $fullAddress[][$halfAddress[$chiled - 1]] = $this->getSingleNameByObjectId($pointObjectId);
+                $fullAddress[][$halfAddress[$chiled - 1]] = $table->getSingleNameByObjectId($pointObjectId);
 
                 // down
                 $downChiledObjectId = $pointObjectId;
 
                 for (; $chiled < count($halfAddress); ++$chiled) {
                     $chiledName = $halfAddress[$chiled];
-                    $chiledVariant = $this->getChiledNameByObjectIdAndName($downChiledObjectId, $chiledName);
+                    $chiledVariant = $table->getChiledNameByObjectIdAndName($downChiledObjectId, $chiledName);
                     if (count($chiledVariant) === 1 && $chiledName !== '') {
                         $fullAddress[][$chiledName] = $chiledVariant;
                         $downChiledObjectId = $this->getObjectIdAndRegionFromResult(end($fullAddress)[$chiledName]);
@@ -94,7 +94,7 @@ class AddressByNameRepository extends BaseRepo
                     }
                 }
                 if (!array_key_exists('variant', end($fullAddress))) {
-                    $housesCheck = $this->getHousesByObjectId($downChiledObjectId);
+                    $housesCheck = $table->getHousesByObjectId($downChiledObjectId);
                     if (!empty($housesCheck)) {
                         $fullAddress[]['houses'] = $housesCheck;
                     }
@@ -104,204 +104,6 @@ class AddressByNameRepository extends BaseRepo
 
 
         return $fullAddress;
-    }
-
-    /**
-     * Return singlename address name by objectud param of concrete address
-     * @param  int    $objectId - object id concrete address
-     * @return array<mixed>
-     */
-    public function getSingleNameByObjectId(int $objectId): array
-    {
-		return Database::select(
-			['addr' => ['name', 'typename', 'objectid']],
-			['addr' => 'addr_obj']
-		)->where(
-			['addr' => 'objectid'], $objectId
-		)->save();
-    }
-
-    /**
-     * Return chiled name of using parent objectid and chiled name fragment
-     * @param  int    $parentObjectId - parent address objectid
-     * @param  string $chiledName - chiled name fragment
-     * @return array<mixed>
-     */
-    protected function getChiledNameByObjectIdAndName(int $parentObjectId, string $chiledName): array
-    {
-
-		$state = Database::select(
-			['chiled' => ['name', 'typename', 'objectid']],
-			['mun' => 'mun_hierarchy']
-		)->innerJoin(
-			['chiled' => 'addr_obj'],
-			['chiled' => 'objectid', 'mun' => 'chiledobjid_addr']
-		)->where(
-			['mun' => 'parentobjid_addr'], $parentObjectId
-		)->andWhere(
-			fn($builder) =>
-			$builder->where(
-				"CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', "{$chiledName}%"
-			)->orWhere(
-				"CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', "{$chiledName}%"
-			)
-		);
-
-        return $state->save();
-    }
-
-    /**
-     * Return parent name using chiled address objectid
-     * @param int $chiledObjectId - chiled address objectid
-     * @return array<mixed>
-     */
-    protected function getParentNameByObjectId(int $chiledObjectId): array
-    {
-		return Database::select(
-			['parent' => ['name', 'typename', 'objectid']],
-			['mun' => 'mun_hierarchy']
-		)->innerJoin(
-			['parent' => 'addr_obj'],
-			['parent' => 'objectid', 'mun' => 'parentobjid_addr']
-		)->where(
-			['mun' => 'chiledobjid_addr'],
-			$chiledObjectId
-		)->save();
-    }
-
-    /**
-     * Return houses object id using parent address objectid
-     * @param  int    $objectId - parent address objectid
-     * @return array<mixed>
-     */
-    protected function getHousesByObjectId(int $objectId): array
-    {
-		return Database::select(
-			"TRIM(' ' FROM " .
-				"CONCAT(" .
-					"COALESCE(ht.short, ''), ' ', COALESCE(chiled.housenum, ''), ' ', " .
-					"COALESCE(addht1.short, ''), ' ', COALESCE(chiled.addnum1, ''), ' ', " .
-					"COALESCE(addht2.short, ''), ' ', COALESCE(chiled.addnum2, '')" .
-				")" .
-			") as house",
-			['mun' => 'mun_hierarchy']
-		)->innerJoin(
-			['chiled' => 'houses'],
-			['chiled' => 'objectid', 'mun' => 'chiledobjid_houses']
-		)->leftJoin(
-			['ht' => 'housetype'],
-			['ht' => 'id', 'chiled' => 'id_housetype']
-		)->leftJoin(
-			['addht1' => 'addhousetype'],
-			['addht1' => 'id', 'chiled' => 'id_addtype1']
-		)->leftJoin(
-			['addht2' => 'addhousetype'],
-			['addht2' => 'id', 'chiled' => 'id_addtype2']
-		)->where(
-			['mun' => 'parentobjid_addr'],
-			$objectId
-		)->save();
-    }
-
-    /**
-     * Return parent address object id by parent and chiled address name
-     * @param  string $parentName - parent address name
-     * @param  string $chiledName - chiled address name
-     * @return array<mixed>
-     */
-    protected function getAddressObjectIdByName(string $parentName, string $chiledName): array
-    {
-		return Database::select(
-			'DISTINCT(parent.objectid)',
-			['mun' => 'mun_hierarchy']
-		)->innerJoin(
-			['parent' => 'addr_obj'],
-			['parent' => 'objectid', 'mun' => 'parentobjid_addr']
-		)->leftJoin(
-			['chiled' => 'addr_obj'],
-			['chiled' => 'objectid', 'mun' => 'chiledobjid_addr']
-		)->where(
-			['parent' => 'id_level'],
-			'<=',
-	        LEVEL
-		)->andWhere(
-			fn($builder) =>
-			$builder->where(
-				fn($builder) =>
-				$builder->where(
-					"CONCAT(parent.name, ' ', parent.typename)",
-					'LIKE',
-					"{$parentName}%"
-				)->orWhere(
-					"CONCAT(parent.typename, ' ',parent.name)",
-					'LIKE',
-					"{$parentName}%"
-				)
-			)->andWhere(
-				fn($builder) =>
-				$builder->where(
-					"CONCAT(chiled.name, ' ', chiled.typename)",
-					'LIKE',
-					"{$chiledName}%"
-				)->orWhere(
-					"CONCAT(chiled.typename, ' ', chiled.name)",
-					'LIKE',
-					"{$chiledName}%"
-				)
-			)
-		)->limit(2)->save();
-    }
-
-    /**
-     * Return like address name by address name fragment
-     * @param  string $halfAddress - address name fragment
-     * @return array<mixed>
-     */
-    protected function getLikeAddress(string $halfAddress): array
-    {
-		return Database::select(
-			['addr' => ['name', 'typename', 'objectid']],
-			['addr' => 'addr_obj']
-		)->where(
-			['addr' => 'id_level'],
-			'<=',
-			LEVEL
-		)->andWhere(
-			fn($builder) =>
-			$builder->where(
-				"CONCAT(addr.name, ' ', addr.typename)",
-				'LIKE',
-				"{$halfAddress}%"
-			)->orWhere(
-				"CONCAT(addr.typename, ' ', addr.name)",
-				'LIKE',
-				"{$halfAddress}%"
-			)
-		)->limit(100)->save();
-    }
-
-    /**
-     * Return imploded address name + typename string
-     * @param  array<string, array<int, array<mixed>>> $address - address array
-     * @return string
-     */
-    protected function getFullAddressByArray(array $address): string
-    {
-        $formatted = [];
-        foreach (array_reverse($address) as $contains) {
-            if (count($contains) > 1) {
-                continue;
-            }
-            foreach ($contains as $elem) {
-                if (
-          array_key_exists('name', $elem) && array_key_exists('typename', $elem)
-        ) {
-                    $formatted[] = implode(' ', [$elem['name'], $elem['typename']]);
-                }
-            }
-        }
-
-        return implode(', ', $formatted);
     }
 
     /**
