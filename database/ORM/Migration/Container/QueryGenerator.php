@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace DB\ORM\QueryBuilder\Container;
+namespace DB\ORM\Migration\Container;
 
 use InvalidArgumentException;
 

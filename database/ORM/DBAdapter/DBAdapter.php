@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DB\ORM\DBAdapter;
 
-use DB\ORM\QueryBuilder\Container\Query;
+use DB\ORM\Migration\Container\Query;
 
 /**
  * Common interface for databse connection
