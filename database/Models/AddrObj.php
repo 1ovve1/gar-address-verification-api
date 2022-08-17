@@ -33,9 +33,9 @@ class AddrObj extends QueryBuilder implements MigrateAble
 	{
 		return [
 			'fields' => [
-				'id'            => 'INT UNSIGNED NOT NULL',
+//				'id'            => 'INT UNSIGNED NOT NULL',
 				'objectid'      => 'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
-	            'objectguid'    => 'CHAR(36) NOT NULL',
+//	            'objectguid'    => 'CHAR(36) NOT NULL',
 				'id_level'      => 'TINYINT UNSIGNED NOT NULL',
 				'name'          => 'VARCHAR(255) NOT NULL',
 				'typename'      => 'VARCHAR(31) NOT NULL',

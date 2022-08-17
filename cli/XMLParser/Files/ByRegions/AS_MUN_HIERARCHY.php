@@ -13,7 +13,7 @@ class AS_MUN_HIERARCHY extends XMLFile
 	 */
 	public static function getTable(): MunHierarchy
 	{
-		return new MunHierarchy(['parentobjid_addr', 'chiledobjid_addr', 'chiledobjid_houses', 'region']);
+		return new MunHierarchy();
 	}
 
 	/**

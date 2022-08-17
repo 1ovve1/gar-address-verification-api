@@ -17,7 +17,7 @@ class AS_ADDR_OBJ extends XMLFile
 	 */
 	public static function getTable(): AddrObj
 	{
-		return new AddrObj(['objectid', 'id_level', 'name', 'typename', 'region']);
+		return new AddrObj();
 	}
 
 	/**

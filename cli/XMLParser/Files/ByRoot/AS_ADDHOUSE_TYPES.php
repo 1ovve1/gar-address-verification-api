@@ -15,7 +15,7 @@ class AS_ADDHOUSE_TYPES extends XMLFile
 	 */
 	public static function getTable(): QueryBuilder
 	{
-		return new Addhousetype(['id', 'short', 'disc']);
+		return new Addhousetype();
 	}
 
 	/**

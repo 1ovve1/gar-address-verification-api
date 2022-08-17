@@ -15,7 +15,7 @@ class AS_OBJECT_LEVELS extends XMLFile
 	 */
 	public static function getTable(): QueryBuilder
 	{
-		return new ObjLevels(['id', 'disc']);
+		return new ObjLevels();
 	}
 
 	/**
