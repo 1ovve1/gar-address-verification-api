@@ -39,7 +39,7 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	{
 		$this->userStates = $this->prepareStates();
 
-		$tableName ??= DBFacade::genTableNameByClassName(static::class);
+		$tableName ??= self::getTableName();
 
 		if (!empty($fields)) {
 			$db = DBFacade::getDBInstance();
@@ -102,6 +102,14 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	public function saveForceInsert(): QueryResult
 	{
 		return $this->forceInsertTemplate->save();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	static function getTableName(): string
+	{
+		return DBFacade::genTableNameByClassName(static::class);
 	}
 
 

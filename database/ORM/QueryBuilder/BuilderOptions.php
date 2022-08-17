@@ -23,9 +23,9 @@ interface BuilderOptions
 	 * @param  string|null $anotherTable - table name
 	 * @return array<mixed>
 	 */
-	public static function findFirst(string $field,
-	                                 mixed $value,
-	                                 ?string $anotherTable = null): array;
+	static function findFirst(string $field,
+                              mixed $value,
+                              ?string $anotherTable = null): array;
 
 	/**
 	 * Doing force insert into table with huge SQL query
@@ -33,13 +33,17 @@ interface BuilderOptions
 	 * @param array<DatabaseContract> $values - values for the force insert
 	 * @return QueryResult
 	 */
-	public function forceInsert(array $values): QueryResult;
+	function forceInsert(array $values): QueryResult;
 
 	/**
 	 * Save changes in forceInsert buffer
 	 *
 	 * @return QueryResult
 	 */
-	public function saveForceInsert(): QueryResult;
+	function saveForceInsert(): QueryResult;
 
+	/**
+	 * @return string - table name of current pseudo-model
+	 */
+	static function getTableName(): string;
 }

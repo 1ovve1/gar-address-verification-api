@@ -18,7 +18,7 @@ trait SelectTrait
 			"array" => DBFacade::fieldsWithPseudonymsToString($fields)
 		};
 		$anotherTables = match(gettype($anotherTables)) {
-			"NULL" => DBFacade::genTableNameByClassName(static::class),
+			"NULL" => self::getTableName(),
 			"string" => $anotherTables,
 			"array" => DBFacade::tableNamesWithPseudonymsToString($anotherTables)
 		};

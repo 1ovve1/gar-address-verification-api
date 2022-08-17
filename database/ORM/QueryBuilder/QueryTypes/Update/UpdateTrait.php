@@ -10,7 +10,7 @@ trait UpdateTrait
 	                              float|int|bool|string|null $value,
 	                              ?string $tableName = null): UpdateQuery
 	{
-		$tableName ??= DBFacade::genTableNameByClassName(static::class);
+		$tableName ??= self::getTableName();
 		return new ImplUpdate($field, $value, $tableName);
 	}
 }
