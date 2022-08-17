@@ -6,6 +6,7 @@ namespace CLI\XMLParser\Files\ByRegions;
 
 use DB\Models\Houses;
 use CLI\XMLParser\Files\XMLFile;
+use DB\ORM\QueryBuilder\QueryBuilder;
 
 class AS_HOUSES extends XMLFile
 {
@@ -25,7 +26,7 @@ class AS_HOUSES extends XMLFile
 	/**
 	 * @inheritDoc
 	 */
-	public static function callbackOperationWithTable(mixed $table): void
+	public static function callbackOperationWithTable(QueryBuilder $table): void
 	{
 		$table->saveForceInsert();
 	}
@@ -61,7 +62,7 @@ class AS_HOUSES extends XMLFile
 	/**
 	 * {@inheritDoc}
 	 */
-    public function execDoWork(array &$values, mixed &$table): void
+    public function execDoWork(array &$values, QueryBuilder &$table): void
     {
         $region = $this->getIntRegion();
 

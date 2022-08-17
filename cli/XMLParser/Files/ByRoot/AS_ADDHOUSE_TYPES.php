@@ -6,13 +6,14 @@ namespace CLI\XMLParser\Files\ByRoot;
 
 use DB\Models\Addhousetype;
 use CLI\XMLParser\Files\XMLFile;
+use DB\ORM\QueryBuilder\QueryBuilder;
 
 class AS_ADDHOUSE_TYPES extends XMLFile
 {
 	/**
 	 * @inheritDoc
 	 */
-	public static function getTable(): mixed
+	public static function getTable(): QueryBuilder
 	{
 		return new Addhousetype(['id', 'short', 'disc']);
 	}
@@ -20,7 +21,7 @@ class AS_ADDHOUSE_TYPES extends XMLFile
 	/**
 	 * @inheritDoc
 	 */
-	public static function callbackOperationWithTable(mixed $table): void
+	public static function callbackOperationWithTable(QueryBuilder $table): void
 	{
 		$table->saveForceInsert();
 	}
@@ -48,7 +49,7 @@ class AS_ADDHOUSE_TYPES extends XMLFile
 	/**
 	 * @inheritDoc
 	 */
-    public function execDoWork(array &$values, mixed &$table): void
+    public function execDoWork(array &$values, QueryBuilder &$table): void
     {
         $table->forceInsert($values);
     }
