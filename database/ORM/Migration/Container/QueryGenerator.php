@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DB\ORM\Migration\Container;
 
+use DB\ORM\QueryBuilder\QueryBuilder;
 use InvalidArgumentException;
 
 /**
@@ -78,7 +79,7 @@ class QueryGenerator implements QueryFactory
     /**
      * Make create table if exists query string
      * @param string $tableName - name of table
-     * @param array<string, array<string, string>> $fieldsWithParams - fields with params
+     * @param array<string, array<string, string|String[]>> $fieldsWithParams - fields with params
      * @return string - query string
      */
     public static function makeCreateTableQuery(string $tableName, array $fieldsWithParams): string
@@ -91,8 +92,8 @@ class QueryGenerator implements QueryFactory
         foreach ($fieldsWithParams as $type => $params) {
 
             $formattedFields[$type] = match($type) {
-	            'fields' =>  self::parseParamsByTemplate('%s %s, ', $params),
-	            'foreign' => self::parseParamsByTemplate('FOREIGN KEY (%s) REFERENCES %s, ', $params),
+	            'fields' =>  self::parseFieldsParams($params),
+	            'foreign' => self::parseForeignParams($params),
 				default => ''
 			};
         }
@@ -106,22 +107,66 @@ class QueryGenerator implements QueryFactory
     }
 
 	/**
-	 * @param string $template
 	 * @param array<string, string> $params
 	 * @return string
 	 */
-	protected static function parseParamsByTemplate(string $template, array $params): string
+	protected static function parseFieldsParams(array $params): string
 	{
 		$result = '';
 
 		foreach ($params as $index => $param) {
 			$result .= sprintf(
-				$template,
+				'%s %s, ',
 				$index,
 				$param
 			);
 		}
 
 		return substr($result, 0, -2);
+	}
+
+	/**
+	 * @param array<string, string|String[]> $params
+	 * @return string
+	 */
+	protected static function parseForeignParams(array $params): string
+	{
+		$result = '';
+
+		foreach ($params as $index => $param) {
+			if (is_array($param)) {
+				$param = self::handleForeignKeyArrayParam($param);
+			}
+
+			$result .= sprintf(
+				'FOREIGN KEY (%s) REFERENCES %s, ',
+				$index,
+				$param
+			);
+		}
+
+		return substr($result, 0, -2);
+	}
+
+	/**
+	 * @param String[] $param
+	 * @return string
+	 */
+	private static function handleForeignKeyArrayParam(array $param): string
+	{
+		if(count($param) === 2 && is_a(current($param), QueryBuilder::class, true)) {
+			[$className, $field] = array_values($param);
+
+			return sprintf(
+				'%s (%s)',
+				call_user_func($className . '::getTableName'), $field
+			);
+		}
+
+		echo "incorrect syntax: you should use 'foreign' => ['field' => [ClassName::class, 'foreign_field']] template " .
+			 "but we have: " . PHP_EOL;
+
+		var_dump($param);
+		exit('abort');
 	}
 }

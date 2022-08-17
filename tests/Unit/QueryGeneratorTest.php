@@ -16,7 +16,7 @@ class QueryGeneratorTest extends TestCase
 			'id_addr' => 'INT'
 		],
 		'foreign' => [
-			'id_addr' => 'addr_obj (id)'
+			'id_addr' => [\DB\Models\AddrObj::class, 'id']
 		]
 	];
 
