@@ -3,6 +3,7 @@
 namespace DB\ORM\Migration;
 
 use DB\ORM\DBAdapter\DBAdapter;
+use RuntimeException;
 
 interface Migration
 {
@@ -11,7 +12,7 @@ interface Migration
 	 *
 	 * @param DBAdapter $db
 	 * @param string $tableName
-	 * @param array<string, string|array<string, string>> $paramsToCreate
+	 * @param array<string, array<string, string>> $paramsToCreate
 	 * @return bool
 	 */
 	static function migrate(DBAdapter $db,
@@ -23,6 +24,7 @@ interface Migration
 	 *
 	 * @param DBAdapter $db
 	 * @param string $className
+	 * @throws RuntimeException - if className not implement MigrateAble or not exists
 	 * @return bool
 	 */
 	static function migrateFromMigrateAble(DBAdapter $db, string $className): bool;
@@ -39,7 +41,7 @@ interface Migration
 	 * Immutable migrate function
 	 *
 	 * @param string $tableName
-	 * @param array<string, string|array<string, string>> $paramsToCreate
+	 * @param array<string, array<string, string>> $paramsToCreate
 	 * @return bool
 	 */
 	function doMigrate(string $tableName,
@@ -49,6 +51,7 @@ interface Migration
 	 * Immutable migrate function using object that implement MigrateAble interface
 	 *
 	 * @param string $className
+	 * @throws RuntimeException - if className not implement MigrateAble or not exists
 	 * @return bool
 	 */
 	function doMigrateFromMigrateAble(string $className): bool;

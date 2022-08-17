@@ -16,10 +16,7 @@ interface QueryFactory
      * @param callable|null $validate - validate callback
      * @return Query
      */
-    public static function customQuery(
-        string $query,
-        ?callable $validate = null
-    ): Query;
+    public static function customQuery(string $query,?callable $validate = null): Query;
 
     /**
      * Generate describe query (probably work only in mysql?)
@@ -29,17 +26,14 @@ interface QueryFactory
      */
     public static function genMetaQuery(string $tableName): Query;
 
-    /**
-     * Generate create table if exists query
-     *
-     * @param string $tableName - name of table
-     * @param array<string,string> $fieldsWithParams - fields and their params
-     * @return Query - query object
-     */
-    public static function genCreateTableQuery(
-        string $tableName,
-        array $fieldsWithParams
-    ): Query;
+	/**
+	 * Generate create table if exists query
+	 *
+	 * @param string $tableName - name of table
+	 * @param array<string, array<string, string>> $params
+	 * @return Query - query object
+	 */
+    public static function genCreateTableQuery(string $tableName, array $params): Query;
 
     /**
      * Return show tables query

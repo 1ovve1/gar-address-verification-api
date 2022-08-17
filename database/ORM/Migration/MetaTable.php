@@ -1,168 +1,133 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace DB\ORM\Migration;
 
 use DB\ORM\DBAdapter\DBAdapter;
-use DB\ORM\Migration\Container\{QueryGenerator, QueryFactory};
+use DB\ORM\DBAdapter\QueryResult;
+use DB\ORM\DBFacade;
+use DB\ORM\Migration\Container\{Query, QueryGenerator};
+use RuntimeException;
 
 /**
  * Meta table object, that doing all manipulation like creating table, get meta data and other
  *
  */
-class MetaTable
+class MetaTable implements Migration
 {
 	/**
-	 * @var DBAdapter - database object
-	 */
-	private readonly DBAdapter $db;
-	/**
-	 * @var string - name of table
-	 */
-	private readonly string $tableName;
-	/**
-	 * @var array<mixed> $fields - table fields
-	 */
-	private array $fields;
-	/**
-	 * @var array<mixed> $metaInfo - full information about table
-	 */
-	private readonly array $metaInfo;
-	/**
-	 * @var QueryFactory - factory of sql queries
-	 */
-	private readonly QueryFactory $factory;
-
-	/**
 	 * @param DBAdapter $db - database adapter connection
-	 * @param string $tableName - name of table
-	 * @param array<string, string>|null $createOption - option for create table
 	 */
-	public function __construct(
-		DBAdapter $db,
-		string $tableName,
-		?array $createOption = null
-	) {
-		$this->db = $db;
-		$this->tableName = $tableName;
-		$this->factory = new QueryGenerator();
-		if ($createOption !== null) {
-			$this->createTable($tableName, $createOption);
+	private function __construct(
+		/**
+		 * @var DBAdapter - database object
+		 */
+		private readonly DBAdapter $db
+	) {}
+
+	/**
+	 * @inheritDoc
+	 */
+	static function migrate(DBAdapter $db, string $tableName, array $paramsToCreate = []): bool
+	{
+		if (self::tableExistsCheck($db, $tableName)) {
+			echo sprintf('Table %s already exists' . PHP_EOL, $tableName);
+			return false;
 		}
 
-		$meta = $this->getMetaInfoAndFields($tableName);
-		$this->metaInfo = $meta['metaInfo'];
-		$this->fields = $meta['fields'];
+		$container = QueryGenerator::genCreateTableQuery($tableName, $paramsToCreate);
+		return self::executeContainer($db, $container);
 	}
 
 	/**
-	 * Getting meta info from table meta (only for mysql)
-	 *
-	 * @param string $tableName - name of table
-	 * @return array{metaInfo: array<mixed>, fields: array<mixed>}
+	 * @inheritDoc
 	 */
-	private function getMetaInfoAndFields(string $tableName): array
+	static function migrateFromMigrateAble(DBAdapter $db, string $className): bool
 	{
-		$query = $this->getFactory()->genMetaQuery($tableName);
+		self::checkMigrateAble($className);
 
-		$metaInfo = $this->getDb()->rawQuery($query)->fetchAll($this->getDb()::PDO_F_ALL);
-		$tableFields = $this->getDb()->rawQuery($query)->fetchAll($this->getDb()::PDO_F_COL);
+		$tableName = DBFacade::genTableNameByClassName($className);
+		$paramsToCreate = call_user_func($className . '::migrationParams');
 
-		foreach ($metaInfo as $field) {
-			if (!empty($field['Extra'])) {
-				$tableFields = array_diff($tableFields, [$field['Field']]);
-			}
+		if (self::tableExistsCheck($db, $tableName)) {
+			echo sprintf('Table %s already exists' . PHP_EOL, $tableName);
+			return false;
 		}
-		return [
-			'metaInfo' => $metaInfo,
-			'fields' => $tableFields,
-		];
+
+		$container = QueryGenerator::genCreateTableQuery(
+			$tableName, $paramsToCreate
+		);
+
+		return self::executeContainer($db, $container);
 	}
 
 	/**
-	 * Create table using curr connected, name of table and fields
-	 *
-	 * @param string $tableName - name of table
-	 * @param array<string, string> $fieldsToCreate - fields and their params
-	 * @return void
+	 * @inheritDoc
 	 */
-	private function createTable(string $tableName, array $fieldsToCreate): void
+	static function createImmutable(DBAdapter $db): Migration
 	{
-		if ($this->tableExistsAndDropCheck($tableName)) {
-			return;
-		}
-
-		$this->getDb()->rawQuery($this->getFactory()->genCreateTableQuery(
-			$this->getTableName(),
-			$fieldsToCreate
-		));
+		return new self($db);
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	function doMigrate(string $tableName, array $paramsToCreate = []): bool
+	{
+		return self::migrate($this->db, $tableName, $paramsToCreate);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	function doMigrateFromMigrateAble(string $className): bool
+	{
+		return self::migrateFromMigrateAble($this->db, $className);
+	}
+
+	private static function executeContainer(DBAdapter $db, Query $container): bool
+	{
+		try {
+			$db->rawQuery($container);
+		} catch(RuntimeException $exception) {
+			echo sprintf('cant create table by this SQL: %s (maybe table already exists)' . PHP_EOL, $container->getRawSQL());
+
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Check if the class name implements a MigrateAbleInterface
+	 *
+	 * @param string $className
+	 */
+	private static function checkMigrateAble(string $className) : void
+	{
+		$classExists = class_exists($className);
+		$migrateAble = is_a($className, MigrateAble::class, true);
+		if (false === ($classExists && $migrateAble)) {
+			throw new RuntimeException(sprintf('class %s should implement %s for migration', $className, MigrateAble::class));
+		}
+	}
+
 
 	/**
 	 * Check table existing and ask user to drop it if exist
 	 *
+	 * @param DBAdapter $db
 	 * @param string $tableName - name of table
 	 * @return bool
-	 * @throws \RuntimeException
 	 */
-	protected function tableExistsAndDropCheck(string $tableName): bool
+	private static function tableExistsCheck(DBAdapter $db, string $tableName): bool
 	{
-		$connection = $this->getDb();
-		$tableList = $connection
-			->rawQuery($this->getFactory()->genShowTableQuery())
-			->fetchAll($this->getDb()::PDO_F_COL);
+		$container = QueryGenerator::genShowTableQuery();
+		$tableList = $db->rawQuery($container)->fetchAll(QueryResult::PDO_F_COL);
+
 
 		if (!is_array($tableList)) {
-			throw new \RuntimeException('MetaTable error: $tableList should return array, ' . gettype($tableList) . " given");
+			throw new RuntimeException('MetaTable error: $tableList should return array, ' . gettype($tableList) . " given");
 		}
 
 		return in_array($tableName, $tableList, true);
-	}
-
-	/**
-	 * Return name of table
-	 * @return string - name of table
-	 */
-	public function getTableName(): string
-	{
-		return $this->tableName;
-	}
-
-	/**
-	 * Return mta info about table
-	 *
-	 * @return array<mixed> - meta info about table
-	 */
-	public function getMetaInfo(): array
-	{
-		return $this->metaInfo;
-	}
-
-	/**
-	 * Return fields for curr table
-	 * @return array<mixed> - fields
-	 */
-	public function getFields(): array
-	{
-		return $this->fields;
-	}
-
-	/**
-	 * Return database connection
-	 * @return DBAdapter
-	 */
-	protected function getDb(): DBAdapter
-	{
-		return $this->db;
-	}
-
-	/**
-	 * Return SQLGenerator
-	 * @return QueryFactory
-	 */
-	protected function getFactory(): QueryFactory
-	{
-		return $this->factory;
 	}
 }

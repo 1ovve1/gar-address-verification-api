@@ -39,20 +39,15 @@ class QueryGenerator implements QueryFactory
     }
 
     /**
-     * Generate create table if exists query
-     *
-     * @param string $tableName - name of table
-     * @param array<string, string> $fieldsWithParams - fields and their params
-     * @return Query - query object
+     * {@inheritDoc}
      */
-    public static function genCreateTableQuery(
-        string $tableName,
-        array $fieldsWithParams
-    ): Query {
+    public static function genCreateTableQuery(string $tableName,
+                                               array $params): Query
+    {
         return (new QueryObject())
-      ->setType(QueryTypes::META)
-      ->setRawSql(self::makeCreateTableQuery($tableName, $fieldsWithParams))
-      ->validate(fn () => true);
+	      ->setType(QueryTypes::META)
+	      ->setRawSql(self::makeCreateTableQuery($tableName, $params))
+	      ->validate(fn () => true);
     }
 
     /**
@@ -83,30 +78,50 @@ class QueryGenerator implements QueryFactory
     /**
      * Make create table if exists query string
      * @param string $tableName - name of table
-     * @param array<string, string> $fieldsWithParams - fields with params
+     * @param array<string, array<string, string>> $fieldsWithParams - fields with params
      * @return string - query string
      */
     public static function makeCreateTableQuery(string $tableName, array $fieldsWithParams): string
     {
-        $formattedFields = [];
+        $formattedFields = [
+			'fields' => '',
+	        'foreign' => '',
+        ];
 
-        foreach ($fieldsWithParams as $field => $params) {
-            if (empty($params)) {
-                throw new InvalidArgumentException(sprintf(
-                    "field %s should contains type params!",
-                    $field
-                ));
-            }
-            $formattedFields[] = sprintf(
-                "%s %s",
-                $field,
-                $params
-            );
+        foreach ($fieldsWithParams as $type => $params) {
+
+            $formattedFields[$type] = match($type) {
+	            'fields' =>  self::parseParamsByTemplate('%s %s, ', $params),
+	            'foreign' => self::parseParamsByTemplate('FOREIGN KEY (%s) REFERENCES %s, ', $params),
+				default => ''
+			};
         }
+
         return sprintf(
-            'DROP TABLE IF EXISTS %1$s; CREATE TABLE %1$s (%2$s)',
+            'CREATE TABLE %1$s (%2$s%3$s)',
             $tableName,
-            implode(', ', $formattedFields)
+            $formattedFields['fields'],
+	        (empty($formattedFields['foreign'])) ? '': ', ' . $formattedFields['foreign']
         );
     }
+
+	/**
+	 * @param string $template
+	 * @param array<string, string> $params
+	 * @return string
+	 */
+	protected static function parseParamsByTemplate(string $template, array $params): string
+	{
+		$result = '';
+
+		foreach ($params as $index => $param) {
+			$result .= sprintf(
+				$template,
+				$index,
+				$param
+			);
+		}
+
+		return substr($result, 0, -2);
+	}
 }
