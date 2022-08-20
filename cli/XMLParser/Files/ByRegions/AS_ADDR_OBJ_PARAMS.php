@@ -6,6 +6,7 @@ namespace CLI\XMLParser\Files\ByRegions;
 
 use CLI\XMLParser\Files\XMLFile;
 use DB\Models\AddrObjParams;
+use DB\ORM\QueryBuilder\QueryBuilder;
 
 class AS_ADDR_OBJ_PARAMS extends XMLFile
 {
@@ -14,13 +15,13 @@ class AS_ADDR_OBJ_PARAMS extends XMLFile
 	 */
 	public static function getTable(): AddrObjParams
 	{
-		return new AddrObjParams(['objectid_addr', 'type', 'value', 'region']);
+		return new AddrObjParams();
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public static function callbackOperationWithTable(mixed $table): void
+	public static function callbackOperationWithTable(QueryBuilder $table): void
 	{
 		$table->saveForceInsert();
 	}
@@ -48,7 +49,7 @@ class AS_ADDR_OBJ_PARAMS extends XMLFile
 	/**
 	 * {@inheritDoc}
 	 */
-    public function execDoWork(array &$values, mixed &$table): void
+    public function execDoWork(array &$values, QueryBuilder &$table): void
     {
         $region = $this->getIntRegion();
 

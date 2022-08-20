@@ -10,7 +10,7 @@ trait InsertTrait
 	                              ?string $tableName = null): InsertQuery
 	{
 		[$fields, $values] = prepareArgsIntoFieldsAndValues($fields_values);
-		$tableName ??= DBFacade::genTableNameByClassName(static::class);
+		$tableName ??= self::getTableName();
 
 		return new ImplInsert($fields, $values, $tableName);
 	}

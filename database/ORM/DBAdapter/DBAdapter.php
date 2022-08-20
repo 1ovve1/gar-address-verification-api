@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DB\ORM\DBAdapter;
 
-use DB\ORM\QueryBuilder\Container\Query;
+use DB\ORM\Migration\Container\Query;
 
 /**
  * Common interface for databse connection
@@ -13,9 +13,6 @@ use DB\ORM\QueryBuilder\Container\Query;
  */
 interface DBAdapter
 {
-	public const PDO_F_ALL = \PDO::FETCH_ASSOC;
-	public const PDO_F_COL = \PDO::FETCH_COLUMN;
-
 	/**
 	 * Execute custom query container
 	 *

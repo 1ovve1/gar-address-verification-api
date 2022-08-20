@@ -17,13 +17,13 @@ class AS_ADDR_OBJ extends XMLFile
 	 */
 	public static function getTable(): AddrObj
 	{
-		return new AddrObj(['objectid', 'id_level', 'name', 'typename', 'region']);
+		return new AddrObj();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function callbackOperationWithTable(mixed $table): void
+	public static function callbackOperationWithTable(QueryBuilder $table): void
 	{
 		$table->saveForceInsert();
 	}
@@ -56,7 +56,7 @@ class AS_ADDR_OBJ extends XMLFile
 	/**
 	 * {@inheritDoc}
 	 */
-    public function execDoWork(array &$values, mixed &$table): void
+    public function execDoWork(array &$values, QueryBuilder &$table): void
     {
         $region = $this->getIntRegion();
 

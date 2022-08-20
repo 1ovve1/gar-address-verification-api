@@ -4,6 +4,9 @@ namespace DB\ORM\DBAdapter;
 
 interface QueryResult
 {
+	public const PDO_F_ALL = \PDO::FETCH_ASSOC;
+	public const PDO_F_COL = \PDO::FETCH_COLUMN;
+
 	/**
 	 * Fetching last query by special flag
 	 *

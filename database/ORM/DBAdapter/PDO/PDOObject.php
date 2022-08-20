@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DB\ORM\DBAdapter\PDO;
 
 use DB\ORM\DBAdapter\{DBAdapter, QueryResult, QueryTemplate};
-use DB\ORM\QueryBuilder\Container\Query;
+use DB\ORM\Migration\Container\Query;
 use PDO;
 use RuntimeException;
 

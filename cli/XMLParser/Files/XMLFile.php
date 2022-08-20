@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files;
 
+use DB\ORM\QueryBuilder\QueryBuilder;
+
 abstract class XMLFile
 {
     private string $fileName = '';
@@ -94,24 +96,24 @@ abstract class XMLFile
 	/**
 	 * Here you declare table model that you want to use in your parser model
 	 *
-	 * @return mixed - db table accessor
+	 * @return QueryBuilder - db table accessor
 	 */
-	abstract public static function getTable(): mixed;
+	abstract public static function getTable(): QueryBuilder;
 
 	/**
 	 * Contains callback procedure that will be executed when file parse is done (using getTable() as argument)
 	 * Default do nothing
-	 * @param mixed $table - db table accessor from getTable()
+	 * @param QueryBuilder $table - db table accessor from getTable()
 	 * @return void
 	 */
-	public static function callbackOperationWithTable(mixed $table): void
+	public static function callbackOperationWithTable(QueryBuilder $table): void
 	{}
 
 	/**
 	 * procedure that contains main operations from exec method
 	 * @param array<mixed> &$values - current parse element
-	 * @param mixed $table - table that you return int getTable() method
+	 * @param QueryBuilder $table - table that you return int getTable() method
 	 * @return void
 	 */
-    abstract public function execDoWork(array &$values, mixed &$table): void;
+    abstract public function execDoWork(array &$values, QueryBuilder &$table): void;
 }

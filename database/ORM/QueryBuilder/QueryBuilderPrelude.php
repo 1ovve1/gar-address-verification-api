@@ -5,6 +5,7 @@ namespace DB\ORM\QueryBuilder;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;
+use DB\ORM\Migration\MigrateAble;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 use DB\ORM\QueryBuilder\QueryTypes\{Delete\DeleteAble,
 	Delete\DeleteTrait,
@@ -39,7 +40,14 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	{
 		$this->userStates = $this->prepareStates();
 
-		$tableName ??= DBFacade::genTableNameByClassName(static::class);
+		$tableName ??= self::getTableName();
+
+		if ($this instanceof MigrateAble) {
+			$params = $this::migrationParams();
+			if (key_exists('fields', $params)) {
+				$fields = array_keys($params['fields']);
+			}
+		}
 
 		if (!empty($fields)) {
 			$db = DBFacade::getDBInstance();
@@ -102,6 +110,14 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	public function saveForceInsert(): QueryResult
 	{
 		return $this->forceInsertTemplate->save();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	static function getTableName(): string
+	{
+		return DBFacade::genTableNameByClassName(static::class);
 	}
 
 

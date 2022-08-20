@@ -4,25 +4,22 @@ declare(strict_types=1);
 
 namespace DB\Models;
 
+use DB\ORM\Migration\MigrateAble;
 use DB\ORM\QueryBuilder\QueryBuilder;
 
 
-class ObjLevels extends QueryBuilder 
+class ObjLevels extends QueryBuilder implements MigrateAble
 {
-
-//    /**
-//     * Return fields that need to create in model
-//     *
-//     * @return array<string, string>|null
-//     */
-//    public function fieldsToCreate(): ?array
-//    {
-//        return [
-//            'id' =>
-//              'TINYINT UNSIGNED NOT NULL PRIMARY KEY',
-//
-//            'disc' =>
-//              'CHAR(70)',
-//        ];
-//    }
+	/**
+	 * @inheritDoc
+	 */
+	static function migrationParams(): array
+	{
+		return [
+			'fields' => [
+				'id'    => 'TINYINT UNSIGNED NOT NULL PRIMARY KEY',
+				'disc'  => 'CHAR(70)',
+			],
+		];
+	}
 }

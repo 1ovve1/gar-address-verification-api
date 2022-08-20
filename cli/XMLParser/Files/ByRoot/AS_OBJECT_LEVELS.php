@@ -6,21 +6,22 @@ namespace CLI\XMLParser\Files\ByRoot;
 
 use DB\Models\ObjLevels;
 use CLI\XMLParser\Files\XMLFile;
+use DB\ORM\QueryBuilder\QueryBuilder;
 
 class AS_OBJECT_LEVELS extends XMLFile
 {
 	/**
 	 * @inheritDoc
 	 */
-	public static function getTable(): mixed
+	public static function getTable(): QueryBuilder
 	{
-		return new ObjLevels(['id', 'disc']);
+		return new ObjLevels();
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public static function callbackOperationWithTable(mixed $table): void
+	public static function callbackOperationWithTable(QueryBuilder $table): void
 	{
 		$table->saveForceInsert();
 	}
@@ -49,7 +50,7 @@ class AS_OBJECT_LEVELS extends XMLFile
     /**
      * {@inheritdoc}
      */
-    public function execDoWork(array &$values, mixed &$table): void
+    public function execDoWork(array &$values, QueryBuilder &$table): void
     {
         unset($values['ISACTIVE']);
 

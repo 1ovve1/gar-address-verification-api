@@ -2,28 +2,24 @@
 
 namespace DB\Models;
 
+use DB\ORM\Migration\MigrateAble;
 use DB\ORM\QueryBuilder\QueryBuilder;
 
 
-class Addhousetype extends QueryBuilder 
+class Addhousetype extends QueryBuilder implements MigrateAble
 {
+	/**
+	 * @inheritDoc
+	 */
+	static function migrationParams(): array
+	{
+		return [
+			'fields' => [
+				'id'    => 'TINYINT UNSIGNED NOT NULL PRIMARY KEY',
+	            'short' => 'CHAR(15)',
+	            'disc'  => 'CHAR(50)',
+			],
+		];
+	}
 
-//    /**
-//     * Return fields that need to create in model
-//     *
-//     * @return array<string, string>|null
-//     */
-//    public function fieldsToCreate(): ?array
-//    {
-//        return [
-//            'id' =>
-//              'TINYINT UNSIGNED NOT NULL PRIMARY KEY',
-//
-//            'short' =>
-//              'CHAR(15)',
-//
-//            'disc' =>
-//              'CHAR(50)',
-//        ];
-//    }
 }
