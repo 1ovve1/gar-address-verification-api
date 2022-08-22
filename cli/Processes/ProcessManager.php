@@ -1,10 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace CLI;
+namespace CLI\Processes;
 
 pcntl_async_signals(true);
-
-use CLI\Process;
 
 class ProcessManager
 {

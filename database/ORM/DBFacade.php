@@ -34,6 +34,14 @@ class DBFacade
         return self::$instance;
     }
 
+	/**
+	 * Connection without singleton
+	 * @return DBAdapter
+	 */
+	public static function getImmutableDBConnection(): DBAdapter
+	{
+		return self::connectViaPDO();
+	}
 
     /**
      * Connection via PDO
