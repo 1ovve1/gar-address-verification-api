@@ -18,7 +18,7 @@ class UserMigrations
 				$migrateTool->doMigrateFromMigrateAble($params);
 			} else if (is_array($params)) {
 				if (is_string($tableName)) {
-					if (in_array('fields', $params)) {
+					if (key_exists('fields', $params)) {
 						$migrateTool->doMigrate($tableName, $params);
 						continue;
 					}
