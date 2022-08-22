@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+
+<?php
+
+require_once __DIR__ . '/bootstrap.php';
+
+$time = microtime(true);
+
+$cli = new \CLI\GarCLI();
+$cli->run();
+
+echo str_repeat('*', 20) . PHP_EOL;
+echo "Time of execution: " . microtime(true) - $time . PHP_EOL;

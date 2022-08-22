@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files;
 
+use CLI\Processes\ProcessManager;
 use CLI\XMLParser\Reader\ReaderVisitor;
-use CLI\ProcessManager;
-use JetBrains\PhpStorm\ArrayShape;
 
 class ImplFileCollection implements FileCollection
 {
