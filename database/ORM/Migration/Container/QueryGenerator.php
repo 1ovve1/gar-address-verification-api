@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DB\ORM\Migration\Container;
 
 use DB\ORM\QueryBuilder\QueryBuilder;
-use InvalidArgumentException;
 
 /**
  * Generator, that implements QueryFactory
@@ -62,6 +61,29 @@ class QueryGenerator implements QueryFactory
       ->setRawSql('SHOW TABLES')
       ->validate(fn () => true);
     }
+
+	/**
+	 * Generate DROP TABLE SQL query by $tableName
+	 * @param string $tableName
+	 * @return Query
+	 */
+	static function genDropTableQuery(string $tableName): Query
+	{
+		return (new QueryObject())
+			->setType(QueryTypes::META)
+			->setRawSql(self::makeDropTable($tableName))
+			->validate(fn () => true);
+	}
+
+	/**
+	 * Make DROP TABLE SQL query
+	 * @param string $tableName
+	 * @return string
+	 */
+	protected static function makeDropTable(string $tableName): string
+	{
+		return sprintf("DROP TABLE %s", $tableName);
+	}
 
     /**
      * Make meta query (describe)

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DB\ORM\DBAdapter;
 
 use DB\ORM\Migration\Container\Query;
+use RuntimeException;
 
 /**
  * Common interface for databse connection
@@ -18,6 +19,7 @@ interface DBAdapter
 	 *
 	 * @param Query $query - query container
 	 * @return QueryResult
+	 * @throws RuntimeException
 	 */
     public function rawQuery(Query $query): QueryResult;
   

@@ -8,7 +8,7 @@ use DB\ORM\Migration\MigrateAble;
 
 class UserMigrations
 {
-	static function doMigrateFromConfig(): void
+	static function migrateFromConfig(): void
 	{
 		$classList = $_SERVER['config']('migration');
 		$migrateTool = MetaTable::createImmutable(DBFacade::getImmutableDBConnection());
@@ -34,4 +34,17 @@ class UserMigrations
 
 		}
 	}
+
+	/**
+	 * Delete tables from config
+	 * @return void
+	 */
+	static function dropTablesFromConfig(): void
+	{
+		$classList = $_SERVER['config']('migration');
+		$migrateTool = MetaTable::createImmutable(DBFacade::getImmutableDBConnection());
+
+		$migrateTool->doDeleteTableFromMigrateAble($classList);
+	}
+
 }
