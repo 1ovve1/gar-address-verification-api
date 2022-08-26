@@ -7,6 +7,7 @@ namespace DB\ORM\DBAdapter\PDO;
 use DB\ORM\DBAdapter\{DBAdapter, QueryResult, QueryTemplate};
 use DB\ORM\Migration\Container\Query;
 use PDO;
+use PDOException;
 use RuntimeException;
 
 /**
@@ -76,7 +77,14 @@ class PDOObject implements DBAdapter
 	 */
     public function rawQuery(Query $query): QueryResult
     {
-        $res = $this->instance->query($query->getRawSql());
+		try {
+			$res = $this->instance->query($query->getRawSql());
+		} catch (PDOException $e) {
+			throw new RuntimeException(sprintf(
+				"Bad query request: '%s' " . PHP_EOL . "Message: %s" . PHP_EOL . PHP_EOL . 'Traceback: %s',
+				$query->getRawSql(), $e->getMessage(), $e->getTraceAsString()
+			));
+		}
 
 		if (false === $res) {
 			throw new RuntimeException('Bad query request: ' . $query->getRawSql());

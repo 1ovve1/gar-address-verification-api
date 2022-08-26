@@ -7,6 +7,7 @@ use splitbrain\phpcli\{
 	Options
 };
 use DB\UserMigrations;
+use http\Client\Curl\User;
 
 class GarCLI extends CLI
 {
@@ -19,11 +20,14 @@ class GarCLI extends CLI
 
 		$options->registerCommand('upload', 'upload gar archive to database');
 		$options->registerOption('migrate', 'upload with migration', 'm', false, 'upload');
+		$options->registerOption('migrate-recreate', 'upload with recreate migration', null, false, 'upload');
 		$options->registerOption('region', 'concrete region(s) for upload', 'r', 'region-list', 'upload');
 		$options->registerOption('only-regions', 'upload only regions information', null, false, 'upload');
 		$options->registerOption('only-single', 'upload only single indexes', null, false, 'upload');
 
 		$options->registerCommand('migrate', 'create actual database structure in your database');
+		$options->registerOption('drop', 'delete tables', 'd', false, 'migrate');
+		$options->registerOption('recreate', 'drop and create tables', 'r', false, 'migrate');
 	}
 
 	/**
@@ -38,7 +42,7 @@ class GarCLI extends CLI
 				$this->uploadProcedure($params);
 				break;
 			case 'migrate':
-				$this->migrate();
+				$this->migrateProcedure($params);
 				break;
 		}
 	}
@@ -56,7 +60,10 @@ class GarCLI extends CLI
 		if (isset($params['region'])) {
 			$regions = $this->convertInputRegionsToArray($params['region']);
 		}
-		if (isset($params['migrate'])) {
+
+		if (isset($params['migrate-recreate'])) {
+			$this->dropTablesAndMigrate();
+		} elseif (isset($params['migrate'])) {
 			$this->migrate();
 		}
 
@@ -95,12 +102,37 @@ class GarCLI extends CLI
 
 	/**
 	 * Doing migrations
+	 * @param array<string, string|bool> $params
 	 * @return void
 	 */
+	function migrateProcedure(array $params = []): void
+	{
+		if (isset($params['recreate'])) {
+			$this->dropTablesAndMigrate();
+		} elseif (isset($params['drop'])) {
+			$this->dropTables();
+		} else {
+			$this->migrate();
+		}
+	}
+
+	function dropTables() : void
+	{
+		echo "Try to drop tables from config...\t";
+		UserMigrations::dropTablesFromConfig();
+		echo "DONE!" . PHP_EOL;
+	}
+
 	function migrate(): void
 	{
-		echo 'Try migrate tables from config...' . PHP_EOL;
-		UserMigrations::doMigrateFromConfig();
-		echo 'DONE!' . PHP_EOL;
+		echo "Try migrate tables from config...\t";
+		UserMigrations::migrateFromConfig();
+		echo "DONE!" . PHP_EOL;
+	}
+
+	function dropTablesAndMigrate(): void
+	{
+		$this->dropTables();
+		$this->migrate();
 	}
 }
