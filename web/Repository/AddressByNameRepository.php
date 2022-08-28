@@ -4,107 +4,232 @@ declare(strict_types=1);
 
 namespace GAR\Repository;
 
-use DB\Models\Database;
+use GAR\Repository\Address\AddressBuilder;
+use GAR\Repository\Address\AddressBuilderImplement;
 use RuntimeException;
 
-const LEVEL = 5;
 
 /**
  * Repo that contains methods that use for get full name of address by specific name address
  */
 class AddressByNameRepository extends BaseRepo
 {
-    /**
+	protected AddressBuilder $addressBuilder;
+
+	/**
+	 * @inheritDoc
+	 */
+	public function __construct()
+	{
+		$this->addressBuilder = new AddressBuilderImplement();
+		parent::__construct();
+	}
+
+	protected function initAddressBuilder(): void
+	{
+		$this->addressBuilder = new AddressBuilderImplement();
+	}
+
+	/**
      * Return full address by fragment of $halfAddress
-     * @param  array<string>  $halfAddress - exploided input address fragment
-     * @return array<int, array<string, array<string, mixed>>> - trully full address
+     * @param  array<string>  $userAddress - exploded input address fragment
+     * @return array<int, array<string, array<string, mixed>>> - full address
      */
-    public function getFullAddress(array $halfAddress): array
+    public function getFullAddress(array $userAddress): array
     {
-        $fullAddress = [];
-		$table = $this->getDatabase();
+		$this->initAddressBuilder();
 
-        if (count($halfAddress) === 1) {
-            $singleName = $halfAddress[0];
-            $checkLikeAddress = $table->getLikeAddress($singleName);
-            if (!empty($checkLikeAddress)) {
-                $fullAddress[][(empty($singleName)) ? 'variants' : $singleName] = $checkLikeAddress;
-            }
-        } else {
-            $objectid = [];
+		if ($this->isUserAddressAreSingleWord($userAddress)) {
+			$this->findSimilarAddressObjectFromDb(current($userAddress));
 
-            for ($parent = 0, $chiled = 1; $chiled < count($halfAddress); ++$parent, ++$chiled) {
-                $objectid = $table->getAddressObjectIdByName($halfAddress[$parent], $halfAddress[$chiled]);
-                if (count($objectid) === 1) {
-                    break;
-                }
-            }
+		} else {
+			$this->handleComplexAddress($userAddress);
 
-            if (count($objectid) === 1) {
-                $pointObjectId = $this->getObjectIdAndRegionFromResult($objectid);
-
-                // upper
-                $upperChiledObjectId = $pointObjectId;
-                $parentName = '';
-
-                for (; ; --$parent) {
-                    $parentCheck = $table->getParentNameByObjectId($upperChiledObjectId);
-
-                    if ($parent >= 0) {
-                        $parentName = $halfAddress[$parent];
-                    } elseif (count($parentCheck) === 1) {
-                        static $id = 1;
-                        $parentName = 'parent_' . $id++;
-                    }
-
-                    if (!empty($parentCheck)) {
-                        if (count($parentCheck) === 1) {
-                            $fullAddress[] = [
-                                $parentName => $parentCheck,
-                            ];
-                        } else {
-                            $fullAddress[] = [
-                                'parent_variants' => $parentCheck,
-                            ];
-                            break;
-                        }
-                    } else {
-                        break;
-                    }
-                    $upperChiledObjectId = $this->getObjectIdAndRegionFromResult(end($fullAddress)[$parentName]);
-                }
-                //reverse
-                $fullAddress = array_reverse($fullAddress);
-
-                //middle
-                $fullAddress[][$halfAddress[$chiled - 1]] = $table->getSingleNameByObjectId($pointObjectId);
-
-                // down
-                $downChiledObjectId = $pointObjectId;
-
-                for (; $chiled < count($halfAddress); ++$chiled) {
-                    $chiledName = $halfAddress[$chiled];
-                    $chiledVariant = $table->getChiledNameByObjectIdAndName($downChiledObjectId, $chiledName);
-                    if (count($chiledVariant) === 1 && $chiledName !== '') {
-                        $fullAddress[][$chiledName] = $chiledVariant;
-                        $downChiledObjectId = $this->getObjectIdAndRegionFromResult(end($fullAddress)[$chiledName]);
-                    } elseif (!empty($chiledVariant)) {
-                        $fullAddress[]['variant'] = $chiledVariant;
-                        break;
-                    }
-                }
-                if (!array_key_exists('variant', end($fullAddress))) {
-                    $housesCheck = $table->getHousesByObjectId($downChiledObjectId);
-                    if (!empty($housesCheck)) {
-                        $fullAddress[]['houses'] = $housesCheck;
-                    }
-                }
-            }
-        }
+		}
+//            $objectid = [];
+//
+//            for ($parent = 0, $chiled = 1; $chiled < count($userAddress); ++$parent, ++$chiled) {
+//                $objectid = $db->getAddressObjectIdByName($userAddress[$parent], $userAddress[$chiled]);
+//                if (count($objectid) === 1) {
+//                    break;
+//                }
+//            }
+//
+//            if (count($objectid) === 1) {
+//                $pointObjectId = $this->getObjectIdAndRegionFromResult($objectid);
+//
+//                // upper
+//                $upperChiledObjectId = $pointObjectId;
+//                $parentName = '';
+//
+//                for (; ; --$parent) {
+//                    $parentCheck = $db->getParentNameByObjectId($upperChiledObjectId);
+//
+//                    if ($parent >= 0) {
+//                        $parentName = $userAddress[$parent];
+//                    } elseif (count($parentCheck) === 1) {
+//                        static $id = 1;
+//                        $parentName = 'parent_' . $id++;
+//                    }
+//
+//                    if (!empty($parentCheck)) {
+//                        if (count($parentCheck) === 1) {
+//                            $fullAddress[] = [
+//                                $parentName => $parentCheck,
+//                            ];
+//                        } else {
+//                            $fullAddress[] = [
+//                                'parent_variants' => $parentCheck,
+//                            ];
+//                            break;
+//                        }
+//                    } else {
+//                        break;
+//                    }
+//                    $upperChiledObjectId = $this->getObjectIdAndRegionFromResult(end($fullAddress)[$parentName]);
+//                }
+//                //reverse
+//                $fullAddress = array_reverse($fullAddress);
+//
+//                //middle
+//                $fullAddress[][$userAddress[$chiled - 1]] = $db->getSingleNameByObjectId($pointObjectId);
+//
+//                // down
+//                $downChiledObjectId = $pointObjectId;
+//
+//                for (; $chiled < count($userAddress); ++$chiled) {
+//                    $chiledName = $userAddress[$chiled];
+//                    $chiledVariant = $db->getChiledNameByObjectIdAndName($downChiledObjectId, $chiledName);
+//                    if (count($chiledVariant) === 1 && $chiledName !== '') {
+//                        $fullAddress[][$chiledName] = $chiledVariant;
+//                        $downChiledObjectId = $this->getObjectIdAndRegionFromResult(end($fullAddress)[$chiledName]);
+//                    } elseif (!empty($chiledVariant)) {
+//                        $fullAddress[]['variant'] = $chiledVariant;
+//                        break;
+//                    }
+//                }
+//                if (!array_key_exists('variant', end($fullAddress))) {
+//                    $housesCheck = $db->getHousesByObjectId($downChiledObjectId);
+//                    if (!empty($housesCheck)) {
+//                        $fullAddress[]['houses'] = $housesCheck;
+//                    }
+//                }
+//            }
 
 
-        return $fullAddress;
+
+        return $this->addressBuilder->getAddress();
     }
+
+	/**
+	 * @param array<string> $userAddress
+	 * @return bool
+	 */
+	protected function isUserAddressAreSingleWord(array $userAddress): bool
+	{
+		return count($userAddress) === 1;
+	}
+
+	/**
+	 * @param string $addressName
+	 * @return void
+	 */
+	protected function findSimilarAddressObjectFromDb(string $addressName): void
+	{
+		$checkLikeAddress = $this->db->getLikeAddress($addressName);
+
+		if (!empty($checkLikeAddress)) {
+			$this->addressBuilder->addChiledVariant($checkLikeAddress);
+		}
+	}
+
+	protected function handleComplexAddress(array $userAddress): void
+	{
+		[$parentObjectId, $chiledObjectId] = $this->findSimilarAddressChain($userAddress) ?? [null, null];
+
+		if (null !== $parentObjectId && null !== $chiledObjectId) {
+			$pointObjectId = $this->getObjectIdAndRegionFromResult($objectid);
+
+			// upper
+			$upperChiledObjectId = $pointObjectId;
+			$parentName = '';
+
+			for (; ; --$parent) {
+				$parentCheck = $db->getParentNameByObjectId($upperChiledObjectId);
+
+				if ($parent >= 0) {
+					$parentName = $userAddress[$parent];
+				} elseif (count($parentCheck) === 1) {
+					static $id = 1;
+					$parentName = 'parent_' . $id++;
+				}
+
+				if (!empty($parentCheck)) {
+					if (count($parentCheck) === 1) {
+						$fullAddress[] = [
+							$parentName => $parentCheck,
+						];
+					} else {
+						$fullAddress[] = [
+							'parent_variants' => $parentCheck,
+						];
+						break;
+					}
+				} else {
+					break;
+				}
+				$upperChiledObjectId = $this->getObjectIdAndRegionFromResult(end($fullAddress)[$parentName]);
+			}
+			//reverse
+			$fullAddress = array_reverse($fullAddress);
+
+			//middle
+			$fullAddress[][$userAddress[$chiled - 1]] = $db->getSingleNameByObjectId($pointObjectId);
+
+			// down
+			$downChiledObjectId = $pointObjectId;
+
+			for (; $chiled < count($userAddress); ++$chiled) {
+				$chiledName = $userAddress[$chiled];
+				$chiledVariant = $db->getChiledNameByObjectIdAndName($downChiledObjectId, $chiledName);
+				if (count($chiledVariant) === 1 && $chiledName !== '') {
+					$fullAddress[][$chiledName] = $chiledVariant;
+					$downChiledObjectId = $this->getObjectIdAndRegionFromResult(end($fullAddress)[$chiledName]);
+				} elseif (!empty($chiledVariant)) {
+					$fullAddress[]['variant'] = $chiledVariant;
+					break;
+				}
+			}
+			if (!array_key_exists('variant', end($fullAddress))) {
+				$housesCheck = $db->getHousesByObjectId($downChiledObjectId);
+				if (!empty($housesCheck)) {
+					$fullAddress[]['houses'] = $housesCheck;
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param array<string> $userAddress
+	 * @return array{int, int}|null
+	 */
+	protected function findSimilarAddressChain(array $userAddress): array|null
+	{
+		$addressObjectCount = count($userAddress);
+
+		for ($parent = 0, $chiled = 1; $chiled < $addressObjectCount; ++$parent, ++$chiled) {
+			$chainObjectId = $this->db->findChainByParentAndChiledAddressName($userAddress[$parent], $userAddress[$chiled]);
+
+			// check if chain is single value
+			if (count($chainObjectId) === 1) {
+				// if it true we unwrap it and return
+				return array_values($chainObjectId[0]);
+			}
+		}
+
+		// if chin was not found we return null
+		return null;
+	}
 
     /**
      * Save return 'objectid' field from query result
