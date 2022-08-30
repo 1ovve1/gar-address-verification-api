@@ -47,77 +47,6 @@ class AddressByNameRepository extends BaseRepo
 			$this->handleComplexAddress($userAddress);
 
 		}
-//            $objectid = [];
-//
-//            for ($parent = 0, $chiled = 1; $chiled < count($userAddress); ++$parent, ++$chiled) {
-//                $objectid = $db->getAddressObjectIdByName($userAddress[$parent], $userAddress[$chiled]);
-//                if (count($objectid) === 1) {
-//                    break;
-//                }
-//            }
-//
-//            if (count($objectid) === 1) {
-//                $pointObjectId = $this->getObjectIdFromResult($objectid);
-//
-//                // upper
-//                $upperChiledObjectId = $pointObjectId;
-//                $parentName = '';
-//
-//                for (; ; --$parent) {
-//                    $parentCheck = $db->getParentAddressByObjectId($upperChiledObjectId);
-//
-//                    if ($parent >= 0) {
-//                        $parentName = $userAddress[$parent];
-//                    } elseif (count($parentCheck) === 1) {
-//                        static $id = 1;
-//                        $parentName = 'parent_' . $id++;
-//                    }
-//
-//                    if (!empty($parentCheck)) {
-//                        if (count($parentCheck) === 1) {
-//                            $fullAddress[] = [
-//                                $parentName => $parentCheck,
-//                            ];
-//                        } else {
-//                            $fullAddress[] = [
-//                                'parent_variants' => $parentCheck,
-//                            ];
-//                            break;
-//                        }
-//                    } else {
-//                        break;
-//                    }
-//                    $upperChiledObjectId = $this->getObjectIdFromResult(end($fullAddress)[$parentName]);
-//                }
-//                //reverse
-//                $fullAddress = array_reverse($fullAddress);
-//
-//                //middle
-//                $fullAddress[][$userAddress[$chiled - 1]] = $db->getSingleNameByObjectId($pointObjectId);
-//
-//                // down
-//                $downChiledObjectId = $pointObjectId;
-//
-//                for (; $chiled < count($userAddress); ++$chiled) {
-//                    $chiledName = $userAddress[$chiled];
-//                    $chiledVariant = $db->getChiledNameByObjectIdAndName($downChiledObjectId, $chiledName);
-//                    if (count($chiledVariant) === 1 && $chiledName !== '') {
-//                        $fullAddress[][$chiledName] = $chiledVariant;
-//                        $downChiledObjectId = $this->getObjectIdFromResult(end($fullAddress)[$chiledName]);
-//                    } elseif (!empty($chiledVariant)) {
-//                        $fullAddress[]['variant'] = $chiledVariant;
-//                        break;
-//                    }
-//                }
-//                if (!array_key_exists('variant', end($fullAddress))) {
-//                    $housesCheck = $db->getHousesByObjectId($downChiledObjectId);
-//                    if (!empty($housesCheck)) {
-//                        $fullAddress[]['houses'] = $housesCheck;
-//                    }
-//                }
-//            }
-
-
 
         return $this->addressBuilder->getAddress();
     }
@@ -160,68 +89,6 @@ class AddressByNameRepository extends BaseRepo
         }
     }
 		
-
-		// 	$pointObjectId = $this->getObjectIdFromResult($objectid);
-
-		// 	// upper
-		// 	$upperChiledObjectId = $pointObjectId;
-		// 	$parentName = '';
-		// 	for (; ; --$parent) {
-		// 		$parentCheck = $db->getParentAddressByObjectId($upperChiledObjectId);
-
-		// 		if ($parent >= 0) {
-		// 			$parentName = $userAddress[$parent];
-		// 		} elseif (count($parentCheck) === 1) {
-		// 			static $id = 1;
-		// 			$parentName = 'parent_' . $id++;
-		// 		}
-
-		// 		if (!empty($parentCheck)) {
-		// 			if (count($parentCheck) === 1) {
-		// 				$fullAddress[] = [
-		// 					$parentName => $parentCheck,
-		// 				];
-		// 			} else {
-		// 				$fullAddress[] = [
-		// 					'parent_variants' => $parentCheck,
-		// 	W			];
-		// 				break;
-		// 			}
-		// 		} else {
-		// 			break;
-		// 		}
-  //               $this->fined
-		// 		$upperChiledObjectId = $this->getObjectIdFromResult(end($fullAddress)[$parentName]);
-		// 	}
-		// 	//reverse
-		// 	$fullAddress = array_reverse($fullAddress);
-
-		// 	//middle
-		// 	$fullAddress[][$userAddress[$chiled - 1]] = $db->getSingleNameByObjectId($pointObjectId);
-
-		// 	// down
-		// 	$downChiledObjectId = $pointObjectId;
-
-		// 	for (; $chiled < count($userAddress); ++$chiled) {
-		// 		$chiledName = $userAddress[$chiled];
-		// 		$chiledVariant = $db->getChiledNameByObjectIdAndName($downChiledObjectId, $chiledName);
-		// 		if (count($chiledVariant) === 1 && $chiledName !== '') {
-		// 			$fullAddress[][$chiledName] = $chiledVariant;
-  //                   $this->fined
-		// 			$downChiledObjectId = $this->getObjectIdFromResult(end($fullAddress)[$chiledName]);
-		// 		} elseif (!empty($chiledVariant)) {
-		// 			$fullAddress[]['variant'] = $chiledVariant;
-		// 			break;
-		// 		}
-		// 	}
-		// 	if (!array_key_exists('variant', end($fullAddress))) {
-		// 		$housesCheck = $db->getHousesByObjectId($downChiledObjectId);
-		// 		if (!empty($housesCheck)) {
-		// 			$fullAddress[]['houses'] = $housesCheck;
-		// 		}
-		// 	}
-		// }
-	
 
 	/**
 	 * @param array<string> $userAddress
@@ -307,7 +174,6 @@ class AddressByNameRepository extends BaseRepo
                 $objectid = $queryResult[0]['objectid'];
                 if (is_int($objectid)) {
                      return $queryResult[0]['objectid'];
-                     // $this->fined
                 } else {
                     throw new RuntimeException("AddressByNameRepository error: objectid are not int");
                 }
@@ -319,5 +185,4 @@ class AddressByNameRepository extends BaseRepo
             throw new RuntimeException("AddressByNameRepository error: queryResult is empty");
         }
     }
-    // $this->fined
 }
