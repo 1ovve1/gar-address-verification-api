@@ -12,7 +12,7 @@ class AddressBuilderImplement implements AddressBuilder
 	 */
 	function addParentAddr(string $identifier, array $data): AddressBuilder
 	{
-		array_unshift($this->address, [$identifier => [$data]]);
+		array_unshift($this->address, [$identifier => $data]);
 
 		return $this;
 	}
@@ -22,7 +22,7 @@ class AddressBuilderImplement implements AddressBuilder
 	 */
 	function addChiledAddr(string $identifier, array $data): AddressBuilder
 	{
-		$this->address[] = [$identifier => [$data]];
+		$this->address[] = [$identifier => $data];
 
 		return $this;
 	}
@@ -42,7 +42,7 @@ class AddressBuilderImplement implements AddressBuilder
 	 */
 	function addChiledVariant(array $data): AddressBuilder
 	{
-		$this->address[] = ['variant' => $data];
+		$this->address[] = ['variants' => $data];
 
 		return $this;
 	}

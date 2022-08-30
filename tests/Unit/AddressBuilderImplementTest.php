@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use GAR\Repository\Address\AddressBuilder;
+use GAR\Repository\Address\AddressBuilderDirector;
 use GAR\Repository\Address\AddressBuilderImplement;
 use PHPUnit\Framework\TestCase;
 
@@ -54,22 +55,19 @@ class AddressBuilderImplementTest extends TestCase
 
 	const EXPECTED_ADDRESS = [
 		0 => [
-            self::FIRST_NAME => [
-				self::FIRST_DATA
-            ],
+            self::FIRST_NAME => 
+				self::FIRST_DATA,
 		],
 		1 => [
-			self::SECOND_NAME => [
-				self::SECOND_DATA
-			],
+			self::SECOND_NAME => 
+				self::SECOND_DATA,
 		],
         2 => [
-	        self::THIRD_NAME => [
-				self::THIRD_DATA
-			]
+	        self::THIRD_NAME => 
+				self::THIRD_DATA,
 		],
 		3 => [
-			"variant" =>
+			"variants" =>
 				self::FOUR_VARIANT_DATA
 		],
 		4 => [
@@ -87,7 +85,7 @@ class AddressBuilderImplementTest extends TestCase
 	}
 
 
-	public function testAddParentAddr()
+	public function testAddParentAddr(): void
 	{
 		$this->address
 			->addParentAddr(self::THIRD_NAME, self::THIRD_DATA)
@@ -101,7 +99,7 @@ class AddressBuilderImplementTest extends TestCase
 		$this->assertEquals(self::EXPECTED_ADDRESS, $result);
 	}
 
-	public function testAddChiledAddr()
+	public function testAddChiledAddr(): void
 	{
 		$this->address
 			->addChiledAddr(self::FIRST_NAME, self::FIRST_DATA)
@@ -113,5 +111,33 @@ class AddressBuilderImplementTest extends TestCase
 		$result = $this->address->getAddress();
 
 		$this->assertEquals(self::EXPECTED_ADDRESS, $result);
+	}
+
+	public function testAddressBuilderDirector(): void
+	{
+		$director = new AddressBuilderDirector($this->address, [self::FIRST_NAME, self::SECOND_NAME, self::THIRD_NAME], 1, 2);
+
+		$director->addParentAddr(self::SECOND_DATA)
+				->addParentAddr(self::FIRST_DATA)
+				->addChiledAddr(self::THIRD_DATA)
+				->addChiledVariant(self::FOUR_VARIANT_DATA)
+				->addChiledHouses(self::HOUSES_DATA);
+
+		$result = $this->address->getAddress();
+
+		$this->assertEquals(self::EXPECTED_ADDRESS, $result);	
+	}
+
+
+	function testAddressBuilderDirectorAddChiledException(): void
+	{
+		$this->expectException(\RuntimeException::class);
+		$director = new AddressBuilderDirector($this->address, [self::FIRST_NAME, self::SECOND_NAME, self::THIRD_NAME], 1, 2);
+
+		$director->addChiledAddr(self::SECOND_DATA)
+				->addChiledAddr(self::FIRST_DATA)
+				->addChiledAddr(self::FIRST_DATA)
+				->addChiledAddr(self::FIRST_DATA);
+
 	}
 }

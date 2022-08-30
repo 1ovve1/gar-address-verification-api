@@ -50,7 +50,7 @@ class Database extends QueryBuilder
 					)
 				),
 
-			'getParentNameByObjectId' =>
+			'getParentAddressByObjectId' =>
 				Database::select(
 					['parent' => ['name', 'typename', 'objectid']],
 					['mun' => 'mun_hierarchy']
@@ -91,7 +91,7 @@ class Database extends QueryBuilder
 
 			'findChainByParentAndChiledAddressName' =>
 				Database::select(
-					'DISTINCT parent.objectid, chiled.objectid',
+					'DISTINCT mun.parentobjid_addr, mun.chiledobjid_addr',
 					['mun' => 'mun_hierarchy']
 				)->innerJoin(
 					['parent' => 'addr_obj'],
@@ -183,9 +183,9 @@ class Database extends QueryBuilder
 	 * @param int $chiledObjectId - chiled address objectid
 	 * @return array<mixed>
 	 */
-	public function getParentNameByObjectId(int $chiledObjectId): array
+	public function getParentAddressByObjectId(int $chiledObjectId): array
 	{
-		return $this->userStates['getParentNameByObjectId']
+		return $this->userStates['getParentAddressByObjectId']
 			->execute([$chiledObjectId]);
 	}
 
