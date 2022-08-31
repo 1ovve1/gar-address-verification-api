@@ -82,7 +82,7 @@ class AddressByNameRepository extends BaseRepo
         $pointStructure = $this->findSimilarAddressChain($userAddress);
 
         if (null !== $pointStructure) {
-        	$addressBuilderDirector = new AddressBuilderDirector($this->addressBuilder, $userAddress, $pointStructure['index']['parent'], $pointStructure['index']['chiled']);
+        	$addressBuilderDirector = new AddressBuilderDirector($this->addressBuilder, $userAddress, $pointStructure['point']['parent'], $pointStructure['point']['chiled']);
 
             $this->completeAddressChainBackward($addressBuilderDirector, $pointStructure['objectId']['parent']);
             $this->completeAddressChainForward($addressBuilderDirector, $pointStructure['objectId']['chiled']);
@@ -92,7 +92,7 @@ class AddressByNameRepository extends BaseRepo
 
 	/**
 	 * @param array<string> $userAddress
-	 * @return array{objectId: array{int, int}, point: array{int, int}}|null
+	 * @return array{objectId: array{parent: int, chiled: int}, point: array{parent: int, chiled: int}}|null
 	 */
 	protected function findSimilarAddressChain(array $userAddress): array|null
 	{
@@ -106,11 +106,11 @@ class AddressByNameRepository extends BaseRepo
 				// if it true we unwrap it and return
                 $pointObjectId = array_values($chainObjectId[0]);
 
-				return ['objectId' => 
-                            ['parent' => $pointObjectId[0], 
-                             'chiled' => $pointObjectId[1]], 
-                        'index' => 
-                            ['parent' => $parent, 
+				return ['objectId' =>
+                            ['parent' => $pointObjectId[0],
+                             'chiled' => $pointObjectId[1]],
+                        'point' =>
+                            ['parent' => $parent,
                              'chiled' => $chiled]];
 			}
 		}
@@ -119,10 +119,10 @@ class AddressByNameRepository extends BaseRepo
 		return null;
 	}
 
-    /**
-     * @param AddressBuilderDirecotor
-     * @param int $objectId - address object id
-     */ 
+	/**
+	 * @param AddressBuilderDirector $addressBuilderDirector
+	 * @param int $objectId - address object id
+	 */
     protected function completeAddressChainBackward(AddressBuilderDirector $addressBuilderDirector, int $objectId): void
     {
     	$current = $this->db->getSingleNameByObjectId($objectId);
@@ -135,8 +135,8 @@ class AddressByNameRepository extends BaseRepo
     }
 
 	/**
-	 * @param AddressBuilderDirector
-     * @param int $objectId - address object id
+	 * @param AddressBuilderDirector $addressBuilderDirector
+	 * @param int $objectId - address object id
      */ 
     protected function completeAddressChainForward(AddressBuilderDirector $addressBuilderDirector, int $objectId): void
     {
@@ -163,7 +163,7 @@ class AddressByNameRepository extends BaseRepo
 
     /**
      * Save return 'objectid' field from query result
-     * @param  array<mixed>  $queryResult - result of query
+     * @param array<mixed> $queryResult - result of query
      * @return int
      * @throws RuntimeException
      */

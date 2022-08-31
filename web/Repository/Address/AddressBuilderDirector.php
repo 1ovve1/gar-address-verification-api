@@ -2,6 +2,8 @@
 
 namespace GAR\Repository\Address;
 
+use RuntimeException;
+
 class AddressBuilderDirector
 {
 	/** @var AddressBuilder $addressBuilder */
@@ -18,10 +20,11 @@ class AddressBuilderDirector
 	private bool $variantsStatus = false;
 
 	/**
-	 * @param AddressBuilder &$addressBuilder
-	 * @param array<string> $userAddress
-	 * @throws RuntimeException - see posValidate
-	 */ 
+	 * @param AddressBuilder &$addressBuilder - builder ref
+	 * @param array<string> $userAddress - user address
+	 * @param int $parentPos - parent address element position
+	 * @param int $chiledPos - chiled address element position
+	 */
 	function __construct(AddressBuilder &$addressBuilder, 
 						 array $userAddress,
 						 int $parentPos = 0,
@@ -49,36 +52,38 @@ class AddressBuilderDirector
 			$parentPos < 0 ||
 			$chiledPos >= $this->userAddressLength ||
 			$chiledPos < 0) {
-			throw new \RuntimeException("Out of range with pos '{$parentPos}' and '{$chiledPos}' (total length is {$addressLength}");
+			throw new RuntimeException(sprintf(
+				"Out of range with pos '%s' and '%s' (total length is %s)",
+				$parentPos, $chiledPos, $this->userAddressLength
+			));
 		} elseif ($parentPos >= $chiledPos) {
-			throw new \RuntimeException("parent pos '{$parentPos}' should be lower than chiledPos, but chiled pos is '{$chiledPos}'");
+			throw new RuntimeException(sprintf(
+				"parent pos '%s' should be lower than chiledPos, but chiled pos is '%s'",
+				$parentPos, $chiledPos
+			));
 		}
 	}
 
 	/**
 	 * @param array<string, mixed> $data
-	 * @return AddressBuilder
-	 * @throws RuntimeException
+	 * @return AddressBuilderDirector
 	 */
 	function addParentAddr(array $data): self
 	{
-		if ($this->isParentPosNotOverflow()) {
-			$identifire = $this->getCurrentParentName();
+		$identifier = match($this->isParentPosNotOverflow()) {
+			true => $this->getCurrentParentName(),
+			false => "parent_" . (1 - $this->parentPos)
+		};
 
-		} else {
-			$identifire = "parent_" . 1 - $this->parentPos;
-
-		}
-
-		$this->addressBuilder->addParentAddr($identifire, $data);	
-		$this->parentPos--;	
+		$this->addressBuilder->addParentAddr($identifier, $data);
+		$this->parentPos--;
 
 		return $this;
 	}
 
 	/**
-	 * @return void
-	 */ 
+	 * @return bool
+	 */
 	private function isParentPosNotOverflow(): bool
 	{
 		return $this->parentPos >= 0;
@@ -86,27 +91,24 @@ class AddressBuilderDirector
 
 	/**
 	 * @param array<string, mixed> $data
-	 * @return AddressBuilder
-	 * @throws RuntimeException
+	 * @return AddressBuilderDirector
 	 */
 	function addChiledAddr(array $data): self
 	{
-		if ($this->isChiledPosNotOverflow()) {
-			$identifire = $this->getCurrentChiledName();
+		$identifier = match($this->isChiledPosNotOverflow()) {
+			true => $this->getCurrentChiledName(),
+			false => throw new RuntimeException('parent position are max')
+		};
 
-		} else {
-			throw new \RuntimeException('parent position are max');
-		}
-
-		$this->addressBuilder->addChiledAddr($identifire, $data);
+		$this->addressBuilder->addChiledAddr($identifier, $data);
 		$this->chiledPos++;
 
 		return $this;
 	}
 
 	/**
-	 * @return void
-	 */ 
+	 * @return bool
+	 */
 	function isChiledPosNotOverflow(): bool
 	{
 		return $this->chiledPos < $this->userAddressLength;
@@ -114,7 +116,7 @@ class AddressBuilderDirector
 
 	/**
 	 * @param array<string, mixed> $data
-	 * @return AddressBuilder
+	 * @return AddressBuilderDirector
 	 */
 	function addChiledHouses(array $data): self
 	{
@@ -124,7 +126,7 @@ class AddressBuilderDirector
 
 	/**
 	 * @param array<string|int, mixed> $data
-	 * @return AddressBuilder
+	 * @return AddressBuilderDirector
 	 */
 	function addChiledVariant(array $data): self
 	{
@@ -139,7 +141,7 @@ class AddressBuilderDirector
 	 */
 	function getAddress(): array
 	{
-		$this->addressBuilder->getAddress();
+		return $this->addressBuilder->getAddress();
 	}
 
 	/**
@@ -151,7 +153,7 @@ class AddressBuilderDirector
 	}
 
 	/**
-	 * @return string - current chield name
+	 * @return string - current child name
 	 */ 
 	function getCurrentParentName(): string
 	{
