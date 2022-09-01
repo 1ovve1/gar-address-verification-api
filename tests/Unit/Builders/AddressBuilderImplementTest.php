@@ -1,10 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Unit;
+namespace Tests\Unit\Builders;
 
-use GAR\Repository\Address\AddressBuilder;
-use GAR\Repository\Address\AddressBuilderDirector;
-use GAR\Repository\Address\AddressBuilderImplement;
+use GAR\Repository\Builders\AddressBuilder;
+use GAR\Repository\Builders\AddressBuilderDirector;
+use GAR\Repository\Builders\AddressBuilderImplement;
+use GAR\Repository\Collections\AddressObjectCollection;
+use GAR\Repository\Collections\HouseCollection;
 use PHPUnit\Framework\TestCase;
 
 class AddressBuilderImplementTest extends TestCase
@@ -117,11 +119,11 @@ class AddressBuilderImplementTest extends TestCase
 	{
 		$director = new AddressBuilderDirector($this->address, [self::FIRST_NAME, self::SECOND_NAME, self::THIRD_NAME], 1, 2);
 
-		$director->addParentAddr(self::SECOND_DATA)
-				->addParentAddr(self::FIRST_DATA)
-				->addChiledAddr(self::THIRD_DATA)
-				->addChiledVariant(self::FOUR_VARIANT_DATA)
-				->addChiledHouses(self::HOUSES_DATA);
+		$director->addParentAddr(AddressObjectCollection::fromQueryResult([self::SECOND_DATA]))
+				->addParentAddr(AddressObjectCollection::fromQueryResult([self::FIRST_DATA]))
+				->addChiledAddr(AddressObjectCollection::fromQueryResult([self::THIRD_DATA]))
+				->addChiledVariant(AddressObjectCollection::fromQueryResult(self::FOUR_VARIANT_DATA))
+				->addChiledHouses(HouseCollection::fromQueryResult(self::HOUSES_DATA));
 
 		$result = $this->address->getAddress();
 
@@ -134,10 +136,10 @@ class AddressBuilderImplementTest extends TestCase
 		$this->expectException(\RuntimeException::class);
 		$director = new AddressBuilderDirector($this->address, [self::FIRST_NAME, self::SECOND_NAME, self::THIRD_NAME], 1, 2);
 
-		$director->addChiledAddr(self::SECOND_DATA)
-				->addChiledAddr(self::FIRST_DATA)
-				->addChiledAddr(self::FIRST_DATA)
-				->addChiledAddr(self::FIRST_DATA);
+		$director->addChiledAddr(AddressObjectCollection::fromQueryResult([self::SECOND_DATA]))
+				->addChiledAddr(AddressObjectCollection::fromQueryResult([self::FIRST_DATA]))
+				->addChiledAddr(AddressObjectCollection::fromQueryResult([self::FIRST_DATA]))
+				->addChiledAddr(AddressObjectCollection::fromQueryResult([self::FIRST_DATA]));
 
 	}
 }

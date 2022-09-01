@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GAR\Controller;
 
-use DB\EntityFactory;
 use GAR\Repository\AddressByNameRepository;
 use GAR\Repository\CodeByObjectIdRepository;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -49,13 +48,12 @@ class AddressController
             $likeAddress = $this->addressByNameRepo->getFullAddress($params['address']);
 
             foreach (array_reverse($likeAddress) as $key => $value) {
-                if (
-          count($value) === 1 &&
-          !key_exists('houses', $value) &&
-          !key_exists('variant', $value) &&
-          !key_exists('parent_variants', $value)
-        ) {
-                    $params['objectid'] = end($value)[0]['objectid'];
+                if (count($value) === 1 &&
+			        !key_exists('houses', $value) &&
+			        !key_exists('variants', $value) &&
+			        !key_exists('parent_variants', $value)) {
+
+					$params['objectid'] = end($value)['objectid'];
                     break;
                 }
             }

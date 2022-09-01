@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace GAR\Repository;
 
-use GAR\Repository\Address\AddressBuilder;
-use GAR\Repository\Address\AddressBuilderDirector;
-use GAR\Repository\Address\AddressBuilderImplement;
+use GAR\Repository\Builders\AddressBuilder;
+use GAR\Repository\Builders\AddressBuilderDirector;
+use GAR\Repository\Builders\AddressBuilderImplement;
+use GAR\Repository\Collections\AddressObjectCollection;
+use GAR\Repository\Collections\HouseCollection;
+use GAR\Repository\Elements\ChainPoint;
+use PHPUnit\Exception;
 use RuntimeException;
 
 
@@ -15,6 +19,9 @@ use RuntimeException;
  */
 class AddressByNameRepository extends BaseRepo
 {
+	const SINGLE_WORD = 1;
+	const DOUBLE_WORD = 2;
+
 	protected AddressBuilder $addressBuilder;
 
 	/**
@@ -40,11 +47,15 @@ class AddressByNameRepository extends BaseRepo
     {
 		$this->initAddressBuilder();
 
-		if ($this->isUserAddressAreSingleWord($userAddress)) {
-			$this->findSimilarAddressObjectFromDb(current($userAddress));
-
-		} else {
-			$this->handleComplexAddress($userAddress);
+		switch(count($userAddress)) {
+			case self::SINGLE_WORD:
+				$this->findSimilarAddressObjectFromDb(current($userAddress));
+				break;
+			case self::DOUBLE_WORD:
+				$this->handleDoubleWordUserAddress($userAddress);
+				break;
+			default:
+				$this->handleComplexAddress($userAddress);
 
 		}
 
@@ -73,28 +84,61 @@ class AddressByNameRepository extends BaseRepo
 		}
 	}
 
+	function handleDoubleWordUserAddress(array $userAddress): void
+	{
+		$addressBuilderDirector = new AddressBuilderDirector($this->addressBuilder, $userAddress);
+
+		$addressObjectCollection = AddressObjectCollection::fromQueryResult(
+			$this->db->getLikeAddress($addressBuilderDirector->getCurrentParentName())
+		);
+
+
+		if ($addressObjectCollection->isContainsOnlyOneElement()) {
+			$addressBuilderDirector->addParentAddr($addressObjectCollection);
+			$objectId = $addressObjectCollection->tryFinedFirstParam('objectid');
+
+			$addressObjectCollection = AddressObjectCollection::fromQueryResult(
+				$this->db->getChiledNameByObjectIdAndName($objectId, $addressBuilderDirector->getCurrentChiledName())
+			);
+
+			if ($addressObjectCollection->isContainsOnlyOneElement()) {
+				$addressBuilderDirector->addChiledAddr($addressObjectCollection);
+			} else {
+				$addressBuilderDirector->addChiledVariant($addressObjectCollection);
+			}
+
+		} elseif ($addressObjectCollection->isNotEmpty()) {
+			$addressBuilderDirector->addChiledVariant($addressObjectCollection);
+
+		}
+
+	}
+
     /**
      * @param array<string> $userAddress
      * @return void
      */ 
 	protected function handleComplexAddress(array $userAddress): void
 	{
-        $pointStructure = $this->findSimilarAddressChain($userAddress);
+		try {
+			$chain = $this->findSimilarAddressChain($userAddress);
+		} catch (RuntimeException) {
+			return;
+		}
 
-        if (null !== $pointStructure) {
-        	$addressBuilderDirector = new AddressBuilderDirector($this->addressBuilder, $userAddress, $pointStructure['point']['parent'], $pointStructure['point']['chiled']);
+        $addressBuilderDirector = AddressBuilderDirector::fromChainPoint($this->addressBuilder, $userAddress, $chain);
 
-            $this->completeAddressChainBackward($addressBuilderDirector, $pointStructure['objectId']['parent']);
-            $this->completeAddressChainForward($addressBuilderDirector, $pointStructure['objectId']['chiled']);
-        }
+        $this->completeAddressChainBackward($addressBuilderDirector, $chain->parentObjectId);
+        $this->completeAddressChainForward($addressBuilderDirector, $chain->chiledObjectId);
     }
-		
+
 
 	/**
 	 * @param array<string> $userAddress
-	 * @return array{objectId: array{parent: int, chiled: int}, point: array{parent: int, chiled: int}}|null
+	 * @return ChainPoint
+	 * @throws RuntimeException
 	 */
-	protected function findSimilarAddressChain(array $userAddress): array|null
+	protected function findSimilarAddressChain(array $userAddress): ChainPoint
 	{
 		$addressObjectCount = count($userAddress);
 
@@ -103,20 +147,15 @@ class AddressByNameRepository extends BaseRepo
 
 			// check if chain is single value
 			if (count($chainObjectId) === 1) {
-				// if it true we unwrap it and return
+				// if it true we unwrap it and return chain element object
                 $pointObjectId = array_values($chainObjectId[0]);
 
-				return ['objectId' =>
-                            ['parent' => $pointObjectId[0],
-                             'chiled' => $pointObjectId[1]],
-                        'point' =>
-                            ['parent' => $parent,
-                             'chiled' => $chiled]];
+				return ChainPoint::fromQueryResult($pointObjectId, $parent, $chiled);
 			}
 		}
 
 		// if chin was not found we return null
-		return null;
+		throw new RuntimeException('chain was not found');
 	}
 
 	/**
@@ -125,13 +164,19 @@ class AddressByNameRepository extends BaseRepo
 	 */
     protected function completeAddressChainBackward(AddressBuilderDirector $addressBuilderDirector, int $objectId): void
     {
-    	$current = $this->db->getSingleNameByObjectId($objectId);
-    	$addressBuilderDirector->addParentAddr($current);
+	    $addressObjectCollection = AddressObjectCollection::fromQueryResult(
+			$this->db->getSingleNameByObjectId($objectId)
+	    );
 
-        while ($parent = $this->db->getParentAddressByObjectId($objectId))
-        {
-            $addressBuilderDirector->addParentAddr($parent);
-        }
+	    while ($addressObjectCollection->isNotEmpty()) {
+			$addressBuilderDirector->addParentAddr($addressObjectCollection);
+
+			$objectId = $addressObjectCollection->tryFinedFirstParam('objectid');
+
+			$addressObjectCollection = AddressObjectCollection::fromQueryResult(
+				$this->db->getParentAddressByObjectId($objectId)
+			);
+		}
     }
 
 	/**
@@ -140,49 +185,36 @@ class AddressByNameRepository extends BaseRepo
      */ 
     protected function completeAddressChainForward(AddressBuilderDirector $addressBuilderDirector, int $objectId): void
     {
-    	$current = $this->db->getSingleNameByObjectId($objectId);
-    	$addressBuilderDirector->addChiledAddr($current);
+	    $addressObjectCollection = AddressObjectCollection::fromQueryResult(
+		    $this->db->getSingleNameByObjectId($objectId)
+	    );
 
-        while ($addressBuilderDirector->isChiledPosNotOverflow() && $chiled = $this->db->getChiledNameByObjectIdAndName($objectId, $addressBuilderDirector->getCurrentChiledName()))
+        while ($addressObjectCollection->isContainsOnlyOneElement())
         {
-        	if (count($chiled) === 1) {
-            	$addressBuilderDirector->addChiledAddr($chiled);
-        		$objectId = $this->getObjectIdFromResult($chiled);
+	        $addressBuilderDirector->addChiledAddr($addressObjectCollection);
 
-        	} else {
-        		$addressBuilderDirector->addChiledVariant($chiled);
-        		break;
-        	}
+			try {
+				$chiledName = $addressBuilderDirector->getCurrentChiledName();
+			} catch (RuntimeException) {
+				break;
+			}
+
+	        $objectId = $addressObjectCollection->tryFinedFirstParam('objectid');
+
+			$addressObjectCollection = AddressObjectCollection::fromQueryResult(
+				$this->db->getChiledNameByObjectIdAndName($objectId, $chiledName)
+			);
         }
 
-        if (!$addressBuilderDirector->isChainEndsByVariant()) {
-        	$houses = $this->db->getHousesByObjectId($objectId);
-        	$addressBuilderDirector->addChiledHouses($houses);
-        }
-    }
-
-    /**
-     * Save return 'objectid' field from query result
-     * @param array<mixed> $queryResult - result of query
-     * @return int
-     * @throws RuntimeException
-     */
-    protected function getObjectIdFromResult(array $queryResult): int
-    {
-        if (is_array($queryResult[0])) {
-            if (key_exists('objectid', $queryResult[0])) {
-                $objectid = $queryResult[0]['objectid'];
-                if (is_int($objectid)) {
-                     return $queryResult[0]['objectid'];
-                } else {
-                    throw new RuntimeException("AddressByNameRepository error: objectid are not int");
-                }
-            } else {
-                throw new RuntimeException("AddressByNameRepository error: field 'objectid' are not exists");
-            }
-
-        } else {
-            throw new RuntimeException("AddressByNameRepository error: queryResult is empty");
-        }
+		if ($addressObjectCollection->hasMany()) {
+			$addressBuilderDirector->addChiledVariant($addressObjectCollection);
+		} else {
+			$houseCollection = HouseCollection::fromQueryResult(
+				$this->db->getHousesByObjectId($objectId)
+			);
+			if ($houseCollection->isNotEmpty()) {
+				$addressBuilderDirector->addChiledHouses($houseCollection);
+			}
+		}
     }
 }

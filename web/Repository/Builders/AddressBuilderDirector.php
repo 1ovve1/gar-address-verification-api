@@ -1,7 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace GAR\Repository\Address;
+namespace GAR\Repository\Builders;
 
+use GAR\Repository\Collections\AddressObjectCollection;
+use GAR\Repository\Collections\HouseCollection;
+use GAR\Repository\Elements\ChainPoint;
 use RuntimeException;
 
 class AddressBuilderDirector
@@ -16,8 +19,6 @@ class AddressBuilderDirector
 	private int $parentPos;
 	/** @var int $chiledPos - position of chiled address chain */
 	private int $chiledPos;
-	/** @var bool $variantStatus - indicate that chain ends with 'variant' field*/
-	private bool $variantsStatus = false;
 
 	/**
 	 * @param AddressBuilder &$addressBuilder - builder ref
@@ -38,6 +39,17 @@ class AddressBuilderDirector
 
 		$this->parentPos = $parentPos;
 		$this->chiledPos = $chiledPos;
+	}
+
+	/**
+	 * @param AddressBuilder $addressBuilder
+	 * @param array<string> $userAddress
+	 * @param ChainPoint $chainElement
+	 * @return self
+	 */
+	static function fromChainPoint(AddressBuilder &$addressBuilder, array $userAddress, ChainPoint $chainElement): self
+	{
+		return new self($addressBuilder, $userAddress, $chainElement->parentPosition, $chainElement->chiledPosition);
 	}
 
 	/**
@@ -65,18 +77,21 @@ class AddressBuilderDirector
 	}
 
 	/**
-	 * @param array<string, mixed> $data
+	 * @param AddressObjectCollection $addressObjectCollection
 	 * @return AddressBuilderDirector
 	 */
-	function addParentAddr(array $data): self
+	function addParentAddr(AddressObjectCollection $addressObjectCollection): self
 	{
-		$identifier = match($this->isParentPosNotOverflow()) {
-			true => $this->getCurrentParentName(),
-			false => "parent_" . (1 - $this->parentPos)
-		};
+		foreach ($addressObjectCollection->getCollection() as $addressElement) {
 
-		$this->addressBuilder->addParentAddr($identifier, $data);
-		$this->parentPos--;
+			$identifier = match($this->isParentPosNotOverflow()) {
+				true => $this->getCurrentParentName(),
+				false => "parent_" . (1 - $this->parentPos)
+			};
+
+			$this->addressBuilder->addParentAddr($identifier, $addressElement->getData());
+			$this->parentPos--;
+		}
 
 		return $this;
 	}
@@ -90,18 +105,21 @@ class AddressBuilderDirector
 	}
 
 	/**
-	 * @param array<string, mixed> $data
+	 * @param AddressObjectCollection $addressObjectCollection
 	 * @return AddressBuilderDirector
 	 */
-	function addChiledAddr(array $data): self
+	function addChiledAddr(AddressObjectCollection $addressObjectCollection): self
 	{
-		$identifier = match($this->isChiledPosNotOverflow()) {
-			true => $this->getCurrentChiledName(),
-			false => throw new RuntimeException('parent position are max')
-		};
+		foreach ($addressObjectCollection->getCollection() as $addressElement) {
 
-		$this->addressBuilder->addChiledAddr($identifier, $data);
-		$this->chiledPos++;
+			$identifier = match($this->isChiledPosNotOverflow()) {
+				true => $this->getCurrentChiledName(),
+				false => throw new RuntimeException('chiled position are max')
+			};
+
+			$this->addressBuilder->addChiledAddr($identifier, $addressElement->getData());
+			$this->chiledPos++;
+		}
 
 		return $this;
 	}
@@ -115,23 +133,22 @@ class AddressBuilderDirector
 	}
 
 	/**
-	 * @param array<string, mixed> $data
+	 * @param HouseCollection $houseCollection
 	 * @return AddressBuilderDirector
 	 */
-	function addChiledHouses(array $data): self
+	function addChiledHouses(HouseCollection $houseCollection): self
 	{
-		$this->addressBuilder->addChiledHouses($data);
+		$this->addressBuilder->addChiledHouses($houseCollection->toArray());
 		return $this;
 	}
 
 	/**
-	 * @param array<string|int, mixed> $data
+	 * @param AddressObjectCollection $addressObjectCollection
 	 * @return AddressBuilderDirector
 	 */
-	function addChiledVariant(array $data): self
+	function addChiledVariant(AddressObjectCollection $addressObjectCollection): self
 	{
-		$this->addressBuilder->addChiledVariant($data);
-		$this->variantsStatus = true;
+		$this->addressBuilder->addChiledVariant($addressObjectCollection->toArray());
 		return $this;
 	}
 
@@ -145,11 +162,24 @@ class AddressBuilderDirector
 	}
 
 	/**
-	 * @return string - current chield name
+	 * @return string - current child name
 	 */ 
 	function getCurrentChiledName(): string
 	{
+		if (!$this->isChiledPosNotOverflow()) {
+			throw new RuntimeException('chiled position overflow');
+		}
+
 		return $this->userAddress[$this->chiledPos];
+	}
+
+	/**
+	 * check if next chiled name can be given
+	 * @return bool
+	 */
+	function hasNextChiledName(): bool
+	{
+		return $this->userAddressLength < $this->chiledPos + 1;
 	}
 
 	/**
@@ -160,11 +190,4 @@ class AddressBuilderDirector
 		return $this->userAddress[$this->parentPos];
 	}
 
-	/**
-	 * @return bool
-	 */ 
-	function isChainEndsByVariant(): bool
-	{
-		return $this->variantsStatus;
-	}
 }

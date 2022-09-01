@@ -8,7 +8,7 @@ class AddressNameTest extends BaseTestSetup
 {
     public function testFullAddressWithHouses()
     {
-        $response = $this->runApp('GET', '/address', 'address=калм,лаган,кр,кра,школьная');
+        $response = $this->runApp('GET', '/address', 'address=калм,лаган,кр,кра,школьная,');
         $data = (string) $response->getBody();
 
         $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {

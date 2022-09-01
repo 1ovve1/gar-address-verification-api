@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GAR\Repository\Address;
+namespace GAR\Repository\Builders;
 
 interface AddressBuilder
 {
