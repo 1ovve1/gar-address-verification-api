@@ -1,0 +1,13 @@
+<?php declare(strict_types=1);
+
+namespace DB\Exceptions;
+
+class ExceptionCodes
+{
+	const NULLABLE_QUERY_RESULT_CODE = 1;
+	const BAD_QUERY_RESULT_CODE = 2;
+	const QUERY_TEMPLATE_WAS_NOT_FOUND_CODE = 4;
+	const INVALID_FORCE_INSERT_CONFIGURATION_CODE = 8;
+	const INCORRECT_BUFFER_INPUT_EXCEPTION_CODE = 16;
+	const FAILED_DB_CONNECTION_VIA_DSN_CODE = 32;
+}

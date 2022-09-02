@@ -2,6 +2,7 @@
 
 namespace DB\ORM;
 
+use DB\Exceptions\FailedDBConnectionViaDSNException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\PDO\PDOObject;
 use DB\ORM\QueryBuilder\Templates\Conditions;
@@ -43,14 +44,15 @@ class DBFacade
 		return self::connectViaPDO();
 	}
 
-    /**
-     * Connection via PDO
-     *
-     * @return PDOObject
-     */
-    public static function connectViaPDO(): PDOObject
+	/**
+	 * Connection via PDO
+	 *
+	 * @return DBAdapter
+	 * @throws FailedDBConnectionViaDSNException
+	 */
+    public static function connectViaPDO(): DBAdapter
     {
-	    return new PDOObject(
+	    return PDOObject::connectViaDSN(
 	        $_ENV['DB_TYPE'], $_ENV['DB_HOST'],
 	        $_ENV['DB_NAME'], $_ENV['DB_PORT'],
 		    $_ENV['DB_USER'], $_ENV['DB_PASS']

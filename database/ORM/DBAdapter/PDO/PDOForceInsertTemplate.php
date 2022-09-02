@@ -3,15 +3,23 @@
 namespace DB\ORM\DBAdapter\PDO;
 
 
-use DB\ORM\DBAdapter\{DBAdapter, InsertBuffer, QueryResult, QueryTemplate};
+use DB\Exceptions\BadQueryResultException;
+use DB\Exceptions\IncorrectBufferInputException;
+use DB\Exceptions\QueryTemplateNotFoundException;
+use DB\ORM\DBAdapter\{
+	DBAdapter,
+	InsertBuffer,
+	QueryResult,
+	QueryTemplate
+};
 
 /**
  * Lazy Insert SQL object Using PDO
  *
- * That is the simple decarator that implements QueryTemplate and contains
+ * That is the simple decorator that implements QueryTemplate and contains
  * simple QueryTemplate state inside. Then you call exec method of this class
  * this PDOForceInsertTemplate object fill values into self stageBuffer.
- * If you call exec method and stageBuffer is full off, object automaticly call save() method,
+ * If you call exec method and stageBuffer is full off, object automatically call save() method,
  * creating template and execute it, also calling reset() method to clear buffers.
  * You can also call save() method when you need it, but notice that
  * class creating new template any time then you call save() with stageBuffer
@@ -67,9 +75,13 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 	/**
 	 * {@inheritDoc}
 	 */
-    public function exec(array $values): QueryResult
+    public function exec(array $values = []): QueryResult
     {
-        $this->setBuffer($values);
+		try{
+			$this->setBuffer($values);
+		} catch (IncorrectBufferInputException $incorrectBufferInputException) {
+			throw new BadQueryResultException("unused", $incorrectBufferInputException);
+		}
 
         if ($this->isBufferFull()) {
             $queryResult = $this->save();
@@ -83,9 +95,11 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
     public function save(): QueryResult
     {
         if ($this->isBufferNotEmpty()) {
-            $tryGetState =
-	            $this->getState() ??
-	            $this->createNewStateWithCurrentGroupNumber();
+			try {
+				$tryGetState = $this->getState();
+			} catch (QueryTemplateNotFoundException) {
+				$tryGetState = $this->createNewStateWithCurrentGroupNumber();
+			}
 
 	        $queryResult = match($this->isBufferFull()) {
 				true => $tryGetState->exec($this->getBuffer()),
@@ -99,17 +113,16 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
     }
 
 
-    /**
-     * Return state using cursor value
-     * @return QueryTemplate|null
-     */
+	/**
+	 * Return state using cursor value
+	 * @return QueryTemplate|null
+	 * @throws QueryTemplateNotFoundException
+	 */
     public function getState(): QueryTemplate|null
     {
         $currentGroupNumber = $this->getCurrentNumberOfGroups();
         if (!array_key_exists($currentGroupNumber, $this->states)) {
-            //todo rewrite this warning using logger facade
-//      trigger_error("not found index '{$stageIndex}' in stages: return false", E_USER_WARNING);
-            return null;
+          throw new QueryTemplateNotFoundException();
         }
         return $this->states[$currentGroupNumber];
     }

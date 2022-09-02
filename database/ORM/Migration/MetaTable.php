@@ -7,7 +7,7 @@ use DB\ORM\Migration\Options\Migrate\{Migrate, MigrateImpl};
 use DB\ORM\Migration\Options\Rollback\{Rollback, RollbackImpl};
 
 /**
- * Meta table object, that doing all manipulation like creating table, get meta data and other
+ * Meta table object, that doing all manipulation like creating table, get metadata and other
  *
  */
 class MetaTable implements Migrate, MigrateImmutable, Rollback, RollbackImmutable
@@ -23,7 +23,9 @@ class MetaTable implements Migrate, MigrateImmutable, Rollback, RollbackImmutabl
 	) {}
 
 	/**
-	 * @inheritDoc
+	 * Create immutable object of MetaTable
+	 * @param DBAdapter $db
+	 * @return MetaTable
 	 */
 	static function createImmutable(DBAdapter $db): self
 	{

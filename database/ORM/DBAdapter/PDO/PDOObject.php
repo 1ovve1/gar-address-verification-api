@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace DB\ORM\DBAdapter\PDO;
 
+use DB\Exceptions\BadQueryResultException;
+use DB\Exceptions\FailedDBConnectionViaDSNException;
 use DB\ORM\DBAdapter\{DBAdapter, QueryResult, QueryTemplate};
 use DB\ORM\Migration\Container\Query;
 use PDO;
 use PDOException;
-use RuntimeException;
 
 /**
  * Implements DBAdapter for PDO connection type
@@ -18,21 +19,33 @@ use RuntimeException;
 class PDOObject implements DBAdapter
 {
     /** @var PDO - curr instance of db connection */
-    private readonly PDO $instance;
+    readonly PDO $instance;
 
-    /**
-     * @param string $dbType - type name of curr db
-     * @param string $dbHost - db host
-     * @param string $dbName - db name
-     * @param string $dbPort - port
-     */
-    public function __construct(string $dbType, string $dbHost,
-                                string $dbName, string $dbPort,
-                                string $dbUsername, string $dbPass
-    ) {
-	    $dsn = self::getDsn($dbType, $dbHost, $dbName, $dbPort);
+	/**
+	 * @param string $dsn
+	 * @param string $dbUsername
+	 * @param string $dbPass
+	 */
+    private function __construct(string $dsn, string $dbUsername, string $dbPass) {
 		$this->instance = self::connectPDO($dsn, $dbUsername, $dbPass);
     }
+
+	/**
+	 * @inheritDoc
+	 */
+	static function connectViaDSN(string $dbType, string $dbHost, string $dbName, string $dbPort, string $dbUsername, string $dbPass): DBAdapter
+	{
+		$dsn = self::getDsn($dbType, $dbHost, $dbName, $dbPort);
+
+		try{
+			$instance = new self($dsn, $dbUsername, $dbPass);
+		} catch (PDOException $pdoException) {
+			throw new FailedDBConnectionViaDSNException($dsn, $pdoException);
+		}
+
+		return $instance;
+	}
+
 
 	/**
 	 * Generate DSN by params
@@ -79,15 +92,12 @@ class PDOObject implements DBAdapter
     {
 		try {
 			$res = $this->instance->query($query->getRawSql());
-		} catch (PDOException $e) {
-			throw new RuntimeException(sprintf(
-				"Bad query request: '%s' " . PHP_EOL . "Message: %s" . PHP_EOL . PHP_EOL . 'Traceback: %s',
-				$query->getRawSql(), $e->getMessage(), $e->getTraceAsString()
-			));
+		} catch (PDOException $pdoException) {
+			throw new BadQueryResultException($query->getRawSql(), $pdoException);
 		}
 
 		if (false === $res) {
-			throw new RuntimeException('Bad query request: ' . $query->getRawSql());
+			throw new BadQueryResultException($query->getRawSql());
 		}
 
         return new PDOQueryResult($res);
