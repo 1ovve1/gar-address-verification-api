@@ -13,14 +13,14 @@ class BaseRepo
 {
 	protected readonly Database $db;
 
-    public function __construct(
-    ) {
+    public function __construct()
+    {
 		$this->db = Database::getInstance();
     }
 
     /**
      * Return production database accessor $database
-     *
+     * @return Database
      */
     public function getDatabase(): Database
     {

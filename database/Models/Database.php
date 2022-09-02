@@ -10,6 +10,10 @@ const LEVEL = 5;
 
 class Database extends QueryBuilder
 {
+	/**
+	 * Get singletone instance
+	 * @return static
+	 */
 	public static function getInstance(): self
 	{
 		static $state = null;

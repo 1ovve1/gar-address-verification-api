@@ -32,7 +32,7 @@ interface AddressBuilder
 
 	/**
 	 * Return complete address structure
-	 * @return array<string, array<string|int, mixed>>
+	 * @return array<int, array<string, array<int, array<string, string|int>>>>
 	 */
 	function getAddress(): array;
 }

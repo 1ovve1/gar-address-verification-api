@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GAR\Controller;
 
 use GAR\Repository\AddressByNameRepository;
+use GAR\Repository\Builders\AddressBuilderImplement;
 use GAR\Repository\CodeByObjectIdRepository;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -23,7 +24,7 @@ class AddressController
 
     public function __construct(
   ) {
-        $this->addressByNameRepo = new AddressByNameRepository();
+        $this->addressByNameRepo = new AddressByNameRepository(new AddressBuilderImplement());
         $this->addressByCodeRepo = new CodeByObjectIdRepository();
     }
 

@@ -10,7 +10,6 @@ use GAR\Repository\Builders\AddressBuilderImplement;
 use GAR\Repository\Collections\AddressObjectCollection;
 use GAR\Repository\Collections\HouseCollection;
 use GAR\Repository\Elements\ChainPoint;
-use PHPUnit\Exception;
 use RuntimeException;
 
 
@@ -22,40 +21,31 @@ class AddressByNameRepository extends BaseRepo
 	const SINGLE_WORD = 1;
 	const DOUBLE_WORD = 2;
 
+	/** @var AddressBuilder $addressBuilder - address builder */
 	protected AddressBuilder $addressBuilder;
 
-	/**
-	 * @inheritDoc
-	 */
-	public function __construct()
+	public function __construct(AddressBuilder $addressBuilder)
 	{
-		$this->addressBuilder = new AddressBuilderImplement();
+		$this->addressBuilder = $addressBuilder;
 		parent::__construct();
-	}
-
-	protected function initAddressBuilder(): void
-	{
-		$this->addressBuilder = new AddressBuilderImplement();
 	}
 
 	/**
      * Return full address by fragment of $halfAddress
      * @param  array<string>  $userAddress - exploded input address fragment
-     * @return array<int, array<string, array<string, mixed>>> - full address
+     * @return array<int, array<string, array<int, array<string, string|int>>>> - full address
      */
     public function getFullAddress(array $userAddress): array
     {
-		$this->initAddressBuilder();
-
 		switch(count($userAddress)) {
 			case self::SINGLE_WORD:
-				$this->findSimilarAddressObjectFromDb(current($userAddress));
+				$this->handleSingleWordUserAddress(current($userAddress));
 				break;
 			case self::DOUBLE_WORD:
 				$this->handleDoubleWordUserAddress($userAddress);
 				break;
 			default:
-				$this->handleComplexAddress($userAddress);
+				$this->handleComplexUserAddress($userAddress);
 
 		}
 
@@ -63,19 +53,10 @@ class AddressByNameRepository extends BaseRepo
     }
 
 	/**
-	 * @param array<string> $userAddress
-	 * @return bool
-	 */
-	protected function isUserAddressAreSingleWord(array $userAddress): bool
-	{
-		return count($userAddress) === 1;
-	}
-
-	/**
 	 * @param string $addressName
 	 * @return void
 	 */
-	protected function findSimilarAddressObjectFromDb(string $addressName): void
+	protected function handleSingleWordUserAddress(string $addressName): void
 	{
 		$checkLikeAddress = $this->db->getLikeAddress($addressName);
 
@@ -118,7 +99,7 @@ class AddressByNameRepository extends BaseRepo
      * @param array<string> $userAddress
      * @return void
      */ 
-	protected function handleComplexAddress(array $userAddress): void
+	protected function handleComplexUserAddress(array $userAddress): void
 	{
 		try {
 			$chain = $this->findSimilarAddressChain($userAddress);
@@ -154,7 +135,7 @@ class AddressByNameRepository extends BaseRepo
 			}
 		}
 
-		// if chin was not found we return null
+		// if chin was not found we throw a exception
 		throw new RuntimeException('chain was not found');
 	}
 
