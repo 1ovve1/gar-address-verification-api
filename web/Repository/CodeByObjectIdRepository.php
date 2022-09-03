@@ -7,21 +7,24 @@ namespace GAR\Repository;
 use DB\Exceptions\BadQueryResultException;
 use DB\Models\AddrObjParams;
 use DB\Models\Database;
+use GAR\Exceptions\CodeNotFoundException;
+use http\Exception\RuntimeException;
 
 /**
  * Repository for getting code by concrete objectid
  */
 class CodeByObjectIdRepository extends BaseRepo
 {
-    /**
-     * Return code by specific $type and objectid
-     * @param  int    $objectId - concrete objectid address
-     * @param  string $type - type of code
-     * @return array<mixed>
-     */
+	/**
+	 * Return code by specific $type and objectid
+	 * @param int $objectId - concrete objectid address
+	 * @param string $type - type of code
+	 * @return array<mixed>
+	 * @throws CodeNotFoundException|BadQueryResultException
+	 */
     public function getCode(int $objectId, string $type): ?array
     {
-        $code = null;
+		$code = [];
 
         if (Codes::tryFrom($type)) {
             if (Codes::from($type) === Codes::ALL) {
@@ -29,9 +32,12 @@ class CodeByObjectIdRepository extends BaseRepo
             } else {
                 $code = $this->getCodeByObjectId($objectId, $type);
             }
-        } else {
-            throw new \RuntimeException('type of code not found');
         }
+
+		if (empty($code)) {
+			throw new CodeNotFoundException($objectId);
+		}
+
         return $code;
     }
 
@@ -44,19 +50,12 @@ class CodeByObjectIdRepository extends BaseRepo
 	 */
     public function getCodeByObjectId(int $objectId, string $type): array
     {
-		$data = Database::select(
-			['params' => 'value'],
-			['params' => AddrObjParams::table()]
-		)->where(
-			['params' => 'objectid_addr'],
-			$objectId
-		)->andWhere(
-			['params' => 'type'],
-			$type
-		)->limit(1)->save()->fetchAllAssoc();
+		$data = $this->db->findAddrObjParamByObjectIdAndType($objectId, $type);
 
-		if (!empty($data)) {
-			$data = [strtoupper($type) => $data[0]['value']];
+		if ($data->isNotEmpty()) {
+			$data = [strtoupper($type) => current($data->fetchAllAssoc())['value']];
+		} else {
+			$data = [];
 		}
 
 		return $data;
@@ -76,34 +75,16 @@ class CodeByObjectIdRepository extends BaseRepo
             Codes::KLADR->value,
         ];
 
+		$resultData = [];
+		foreach ($types as $type) {
+			$data = $this->getCodeByObjectId($objectId, $type);
 
-        $queryResult = Database::select(
-	        ['params' => ['value', 'type']],
-	        ['params' => AddrObjParams::table()],
-        )->where(
-	        ['params' => 'objectid_addr'],
-	        $objectId
-        )->save()->fetchAllAssoc();
+			if (empty($data)) {
+				continue;
+			}
+			$resultData[] = $data;
+		}
 
-        if (empty($queryResult)) {
-            return [];
-        }
-
-	    $response = [];
-	    foreach ($types as $type) {
-            $type = strtoupper($type);
-
-            foreach ($queryResult as $data) {
-                if ($data['type'] === $type) {
-                    $response[$type] = $data['value'];
-                    break;
-                }
-            }
-            if (!array_key_exists($type, $response)) {
-                $response[$type] = null;
-            }
-        }
-
-        return $response;
+        return $resultData;
     }
 }

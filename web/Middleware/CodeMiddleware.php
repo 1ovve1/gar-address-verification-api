@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace GAR\Middleware;
 
+use DB\Exceptions\BadQueryResultException;
+use GAR\Exceptions\CodeNotFoundException;
+use GAR\Exceptions\ParamNotFoundException;
 use GAR\Repository\Codes;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
@@ -17,7 +20,7 @@ class CodeMiddleware
         $args = RouteContext::fromRequest($request)->getRoute()->getArguments();
 
         if (!Codes::tryFrom($args['type'])) {
-            return $this->errorResponse("unavalable route for code: use 'code/all', 'code/okato', 'code/oktmo' or 'code/kladr' paths", 404);
+            return $this->errorResponse("unavailable route for code: use 'code/all', 'code/okato', 'code/oktmo' or 'code/kladr' paths", 404);
         }
 
         $params = $request->getQueryParams();
@@ -47,16 +50,20 @@ class CodeMiddleware
             }
         }
 
-        $response = $handler->handle(
-            $request->withQueryParams([
-                'address' => $formattedAddress,
-                'objectid' => $objectId,
-            ])
-        );
-
-        if (empty((string) $response->getBody())) {
-            return $this->errorResponse("codes not found", 404);
-        }
+		try {
+			$response = $handler->handle(
+				$request->withQueryParams([
+					'address' => $formattedAddress,
+					'objectid' => $objectId,
+				])
+			);
+		} catch (CodeNotFoundException) {
+			return $this->errorResponse("codes not found", 404);
+		} catch (ParamNotFoundException) {
+			return $this->errorResponse("incorrect address", 404);
+		} catch (BadQueryResultException) {
+			return $this->errorResponse("app issues", 500);
+		}
 
         return $response->withHeader('Content-Type', 'application/json');
     }

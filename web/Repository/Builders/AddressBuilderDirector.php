@@ -28,7 +28,7 @@ class AddressBuilderDirector
 	 * @param int|null $parentPos - parent address element position
 	 * @param int|null $chiledPos - chiled address element position
 	 */
-	function __construct(AddressBuilder &$addressBuilder, 
+	function __construct(AddressBuilder $addressBuilder,
 						 array $userAddress,
 						 ?int $parentPos = null,
 						 ?int $chiledPos = null)
@@ -47,17 +47,6 @@ class AddressBuilderDirector
 	}
 
 	/**
-	 * @param AddressBuilder $addressBuilder
-	 * @param array<string> $userAddress
-	 * @param ChainPoint $chainElement
-	 * @return self
-	 */
-	static function fromChainPoint(AddressBuilder &$addressBuilder, array $userAddress, ChainPoint $chainElement): self
-	{
-		return new self($addressBuilder, $userAddress, $chainElement->parentPosition, $chainElement->chiledPosition);
-	}
-
-	/**
 	 * @param int $parentPos
 	 * @param int $chiledPos
 	 * @return void
@@ -73,12 +62,40 @@ class AddressBuilderDirector
 				"Out of range with pos '%s' and '%s' (total length is %s)",
 				$parentPos, $chiledPos, $this->userAddressLength
 			));
-		} elseif ($parentPos >= $chiledPos) {
+		} elseif ($parentPos > $chiledPos) {
 			throw new RuntimeException(sprintf(
 				"parent pos '%s' should be lower than chiledPos, but chiled pos is '%s'",
 				$parentPos, $chiledPos
 			));
 		}
+	}
+
+	/**
+	 * @param AddressBuilderDirector $addressBuilderParent
+	 * @param ChainPoint $chainElement
+	 * @return self
+	 */
+	static function fromChainPoint(AddressBuilderDirector $addressBuilderParent, ChainPoint $chainElement): self
+	{
+		return new self(
+			$addressBuilderParent->getAddressBuilder(),
+			$addressBuilderParent->getUserAddress(),
+			$chainElement->parentPosition,
+			$chainElement->chiledPosition
+		);
+	}
+
+	/**
+	 * @return array<string>
+	 */
+	function getUserAddress(): array
+	{
+		return $this->userAddress;
+	}
+
+	function getAddressBuilder(): AddressBuilder
+	{
+		return $this->addressBuilder;
 	}
 
 	/**
@@ -176,6 +193,15 @@ class AddressBuilderDirector
 	}
 
 	/**
+	 * Return previous chiled name
+	 * @return string
+	 */
+	function getPrevChiledName(): string
+	{
+		return $this->userAddress[$this->chiledPos - 1];
+	}
+
+	/**
 	 * @return string - current child name
 	 */ 
 	function getCurrentParentName(): string
@@ -183,6 +209,14 @@ class AddressBuilderDirector
 		return match($this->isParentPosNotOverflow()) {
 			true => $this->userAddress[$this->parentPos],
 			false => "parent_" . (1 - $this->parentPos)
+		};
+	}
+
+	function getPrevParentName(): string
+	{
+		return match($this->parentPos >= 1) {
+			true => $this->userAddress[$this->parentPos - 1],
+			false => "parent_" . (1 - ($this->parentPos - 1))
 		};
 	}
 
@@ -240,7 +274,7 @@ class AddressBuilderDirector
 	 */
 	function findChiledObjectId(): int
 	{
-		return $this->findObjectIdFromIdentifier($this->getCurrentChiledName());
+		return $this->findObjectIdFromIdentifier($this->getPrevChiledName());
 	}
 
 	/**
@@ -249,6 +283,7 @@ class AddressBuilderDirector
 	 */
 	function findParentObjectId(): int
 	{
-		return $this->findObjectIdFromIdentifier($this->getCurrentParentName());
+		return $this->findObjectIdFromIdentifier($this->getPrevParentName());
 	}
+
 }

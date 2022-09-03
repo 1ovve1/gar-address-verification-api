@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace GAR\Controller;
 
+use DB\Exceptions\BadQueryResultException;
+use GAR\Exceptions\CodeNotFoundException;
+use GAR\Exceptions\ParamNotFoundException;
 use GAR\Repository\AddressByNameRepository;
 use GAR\Repository\Builders\AddressBuilderImplement;
 use GAR\Repository\CodeByObjectIdRepository;
@@ -41,31 +44,25 @@ class AddressController
         return $response;
     }
 
+	/**
+	 * @param Request $request
+	 * @param Response $response
+	 * @param array<string> $args
+	 * @return Response
+	 * @throws CodeNotFoundException
+	 * @throws ParamNotFoundException
+	 * @throws BadQueryResultException
+	 */
     public function getCodeByType(Request $request, Response $response, array $args): Response
     {
         $params = $request->getQueryParams();
 
         if (null === $params['objectid']) {
-            $likeAddress = $this->addressByNameRepo->getFullAddress($params['address']);
-
-            foreach (array_reverse($likeAddress) as $value) {
-                if (count($value) === 1 &&
-			        !key_exists('houses', $value) &&
-			        !key_exists('variants', $value)) {
-
-					$params['objectid'] = current($value)[0]['objectid'];
-                    break;
-                }
-            }
+	        $params['objectid'] = $this->addressByNameRepo->getChiledObjectIdFromAddress($params['address']);
         }
 
-        if (null !== $params['objectid']) {
-            $data = $this->addressByCodeRepo->getCode($params['objectid'], $args['type']);
-
-            if (!empty($data)) {
-                $response->getBody()->write(json_encode($data, JSON_FORCE_OBJECT));
-            }
-        }
+        $data = $this->addressByCodeRepo->getCode($params['objectid'], $args['type']);
+        $response->getBody()->write(json_encode($data, JSON_FORCE_OBJECT));
 
         return $response;
     }

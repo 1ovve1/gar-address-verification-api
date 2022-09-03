@@ -350,4 +350,25 @@ class Database extends QueryBuilder
 
 //		return $this->userStates['getLikeAddress']->execute([LEVEL, $halfAddress, $halfAddress]);
 	}
+
+	/**
+	 * @param int $objectId
+	 * @param string $type
+	 * @return QueryResult
+	 * @throws BadQueryResultException
+	 */
+	function findAddrObjParamByObjectIdAndType(int $objectId, string $type): QueryResult
+	{
+		return Database::select(
+			['params' => 'value'],
+			['params' => AddrObjParams::table()]
+		)->where(
+			['params' => 'objectid_addr'],
+			$objectId
+		)->andWhere(
+			['params' => 'type'],
+			$type
+		)->limit(1)->save();
+	}
+
 }

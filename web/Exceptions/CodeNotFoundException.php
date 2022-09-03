@@ -6,11 +6,11 @@ use Exception;
 
 class CodeNotFoundException extends Exception
 {
-	const MESSAGE_TEMPLATE = "Code not found by these param: %d (objectid)";
+	const MESSAGE_TEMPLATE = "Code not found by these param: %s (objectid)";
 
-	public function __construct(int $objectId)
+	public function __construct(?int $objectId = null)
 	{
-		$message = sprintf(self::MESSAGE_TEMPLATE, $objectId);
+		$message = sprintf(self::MESSAGE_TEMPLATE, $objectId ?? "param not found");
 
 		parent::__construct(
 			$message,
