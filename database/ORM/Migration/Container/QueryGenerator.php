@@ -181,7 +181,7 @@ class QueryGenerator implements QueryFactory
 
 			return sprintf(
 				'%s (%s)',
-				call_user_func($className . '::getTableName'), $field
+				call_user_func($className . '::table'), $field
 			);
 		}
 

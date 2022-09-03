@@ -8,7 +8,7 @@ trait DeleteTrait
 {
 	public static function delete(?string $tableName = null): DeleteQuery
 	{
-		$tableName ??= self::getTableName();
+		$tableName ??= self::table();
 
 		return new ImplDelete($tableName);
 	}

@@ -2,6 +2,7 @@
 
 namespace DB\ORM\QueryBuilder;
 
+use DB\Exceptions\BadQueryResultException;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;
@@ -40,7 +41,7 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	{
 		$this->userStates = $this->prepareStates();
 
-		$tableName ??= self::getTableName();
+		$tableName ??= self::table();
 
 		if ($this instanceof MigrateAble) {
 			$params = $this::migrationParams();
@@ -64,7 +65,7 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	 */
 	public static function findFirst(string $field,
 	                                 mixed $value,
-	                                 ?string $anotherTable = null): array
+	                                 ?string $anotherTable = null): QueryResult
 	{
 		return static::select($field, $anotherTable)->where($field, $value)->save();
 	}
@@ -83,7 +84,8 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	 * Execute template by name
 	 * @param string $templateName
 	 * @param array<mixed> $queryArguments
-	 * @return array<mixed>|false|null
+	 * @return QueryResult
+	 * @throws BadQueryResultException
 	 */
 	public function __call(string $templateName, array $queryArguments)
 	{
@@ -115,7 +117,7 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	/**
 	 * @inheritDoc
 	 */
-	static function getTableName(): string
+	static function table(): string
 	{
 		return DBFacade::genTableNameByClassName(static::class);
 	}

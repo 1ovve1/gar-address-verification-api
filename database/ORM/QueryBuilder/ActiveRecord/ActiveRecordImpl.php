@@ -2,6 +2,7 @@
 
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
+use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\Templates\SQL;
@@ -33,19 +34,19 @@ abstract class ActiveRecordImpl implements ActiveRecord
 	/**
 	 * {@inheritDoc}
 	 */
-	public function execute(array $values): array|false|null
+	public function execute(array $values): QueryResult
 	{
 		$state = self::getState($this->queryBox);
-		return $state->exec($values)->fetchAll();
+		return $state->exec($values);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function save(): array|false|null
+	public function save(): QueryResult
 	{
 		$state = self::getState($this->queryBox);
-		return $state->exec($this->queryBox->dryArgs)->fetchAll();
+		return $state->exec($this->queryBox->dryArgs);
 	}
 
 	/**

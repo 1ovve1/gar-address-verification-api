@@ -2,7 +2,8 @@
 
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
-use DB\ORM\QueryBuilder\AbstractSQL\EndQuery;
+use DB\Exceptions\BadQueryResultException;
+use DB\ORM\DBAdapter\QueryResult;
 
 /**
  * ActiveRecord interface
@@ -15,17 +16,22 @@ interface ActiveRecord
 	 * Execute state with name by $values
 	 *
 	 * @param array<DatabaseContract> $values - values to execute
-	 * @return array<mixed>|false|null
+	 * @return QueryResult
+	 * @throws BadQueryResultException
 	 */
-	public function execute(array $values): array|false|null;
+	public function execute(array $values): QueryResult;
 
 	/**
 	 * Execute query using state that was included into instruction
 	 *
-	 * @return array<mixed>|false|null
+	 * @return QueryResult
+	 * @throws BadQueryResultException
 	 */
-	public function save(): array|false|null;
+	public function save(): QueryResult;
 
-	/** Return immutable queryBox of current object */
+	/**
+	 * Return immutable queryBox of current object
+	 * @return QueryBox
+	 */
 	public function getQueryBox(): QueryBox;
 }

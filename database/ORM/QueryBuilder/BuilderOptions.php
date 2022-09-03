@@ -2,6 +2,7 @@
 
 namespace DB\ORM\QueryBuilder;
 
+use DB\Exceptions\BadQueryResultException;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\AbstractSQL\EndQuery;
@@ -21,17 +22,19 @@ interface BuilderOptions
 	 * @param  string $field - fields name
 	 * @param  DatabaseContract $value - value for compare
 	 * @param  string|null $anotherTable - table name
-	 * @return array<mixed>
+	 * @return QueryResult
+	 * @throws BadQueryResultException
 	 */
 	static function findFirst(string $field,
                               mixed $value,
-                              ?string $anotherTable = null): array;
+                              ?string $anotherTable = null): QueryResult;
 
 	/**
 	 * Doing force insert into table with huge SQL query
 	 *
 	 * @param array<DatabaseContract> $values - values for the force insert
 	 * @return QueryResult
+	 * @throws BadQueryResultException
 	 */
 	function forceInsert(array $values): QueryResult;
 
@@ -39,11 +42,12 @@ interface BuilderOptions
 	 * Save changes in forceInsert buffer
 	 *
 	 * @return QueryResult
+	 * @throws BadQueryResultException
 	 */
 	function saveForceInsert(): QueryResult;
 
 	/**
 	 * @return string - table name of current pseudo-model
 	 */
-	static function getTableName(): string;
+	static function table(): string;
 }

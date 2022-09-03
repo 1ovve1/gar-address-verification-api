@@ -2,6 +2,8 @@
 
 namespace GAR\Repository\Elements;
 
+use DB\ORM\DBAdapter\QueryResult;
+
 class ChainPoint
 {
 	/**
@@ -20,14 +22,14 @@ class ChainPoint
 	{}
 
 	/**
-	 * @param array{int, int} $result
-	 * @param int $chiledPosition
+	 * @param QueryResult $queryResult
 	 * @param int $parentPosition
+	 * @param int $chiledPosition
 	 * @return self
 	 */
-	static function fromQueryResult(array $result, int $parentPosition, int $chiledPosition): self
+	static function fromQueryResult(QueryResult $queryResult, int $parentPosition, int $chiledPosition): self
 	{
-		[$parentObjectId, $chiledObjectId] = $result;
+		[[$parentObjectId, $chiledObjectId]] = $queryResult->fetchAllNum();
 
 		return new self($parentObjectId, $parentPosition, $chiledObjectId, $chiledPosition);
 	}

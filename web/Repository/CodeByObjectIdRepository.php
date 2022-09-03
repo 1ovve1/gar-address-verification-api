@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GAR\Repository;
 
+use DB\Exceptions\BadQueryResultException;
+use DB\Models\AddrObjParams;
 use DB\Models\Database;
 
 /**
@@ -33,24 +35,25 @@ class CodeByObjectIdRepository extends BaseRepo
         return $code;
     }
 
-    /**
-     * Return code by $type using specific objecid address
-     * @param  int    $objectId - objectid address
-     * @param  string $type - type of code
-     * @return array<mixed>
-     */
+	/**
+	 * Return code by $type using specific objecid address
+	 * @param int $objectId - objectid address
+	 * @param string $type - type of code
+	 * @return array<mixed>
+	 * @throws BadQueryResultException
+	 */
     public function getCodeByObjectId(int $objectId, string $type): array
     {
 		$data = Database::select(
 			['params' => 'value'],
-			['params' => 'addr_obj_params']
+			['params' => AddrObjParams::table()]
 		)->where(
 			['params' => 'objectid_addr'],
 			$objectId
 		)->andWhere(
 			['params' => 'type'],
 			$type
-		)->limit(1)->save();
+		)->limit(1)->save()->fetchAllAssoc();
 
 		if (!empty($data)) {
 			$data = [strtoupper($type) => $data[0]['value']];
@@ -59,11 +62,12 @@ class CodeByObjectIdRepository extends BaseRepo
 		return $data;
     }
 
-    /**
-     * Return all codes using concrete objectid address
-     * @param  int    $objectId - cocrete objectid address
-     * @return array<mixed>
-     */
+	/**
+	 * Return all codes using concrete objectid address
+	 * @param int $objectId - concrete objectid address
+	 * @return array<mixed>
+	 * @throws BadQueryResultException
+	 */
     public function getAllCodesByObjectId(int $objectId): array
     {
         $types = [
@@ -75,11 +79,11 @@ class CodeByObjectIdRepository extends BaseRepo
 
         $queryResult = Database::select(
 	        ['params' => ['value', 'type']],
-	        ['params' => 'addr_obj_params'],
+	        ['params' => AddrObjParams::table()],
         )->where(
 	        ['params' => 'objectid_addr'],
 	        $objectId
-        )->save();
+        )->save()->fetchAllAssoc();
 
         if (empty($queryResult)) {
             return [];

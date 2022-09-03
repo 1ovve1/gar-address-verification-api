@@ -7,6 +7,7 @@ interface QueryResult
 	public const PDO_F_ASSOC = \PDO::FETCH_ASSOC;
 	public const PDO_F_COL = \PDO::FETCH_COLUMN;
 	public const PDO_F_BOTH = \PDO::FETCH_BOTH;
+	public const PDO_F_NUM = \PDO::FETCH_NUM;
 
 	/**
 	 * Fetching last query by special flag
@@ -15,6 +16,18 @@ interface QueryResult
 	 * @return array<mixed>|false
 	 */
 	function fetchAll(int $flag = \PDO::FETCH_ASSOC): array|false;
+
+	/**
+	 * Alias for fetchAll with assoc keys array
+	 * @return array<mixed>|false
+	 */
+	function fetchAllAssoc(): array|false;
+
+	/**
+	 * Alias for fetchAll with num keys array
+	 * @return array<mixed>|false
+	 */
+	function fetchAllNum(): array|false;
 
 	/**
 	 * Return rows count in query result
@@ -29,7 +42,19 @@ interface QueryResult
 	function isEmpty(): bool;
 
 	/**
-	 * Check if result has many rows
+	 * Alias for !isEmpty()
+	 * @return bool
+	 */
+	function isNotEmpty(): bool;
+
+	/**
+	 * Check if result have multiple strings
+	 * @return bool
+	 */
+	function hasOnlyOneRow(): bool;
+
+	/**
+	 * Alias for !hasOneRow()
 	 * @return bool
 	 */
 	function hasManyRows(): bool;

@@ -2,13 +2,15 @@
 
 namespace GAR\Repository\Builders;
 
-use GAR\Repository\Collections\AddressObjectCollection;
-use GAR\Repository\Collections\HouseCollection;
+use DB\ORM\DBAdapter\QueryResult;
+use GAR\Exceptions\ParamNotFoundException;
 use GAR\Repository\Elements\ChainPoint;
 use RuntimeException;
 
 class AddressBuilderDirector
 {
+	const OBJECTID = 'objectid';
+
 	/** @var AddressBuilder $addressBuilder */
 	private AddressBuilder $addressBuilder;
 	/** @var array<string> $userAddress */
@@ -23,17 +25,20 @@ class AddressBuilderDirector
 	/**
 	 * @param AddressBuilder &$addressBuilder - builder ref
 	 * @param array<string> $userAddress - user address
-	 * @param int $parentPos - parent address element position
-	 * @param int $chiledPos - chiled address element position
+	 * @param int|null $parentPos - parent address element position
+	 * @param int|null $chiledPos - chiled address element position
 	 */
 	function __construct(AddressBuilder &$addressBuilder, 
 						 array $userAddress,
-						 int $parentPos = 0,
-						 int $chiledPos = 1)
+						 ?int $parentPos = null,
+						 ?int $chiledPos = null)
 	{
 		$this->addressBuilder = $addressBuilder;
 		$this->userAddress = $userAddress;
 		$this->userAddressLength = count($userAddress);
+
+		$parentPos = $parentPos ?? 0;
+		$chiledPos = $chiledPos ?? $this->userAddressLength - 1;
 
 		$this->posValidate($parentPos, $chiledPos);
 
@@ -56,11 +61,11 @@ class AddressBuilderDirector
 	 * @param int $parentPos
 	 * @param int $chiledPos
 	 * @return void
-	 * @throws RuntimeException 	 
-	 */ 
+	 * @throws RuntimeException
+	 */
 	private function posValidate(int $parentPos, int $chiledPos): void
 	{
-		if ($parentPos >= $this->userAddressLength ||  
+		if ($parentPos >= $this->userAddressLength ||
 			$parentPos < 0 ||
 			$chiledPos >= $this->userAddressLength ||
 			$chiledPos < 0) {
@@ -77,19 +82,16 @@ class AddressBuilderDirector
 	}
 
 	/**
-	 * @param AddressObjectCollection $addressObjectCollection
+	 * @param QueryResult $queryResult
 	 * @return AddressBuilderDirector
 	 */
-	function addParentAddr(AddressObjectCollection $addressObjectCollection): self
+	function addParentAddr(QueryResult $queryResult): self
 	{
-		foreach ($addressObjectCollection->getCollection() as $addressElement) {
+		foreach ($queryResult->fetchAllAssoc() as $parentAddressElement) {
 
-			$identifier = match($this->isParentPosNotOverflow()) {
-				true => $this->getCurrentParentName(),
-				false => "parent_" . (1 - $this->parentPos)
-			};
+			$identifier = $this->getCurrentParentName();
 
-			$this->addressBuilder->addParentAddr($identifier, $addressElement->getData());
+			$this->addressBuilder->addParentAddr($identifier, [$parentAddressElement]);
 			$this->parentPos--;
 		}
 
@@ -105,19 +107,19 @@ class AddressBuilderDirector
 	}
 
 	/**
-	 * @param AddressObjectCollection $addressObjectCollection
+	 * @param QueryResult $queryResult
 	 * @return AddressBuilderDirector
 	 */
-	function addChiledAddr(AddressObjectCollection $addressObjectCollection): self
+	function addChiledAddr(QueryResult $queryResult): self
 	{
-		foreach ($addressObjectCollection->getCollection() as $addressElement) {
+		foreach ($queryResult->fetchAllAssoc() as $chiledAddressElement) {
 
 			$identifier = match($this->isChiledPosNotOverflow()) {
 				true => $this->getCurrentChiledName(),
-				false => throw new RuntimeException('chiled position are max')
+				false => throw new RuntimeException('chiled position is max')
 			};
 
-			$this->addressBuilder->addChiledAddr($identifier, $addressElement->getData());
+			$this->addressBuilder->addChiledAddr($identifier, [$chiledAddressElement]);
 			$this->chiledPos++;
 		}
 
@@ -133,28 +135,28 @@ class AddressBuilderDirector
 	}
 
 	/**
-	 * @param HouseCollection $houseCollection
+	 * @param QueryResult $queryResult
 	 * @return AddressBuilderDirector
 	 */
-	function addChiledHouses(HouseCollection $houseCollection): self
+	function addChiledHouses(QueryResult $queryResult): self
 	{
-		$this->addressBuilder->addChiledHouses($houseCollection->toArray());
+		$this->addressBuilder->addChiledHouses($queryResult->fetchAllAssoc());
 		return $this;
 	}
 
 	/**
-	 * @param AddressObjectCollection $addressObjectCollection
+	 * @param QueryResult $queryResult
 	 * @return AddressBuilderDirector
 	 */
-	function addChiledVariant(AddressObjectCollection $addressObjectCollection): self
+	function addChiledVariant(QueryResult $queryResult): self
 	{
-		$this->addressBuilder->addChiledVariant($addressObjectCollection->toArray());
+		$this->addressBuilder->addChiledVariant($queryResult->fetchAllAssoc());
 		return $this;
 	}
 
 	/**
 	 * Return complete address structure
-	 * @return array<string, array<string|int, mixed>>
+	 * @return array<int, array<string, array<int, array<string, string|int>>>>
 	 */
 	function getAddress(): array
 	{
@@ -174,20 +176,79 @@ class AddressBuilderDirector
 	}
 
 	/**
-	 * check if next chiled name can be given
-	 * @return bool
-	 */
-	function hasNextChiledName(): bool
-	{
-		return $this->userAddressLength < $this->chiledPos + 1;
-	}
-
-	/**
 	 * @return string - current child name
 	 */ 
 	function getCurrentParentName(): string
 	{
-		return $this->userAddress[$this->parentPos];
+		return match($this->isParentPosNotOverflow()) {
+			true => $this->userAddress[$this->parentPos],
+			false => "parent_" . (1 - $this->parentPos)
+		};
 	}
 
+	/**
+	 * @param string $param
+	 * @param string $identifier
+	 * @return mixed
+	 * @throws ParamNotFoundException
+	 */
+	function findParamFromIdentifier(string $param, string $identifier): mixed
+	{
+		$data = $this->getAddress();
+		$backLog = null;
+
+		foreach ($data as $identifierElement) {
+			if (key($identifierElement) === $identifier) {
+				$element = $identifierElement[$identifier];
+
+				if (is_array($element) && count($element) === 1) {
+					$singleElement = current($element);
+
+					if (isset($singleElement[$param])) {
+						return $singleElement[$param];
+
+					} else {
+						$backLog = "Param by {$identifier} was not found";
+					}
+				} else {
+					$backLog = "Data by {$identifier} is not array";
+				}
+			}
+		}
+
+		throw new ParamNotFoundException($param, $data, $backLog ?? "Identifier {$identifier} not found");
+	}
+
+	/**
+	 * @param string $identifier
+	 * @return int
+	 * @throws ParamNotFoundException
+	 */
+	function findObjectIdFromIdentifier(string $identifier): int
+	{
+		$objectId = $this->findParamFromIdentifier(self::OBJECTID, $identifier);
+		if (!is_int($objectId)) {
+			throw new ParamNotFoundException('objectid', [$objectId], 'Object id is not an integer');
+		}
+
+		return $objectId;
+	}
+
+	/**
+	 * @return int
+	 * @throws ParamNotFoundException
+	 */
+	function findChiledObjectId(): int
+	{
+		return $this->findObjectIdFromIdentifier($this->getCurrentChiledName());
+	}
+
+	/**
+	 * @return int
+	 * @throws ParamNotFoundException
+	 */
+	function findParentObjectId(): int
+	{
+		return $this->findObjectIdFromIdentifier($this->getCurrentParentName());
+	}
 }

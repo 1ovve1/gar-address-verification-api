@@ -19,6 +19,19 @@ class PDOQueryResult implements QueryResult
 	{}
 
 	/**
+	 * @return PDOStatement
+	 * @throws NullableQueryResultException
+	 */
+	function getQueryResult(): PDOStatement
+	{
+		if (null === $this->queryState) {
+			throw new NullableQueryResultException();
+		}
+
+		return $this->queryState;
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function fetchAll(int $flag = QueryResult::PDO_F_ASSOC): array|false
@@ -33,6 +46,23 @@ class PDOQueryResult implements QueryResult
 
 		return $this->fetchResult;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	function fetchAllAssoc(): array|false
+	{
+		return $this->fetchAll(QueryResult::PDO_F_ASSOC);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	function fetchAllNum(): array|false
+	{
+		return $this->fetchAll(QueryResult::PDO_F_NUM);
+	}
+
 
 	/**
 	 * @inheritDoc
@@ -55,23 +85,31 @@ class PDOQueryResult implements QueryResult
 	}
 
 	/**
+	 * @return bool
+	 */
+	function isNotEmpty(): bool
+	{
+		return !$this->isEmpty();
+	}
+
+	/**
+	 * @return bool
+	 */
+	function hasOnlyOneRow(): bool
+	{
+		try {
+			return $this->getQueryResult()->rowCount() === 1;
+		} catch (NullableQueryResultException) {
+			return false;
+		}
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	function hasManyRows(): bool
 	{
-		return $this->rowCount() > 1;
+		return !$this->hasOnlyOneRow() && $this->isNotEmpty();
 	}
 
-	/**
-	 * @return PDOStatement
-	 * @throws NullableQueryResultException
-	 */
-	function getQueryResult(): PDOStatement
-	{
-		if (null === $this->queryState) {
-			throw new NullableQueryResultException('nullable query result');
-		}
-
-		return $this->queryState;
-	}
 }

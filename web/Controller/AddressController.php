@@ -48,13 +48,12 @@ class AddressController
         if (null === $params['objectid']) {
             $likeAddress = $this->addressByNameRepo->getFullAddress($params['address']);
 
-            foreach (array_reverse($likeAddress) as $key => $value) {
+            foreach (array_reverse($likeAddress) as $value) {
                 if (count($value) === 1 &&
 			        !key_exists('houses', $value) &&
-			        !key_exists('variants', $value) &&
-			        !key_exists('parent_variants', $value)) {
+			        !key_exists('variants', $value)) {
 
-					$params['objectid'] = end($value)['objectid'];
+					$params['objectid'] = current($value)[0]['objectid'];
                     break;
                 }
             }

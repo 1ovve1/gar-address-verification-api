@@ -8,37 +8,45 @@ use GAR\Repository\Builders\AddressBuilderImplement;
 use GAR\Repository\Collections\AddressObjectCollection;
 use GAR\Repository\Collections\HouseCollection;
 use PHPUnit\Framework\TestCase;
+use Tests\Mock\FakeQueryResult;
 
 class AddressBuilderImplementTest extends TestCase
 {
 
 	const FIRST_NAME = 'Калмыкия';
 	const FIRST_DATA = [
+		0 => [
 		"name" => "Калмыкия",
 		"typename" => "Респ",
 		"objectid" => 110423
+		]
 	];
 
 	const SECOND_NAME = 'Лаганский';
 	const SECOND_DATA = [
+		0 => [
 		"name" => "Лаганский",
 		"typename" => "м.р-н",
 		"objectid" => 95232638
+		]
 	];
 
 	const THIRD_NAME = 'Джалыковское';
 	const THIRD_DATA = [
+		0 => [
 		"name" => "Джалыковское",
 		"typename" => "с.п.",
 		"objectid" => 95232643
+		]
 	];
 
 	const FOUR_VARIANT_DATA = [
-		[
+		0 => [
 			"name" => "Джалыково",
 			"typename" => "с",
 			"objectid" => 114333
-		], [
+		],
+		1 => [
 			"name" => "Буранное",
 			"typename" => "с",
 			"objectid" => 114417
@@ -46,10 +54,11 @@ class AddressBuilderImplementTest extends TestCase
 	];
 
 	const HOUSES_DATA = [
-		[
+		0 => [
 			'name' => 1,
 			'objectid' => 2222
-		], [
+		],
+		1 => [
 			'name' => 2,
 			'objectid' => 4444
 		]
@@ -119,11 +128,11 @@ class AddressBuilderImplementTest extends TestCase
 	{
 		$director = new AddressBuilderDirector($this->address, [self::FIRST_NAME, self::SECOND_NAME, self::THIRD_NAME], 1, 2);
 
-		$director->addParentAddr(AddressObjectCollection::fromQueryResult([self::SECOND_DATA]))
-				->addParentAddr(AddressObjectCollection::fromQueryResult([self::FIRST_DATA]))
-				->addChiledAddr(AddressObjectCollection::fromQueryResult([self::THIRD_DATA]))
-				->addChiledVariant(AddressObjectCollection::fromQueryResult(self::FOUR_VARIANT_DATA))
-				->addChiledHouses(HouseCollection::fromQueryResult(self::HOUSES_DATA));
+		$director->addParentAddr(new FakeQueryResult(self::SECOND_DATA))
+				->addParentAddr(new FakeQueryResult(self::FIRST_DATA))
+				->addChiledAddr(new FakeQueryResult(self::THIRD_DATA))
+				->addChiledVariant(new FakeQueryResult(self::FOUR_VARIANT_DATA))
+				->addChiledHouses(new FakeQueryResult(self::HOUSES_DATA));
 
 		$result = $this->address->getAddress();
 
@@ -136,10 +145,10 @@ class AddressBuilderImplementTest extends TestCase
 		$this->expectException(\RuntimeException::class);
 		$director = new AddressBuilderDirector($this->address, [self::FIRST_NAME, self::SECOND_NAME, self::THIRD_NAME], 1, 2);
 
-		$director->addChiledAddr(AddressObjectCollection::fromQueryResult([self::SECOND_DATA]))
-				->addChiledAddr(AddressObjectCollection::fromQueryResult([self::FIRST_DATA]))
-				->addChiledAddr(AddressObjectCollection::fromQueryResult([self::FIRST_DATA]))
-				->addChiledAddr(AddressObjectCollection::fromQueryResult([self::FIRST_DATA]));
+		$director->addChiledAddr(new FakeQueryResult(self::SECOND_DATA))
+				->addChiledAddr(new FakeQueryResult(self::FIRST_DATA))
+				->addChiledAddr(new FakeQueryResult(self::FIRST_DATA))
+				->addChiledAddr(new FakeQueryResult(self::FIRST_DATA));
 
 	}
 }
