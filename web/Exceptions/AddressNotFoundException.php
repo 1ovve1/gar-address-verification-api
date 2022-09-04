@@ -14,8 +14,7 @@ class AddressNotFoundException extends Exception
 
 		parent::__construct(
 			$message,
-			8,
-			null
+			8
 		);
 	}
 }

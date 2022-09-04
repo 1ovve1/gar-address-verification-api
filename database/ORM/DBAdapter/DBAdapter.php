@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace DB\ORM\DBAdapter;
 
 use DB\Exceptions\BadQueryResultException;
-use DB\Exceptions\FailedDBConnectionViaDSNException;
+use DB\Exceptions\FailedDBConnectionWithDBException;
+use DB\Exceptions\InvalidForceInsertConfigurationException;
 use DB\ORM\Migration\Container\Query;
-use RuntimeException;
 
 /**
- * Common interface for databse connection
+ * Common interface for database connection
  *
  * @phpstan-type DatabaseContract int|float|string|bool|null
  */
@@ -22,7 +22,7 @@ interface DBAdapter
 	 * @param string $dbName - db name
 	 * @param string $dbPort - port
 	 * @return self;
-	 * @throws FailedDBConnectionViaDSNException
+	 * @throws FailedDBConnectionWithDBException
 	 */
 	static function connectViaDSN(string $dbType, string $dbHost,
 	                              string $dbName, string $dbPort,
@@ -39,7 +39,7 @@ interface DBAdapter
   
 
 	/**
-	 * Prepare query by template. Use execute for execute statement or getTemplate to get QueryTemplate onbect
+	 * Prepare query by template. Use execute for execute statement or getTemplate to get QueryTemplate object
 	 *
 	 * @param string $template - template
 	 * @return QueryTemplate - self
@@ -53,6 +53,7 @@ interface DBAdapter
 	 * @param array<mixed> $fields - fields
 	 * @param int $stagesCount - stages count
 	 * @return QueryTemplate - prepared statement object
+	 * @throws InvalidForceInsertConfigurationException
 	 */
     public function getForceInsertTemplate(
         string $tableName,

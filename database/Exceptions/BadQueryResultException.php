@@ -5,7 +5,6 @@ namespace DB\Exceptions;
 
 
 use Exception;
-use PDOException;
 
 class BadQueryResultException extends Exception
 {

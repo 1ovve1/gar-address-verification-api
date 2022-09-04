@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GAR\Repository;
 
 use DB\Exceptions\BadQueryResultException;
+use DB\Exceptions\FailedDBConnectionWithDBException;
 use GAR\Exceptions\AddressNotFoundException;
 use GAR\Exceptions\ChainNotFoundException;
 use GAR\Exceptions\ParamNotFoundException;
@@ -39,6 +40,7 @@ class AddressByNameRepository extends BaseRepo
 	 * @throws AddressNotFoundException
 	 * @throws ParamNotFoundException - if objectid was not found
 	 * @throws ServerSideProblemException
+	 * @throws FailedDBConnectionWithDBException
 	 */
 	function getChiledObjectIdFromAddress(array $userAddress): int
 	{
@@ -52,7 +54,7 @@ class AddressByNameRepository extends BaseRepo
 	 * @param array<string> $userAddress - exploded input address fragment
 	 * @return array<int, array<string, array<int, array<string, string|int>>>> - full address
 	 * @throws AddressNotFoundException - address was not found
-	 * @throws ParamNotFoundException - objectid was not found
+	 * @throws FailedDBConnectionWithDBException
 	 * @throws ServerSideProblemException - bd server error
 	 */
     function getFullAddress(array $userAddress): array
@@ -87,6 +89,7 @@ class AddressByNameRepository extends BaseRepo
 	/**
 	 * @return void
 	 * @throws BadQueryResultException
+	 * @throws FailedDBConnectionWithDBException
 	 */
 	protected function handleSingleWordUserAddress(): void
 	{
@@ -98,6 +101,7 @@ class AddressByNameRepository extends BaseRepo
 	/**
 	 * @return void
 	 * @throws BadQueryResultException
+	 * @throws FailedDBConnectionWithDBException
 	 */
 	function handleDoubleWordUserAddress(): void
 	{
@@ -110,7 +114,7 @@ class AddressByNameRepository extends BaseRepo
 		} catch (ParamNotFoundException) {
 			// it is mean that after completeAddressChainBackward we
 			// get an address with variants identifier
-			// (addressBuilder didn't have a identifier like $parentName)
+			// (addressBuilder didn't have an identifier like $parentName)
 			return;
 		}
 
@@ -128,6 +132,9 @@ class AddressByNameRepository extends BaseRepo
 	/**
 	 * @return void
 	 * @throws BadQueryResultException
+	 * @throws FailedDBConnectionWithDBException
+	 * @throws FailedDBConnectionWithDBException
+	 * @throws FailedDBConnectionWithDBException
 	 */
 	protected function handleComplexUserAddress(): void
 	{
@@ -151,6 +158,7 @@ class AddressByNameRepository extends BaseRepo
 	 * @return ChainPoint
 	 * @throws BadQueryResultException
 	 * @throws ChainNotFoundException
+	 * @throws FailedDBConnectionWithDBException
 	 */
 	protected function findSimilarAddressChain(array $userAddress): ChainPoint
 	{
@@ -177,6 +185,7 @@ class AddressByNameRepository extends BaseRepo
 	/**
 	 * @param int|string $currObjectIdOrName
 	 * @throws BadQueryResultException
+	 * @throws FailedDBConnectionWithDBException
 	 */
     protected function completeAddressChainBackward(int|string $currObjectIdOrName): void
     {
@@ -205,6 +214,7 @@ class AddressByNameRepository extends BaseRepo
 	/**
 	 * @param int|string $currObjectIdOrName
 	 * @throws BadQueryResultException
+	 * @throws FailedDBConnectionWithDBException
 	 */
     protected function completeAddressChainForward(int|string $currObjectIdOrName): void
     {

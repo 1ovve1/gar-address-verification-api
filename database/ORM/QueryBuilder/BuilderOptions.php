@@ -3,21 +3,19 @@
 namespace DB\ORM\QueryBuilder;
 
 use DB\Exceptions\BadQueryResultException;
+use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\QueryResult;
-use DB\ORM\DBFacade;
-use DB\ORM\QueryBuilder\AbstractSQL\EndQuery;
-use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
 
 /**
  * Common interface for query builder
  *
- * @phpstan-import-type DatabaseContract from \DB\ORM\DBAdapter\DBAdapter
+ * @phpstan-import-type DatabaseContract from DBAdapter
  */
 interface BuilderOptions
 {
 	/**
-	 * Finding first element of $field collumn with $value compare
+	 * Finding first element of $field column with $value compare
 	 *
 	 * @param  string $field - fields name
 	 * @param  DatabaseContract $value - value for compare

@@ -7,13 +7,14 @@ namespace GAR\Middleware;
 use GAR\Exceptions\AddressValidationException;
 use GAR\Helpers\ResponseCodes;
 use GAR\Helpers\Validation;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use GAR\Helpers\RequestHelper;
 
 class AddressNameMiddleware
 {
-    public function __invoke(Request $request, RequestHandler $handler): \Psr\Http\Message\ResponseInterface
+    public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
     {
         $params = $request->getQueryParams();
         

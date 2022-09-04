@@ -4,7 +4,7 @@ namespace DB\Exceptions;
 
 use Exception;
 
-class FailedDBConnectionViaDSNException extends Exception
+class FailedDBConnectionWithDBException extends Exception
 {
 	const MESSAGE_TEMPLATE = "Failed connection to database with these params: " . PHP_EOL .
 							 "Dsn: %s" . PHP_EOL . "Message from DBAdapter: %s";

@@ -3,6 +3,9 @@
 namespace DB\ORM\QueryBuilder;
 
 use DB\Exceptions\BadQueryResultException;
+use DB\Exceptions\FailedDBConnectionWithDBException;
+use DB\Exceptions\InvalidForceInsertConfigurationException;
+use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;
@@ -16,11 +19,12 @@ use DB\ORM\QueryBuilder\QueryTypes\{Delete\DeleteAble,
 	Select\SelectTrait,
 	Update\UpdateAble,
 	Update\UpdateTrait};
+use RuntimeException;
 
 /**
  * Common interface for query builder
  *
- * @phpstan-import-type DatabaseContract from \DB\ORM\DBAdapter\DBAdapter
+ * @phpstan-import-type DatabaseContract from DBAdapter
  */
 abstract class QueryBuilderPrelude
 	implements SelectAble, InsertAble, UpdateAble, DeleteAble, BuilderOptions
@@ -35,6 +39,8 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	/**
 	 * @param array<string> $fields
 	 * @param string|null $tableName
+	 * @throws InvalidForceInsertConfigurationException
+	 * @throws FailedDBConnectionWithDBException
 	 */
 	public function __construct(array $fields = [],
 	                            ?string $tableName = null)
@@ -62,6 +68,7 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 
 	/**
 	 * {@inheritDoc}
+	 * @throws FailedDBConnectionWithDBException
 	 */
 	public static function findFirst(string $field,
 	                                 mixed $value,
@@ -92,7 +99,7 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 		$state = $this->userStates[$templateName] ?? null;
 
 		if (null === $state) {
-			throw new \RuntimeException('Unknown state');
+			throw new RuntimeException('Unknown state');
 		}
 
 		return $state->execute($queryArguments);

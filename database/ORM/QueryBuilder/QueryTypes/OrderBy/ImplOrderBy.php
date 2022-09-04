@@ -4,7 +4,6 @@ namespace DB\ORM\QueryBuilder\QueryTypes\OrderBy;
 
 use DB\ORM\QueryBuilder\Templates\SQL;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
-use DB\ORM\QueryBuilder\ActiveRecord\QueryBox;
 
 class ImplOrderBy extends OrderByQuery
 {

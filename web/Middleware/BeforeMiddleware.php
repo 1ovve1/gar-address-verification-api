@@ -6,12 +6,13 @@ namespace GAR\Middleware;
 
 use GAR\Helpers\RequestHelper;
 use GAR\Helpers\ResponseCodes;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
 class BeforeMiddleware
 {
-    public function __invoke(Request $request, RequestHandler $handler): \Psr\Http\Message\ResponseInterface
+    public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
     {
         $params = $request->getQueryParams();
         foreach ($params as $value) {

@@ -1,13 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DB\ORM\QueryBuilder\QueryTypes\ContinueWhere;
 
-use DB\ORM\QueryBuilder\AbstractSQL\WhereQuery;
+use DB\ORM\DBAdapter\DBAdapter;
 
 /**
  * Continue where interface
  *
- * @phpstan-import-type DatabaseContract from \DB\ORM\DBAdapter\DBAdapter
+ * @phpstan-import-type DatabaseContract from DBAdapter
  */
 interface ContinueWhereAble
 {

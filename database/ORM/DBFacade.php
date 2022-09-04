@@ -2,14 +2,13 @@
 
 namespace DB\ORM;
 
-use DB\Exceptions\FailedDBConnectionViaDSNException;
+use DB\Exceptions\BadQueryResultException;
+use DB\Exceptions\FailedDBConnectionWithDBException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\PDO\PDOObject;
 use DB\ORM\QueryBuilder\Templates\Conditions;
 use DB\ORM\QueryBuilder\Templates\SQL;
-use \RuntimeException;
-use InvalidArgumentException;
-use PDOException;
+use RuntimeException;
 
 /**
  * Database facade static class
@@ -21,15 +20,17 @@ class DBFacade
      */
     public static ?DBAdapter $instance = null;
 
-    /**
-     * Get curr instance of database
-     *
-     * @return DBAdapter
-     */
+	/**
+	 * Get curr instance of database
+	 *
+	 * @return DBAdapter
+	 * @throws FailedDBConnectionWithDBException
+	 */
     public static function getDBInstance(): DBAdapter
     {
         if (self::$instance === null) {
-            self::$instance = self::connectViaPDO();
+	        self::$instance = self::connectViaPDO();
+
         }
 
         return self::$instance;
@@ -38,6 +39,7 @@ class DBFacade
 	/**
 	 * Connection without singleton
 	 * @return DBAdapter
+	 * @throws FailedDBConnectionWithDBException
 	 */
 	public static function getImmutableDBConnection(): DBAdapter
 	{
@@ -48,13 +50,13 @@ class DBFacade
 	 * Connection via PDO
 	 *
 	 * @return DBAdapter
-	 * @throws FailedDBConnectionViaDSNException
+	 * @throws FailedDBConnectionWithDBException
 	 */
     public static function connectViaPDO(): DBAdapter
     {
 	    return PDOObject::connectViaDSN(
-	        $_ENV['DB_TYPE'], $_ENV['DB_HOST'],
-	        $_ENV['DB_NAME'], $_ENV['DB_PORT'],
+		    $_ENV['DB_TYPE'], $_ENV['DB_HOST'],
+		    $_ENV['DB_NAME'], $_ENV['DB_PORT'],
 		    $_ENV['DB_USER'], $_ENV['DB_PASS']
 	    );
     }
@@ -139,6 +141,10 @@ class DBFacade
 		return substr($strResult, 0, -2);
 	}
 
+	/**
+	 * @param array<mixed> $tableNamesWithPseudonyms
+	 * @return string
+	 */
 	public static function tableNamesWithPseudonymsToString(array $tableNamesWithPseudonyms): string
 	{
 		$strBuffer = '';

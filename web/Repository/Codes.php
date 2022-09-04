@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GAR\Repository;
 
-use GAR\Exceptions\CodeNotFoundException;
 use GAR\Exceptions\CodeTypeNotFoundException;
 
 /**

@@ -5,6 +5,7 @@ namespace DB\ORM\DBAdapter\PDO;
 
 use DB\Exceptions\BadQueryResultException;
 use DB\Exceptions\IncorrectBufferInputException;
+use DB\Exceptions\InvalidForceInsertConfigurationException;
 use DB\Exceptions\QueryTemplateNotFoundException;
 use DB\ORM\DBAdapter\{
 	DBAdapter,
@@ -38,12 +39,13 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
      */
     private array $states = [];
 
-    /**
-     * @param DBAdapter $db - database connection
-     * @param string $tableName - name of prepared table
-     * @param String[] $fields - fields of prepared table
-     * @param int $stagesCount - default stages count
-     */
+	/**
+	 * @param DBAdapter $db - database connection
+	 * @param string $tableName - name of prepared table
+	 * @param String[] $fields - fields of prepared table
+	 * @param int $stagesCount - default stages count
+	 * @throws InvalidForceInsertConfigurationException
+	 */
     public function __construct(
         DBAdapter $db,
         string $tableName,

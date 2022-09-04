@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace GAR\Repository;
 
 use DB\Exceptions\BadQueryResultException;
-use DB\Models\AddrObjParams;
-use DB\Models\Database;
+use DB\Exceptions\FailedDBConnectionWithDBException;
 use GAR\Exceptions\CodeNotFoundException;
 use GAR\Exceptions\ServerSideProblemException;
-use http\Exception\RuntimeException;
 
 /**
  * Repository for getting code by concrete objectid
@@ -22,6 +20,7 @@ class CodeByObjectIdRepository extends BaseRepo
 	 * @param string $type - type of code
 	 * @return array|null
 	 * @throws CodeNotFoundException - if codes was not found
+	 * @throws FailedDBConnectionWithDBException
 	 * @throws ServerSideProblemException - if we fined server side problems
 	 */
     public function getCode(int $objectId, string $type): ?array
@@ -48,11 +47,12 @@ class CodeByObjectIdRepository extends BaseRepo
     }
 
 	/**
-	 * Return code by $type using specific objecid address
+	 * Return code by $type using specific objectid address
 	 * @param int $objectId - objectid address
 	 * @param string $type - type of code
 	 * @return array<mixed>
 	 * @throws BadQueryResultException
+	 * @throws FailedDBConnectionWithDBException
 	 */
     public function getCodeByObjectId(int $objectId, string $type): array
     {
@@ -72,6 +72,7 @@ class CodeByObjectIdRepository extends BaseRepo
 	 * @param int $objectId - concrete objectid address
 	 * @return array<mixed>
 	 * @throws BadQueryResultException
+	 * @throws FailedDBConnectionWithDBException
 	 */
     public function getAllCodesByObjectId(int $objectId): array
     {

@@ -2,14 +2,15 @@
 
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
+use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\Templates\SQL;
-use PHPUnit\Util\Xml\ValidationResult;
+use Throwable;
 
 /**
  * Query immutable box class
  *
- * @phpstan-import-type DatabaseContract from \DB\ORM\DBAdapter\DBAdapter
+ * @phpstan-import-type DatabaseContract from DBAdapter
  */
 class QueryBox
 {
@@ -39,7 +40,7 @@ class QueryBox
 		}
 
 		$this->querySnapshot = $parentSnapshot . self::genPreparedQuery($template, $clearArgs);
-		$this->dryArgs = array_merge($parentDryArgs, $dryArgs);;
+		$this->dryArgs = array_merge($parentDryArgs, $dryArgs);
 	}
 
 
@@ -59,7 +60,7 @@ class QueryBox
 				$clearArgs
 			);
 		}
-		catch(\Throwable $error) {
+		catch(Throwable $error) {
 			DBFacade::dumpException($template, $error->getMessage(), $clearArgs);
 		}
 

@@ -2,8 +2,6 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Update;
 
-use DB\ORM\DBFacade;
-
 trait UpdateTrait
 {
 	public static function update(string $field,

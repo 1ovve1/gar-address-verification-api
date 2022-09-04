@@ -5,7 +5,6 @@ namespace DB\ORM\QueryBuilder\QueryTypes\NestedCondition;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\Templates\SQL;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
-use DB\ORM\QueryBuilder\ActiveRecord\QueryBox;
 
 class ImplNestedInNested extends NestedConditionQuery
 {

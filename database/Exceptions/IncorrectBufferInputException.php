@@ -18,8 +18,7 @@ class IncorrectBufferInputException extends Exception
 		$message = sprintf(self::MESSAGE_TEMPLATE, $requireLengthOfInputArray, implode("', '", $givenValues));
 		parent::__construct(
 			$message,
-			ExceptionCodes::INCORRECT_BUFFER_INPUT_EXCEPTION_CODE,
-			null
+			ExceptionCodes::INCORRECT_BUFFER_INPUT_EXCEPTION_CODE
 		);
 	}
 

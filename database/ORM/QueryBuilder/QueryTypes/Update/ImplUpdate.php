@@ -3,8 +3,6 @@
 namespace DB\ORM\QueryBuilder\QueryTypes\Update;
 
 use DB\ORM\QueryBuilder\Templates\SQL;
-use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
-use DB\ORM\QueryBuilder\ActiveRecord\QueryBox;
 
 class ImplUpdate extends UpdateQuery
 {

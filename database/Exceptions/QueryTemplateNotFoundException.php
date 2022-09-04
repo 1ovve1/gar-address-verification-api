@@ -2,10 +2,9 @@
 
 namespace DB\Exceptions;
 
-use JetBrains\PhpStorm\Pure;
-use PHPUnit\Framework\Constraint\ExceptionCode;
+use Exception;
 
-class QueryTemplateNotFoundException extends \Exception
+class QueryTemplateNotFoundException extends Exception
 {
 	const MESSAGE = "QueryTemplate was not found";
 
@@ -13,8 +12,7 @@ class QueryTemplateNotFoundException extends \Exception
 	{
 		parent::__construct(
 			self::MESSAGE,
-			ExceptionCodes::QUERY_TEMPLATE_WAS_NOT_FOUND_CODE,
-			null
+			ExceptionCodes::QUERY_TEMPLATE_WAS_NOT_FOUND_CODE
 		);
 	}
 

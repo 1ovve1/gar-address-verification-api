@@ -2,12 +2,14 @@
 
 namespace DB\ORM\DBAdapter;
 
+use PDO;
+
 interface QueryResult
 {
-	public const PDO_F_ASSOC = \PDO::FETCH_ASSOC;
-	public const PDO_F_COL = \PDO::FETCH_COLUMN;
-	public const PDO_F_BOTH = \PDO::FETCH_BOTH;
-	public const PDO_F_NUM = \PDO::FETCH_NUM;
+	public const PDO_F_ASSOC = PDO::FETCH_ASSOC;
+	public const PDO_F_COL = PDO::FETCH_COLUMN;
+	public const PDO_F_BOTH = PDO::FETCH_BOTH;
+	public const PDO_F_NUM = PDO::FETCH_NUM;
 
 	/**
 	 * Fetching last query by special flag
@@ -15,7 +17,7 @@ interface QueryResult
 	 * @param int $flag - fetching flag
 	 * @return array<mixed>|false
 	 */
-	function fetchAll(int $flag = \PDO::FETCH_ASSOC): array|false;
+	function fetchAll(int $flag = PDO::FETCH_ASSOC): array|false;
 
 	/**
 	 * Alias for fetchAll with assoc keys array

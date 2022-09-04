@@ -14,8 +14,7 @@ class CodeNotFoundException extends Exception
 
 		parent::__construct(
 			$message,
-			4,
-			null
+			4
 		);
 	}
 

@@ -3,12 +3,13 @@
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
 use DB\Exceptions\BadQueryResultException;
+use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\QueryResult;
 
 /**
  * ActiveRecord interface
  *
- * @phpstan-import-type DatabaseContract from \DB\ORM\DBAdapter\DBAdapter
+ * @phpstan-import-type DatabaseContract from DBAdapter
  */
 interface ActiveRecord
 {

@@ -6,6 +6,7 @@ namespace DB\ORM\DBAdapter\PDO;
 
 use DB\Exceptions\BadQueryResultException;
 use DB\ORM\DBAdapter\{DBAdapter, QueryResult, QueryTemplate};
+use PDOException;
 use PDOStatement;
 
 /**
@@ -35,7 +36,7 @@ class PDOTemplate implements QueryTemplate
     {
         try {
             $res = $this->template->execute($values);
-        } catch (\PDOException $pdoException) {
+        } catch (PDOException $pdoException) {
             throw new BadQueryResultException($this->template->queryString, $pdoException);
         }
         if ($res === false) {

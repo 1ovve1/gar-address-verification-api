@@ -1,12 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DB\ORM\QueryBuilder\QueryTypes\ContinueWhere;
 
-use DB\ORM\QueryBuilder\AbstractSQL\WhereQuery;
-use DB\ORM\QueryBuilder\QueryTypes\Where\ImplWhere;
 use DB\ORM\QueryBuilder\Templates\SQL;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
-use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecordImpl;
 
 class ImplWhereOr extends ContinueWhereQuery
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DB\ORM\DBAdapter\PDO;
 
 use DB\Exceptions\BadQueryResultException;
-use DB\Exceptions\FailedDBConnectionViaDSNException;
+use DB\Exceptions\FailedDBConnectionWithDBException;
 use DB\ORM\DBAdapter\{DBAdapter, QueryResult, QueryTemplate};
 use DB\ORM\Migration\Container\Query;
 use PDO;
@@ -40,7 +40,7 @@ class PDOObject implements DBAdapter
 		try{
 			$instance = new self($dsn, $dbUsername, $dbPass);
 		} catch (PDOException $pdoException) {
-			throw new FailedDBConnectionViaDSNException($dsn, $pdoException);
+			throw new FailedDBConnectionWithDBException($dsn, $pdoException);
 		}
 
 		return $instance;

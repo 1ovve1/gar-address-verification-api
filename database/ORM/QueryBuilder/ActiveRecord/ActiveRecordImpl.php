@@ -2,6 +2,8 @@
 
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
+use DB\Exceptions\BadQueryResultException;
+use DB\Exceptions\FailedDBConnectionWithDBException;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;
@@ -22,6 +24,7 @@ abstract class ActiveRecordImpl implements ActiveRecord
 	 *
 	 * @param QueryBox $queryBox
 	 * @return QueryTemplate
+	 * @throws FailedDBConnectionWithDBException
 	 */
 	private static function getState(QueryBox $queryBox) : QueryTemplate
 	{
@@ -33,6 +36,7 @@ abstract class ActiveRecordImpl implements ActiveRecord
 
 	/**
 	 * {@inheritDoc}
+	 * @throws FailedDBConnectionWithDBException
 	 */
 	public function execute(array $values): QueryResult
 	{
@@ -42,6 +46,7 @@ abstract class ActiveRecordImpl implements ActiveRecord
 
 	/**
 	 * {@inheritDoc}
+	 * @throws FailedDBConnectionWithDBException
 	 */
 	public function save(): QueryResult
 	{

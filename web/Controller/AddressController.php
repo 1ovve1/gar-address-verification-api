@@ -8,6 +8,7 @@ use GAR\Exceptions\{AddressNotFoundException,
 	CodeNotFoundException,
 	ParamNotFoundException,
 	ServerSideProblemException};
+use DB\Exceptions\FailedDBConnectionWithDBException;
 use GAR\Helpers\{RequestHelper, ResponseCodes};
 use GAR\Repository\{AddressByNameRepository, Builders\AddressBuilderImplement, CodeByObjectIdRepository};
 use Psr\Http\Message\{ResponseInterface as Response, ServerRequestInterface as Request};
@@ -43,13 +44,11 @@ class AddressController
 		    RequestHelper::writeDataJson($response, $likeAddress);
 	    } catch (AddressNotFoundException $e) {
 			$response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::NOT_FOUND_404);
-	    } catch (ParamNotFoundException $e) {
-			$response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::CONFLICT_409);
-	    } catch (ServerSideProblemException $e) {
+	    } catch (ServerSideProblemException|FailedDBConnectionWithDBException $e) {
 			$response = RequestHelper::errorResponse('Server side problems' . $e->getMessage(), ResponseCodes::NOT_IMPLEMENTED_501);
 	    }
 
-        return $response;
+	    return $response;
     }
 
 	/**
@@ -73,11 +72,11 @@ class AddressController
 		    $response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::NOT_FOUND_404);
 	    } catch (ParamNotFoundException $e) {
 		    $response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::CONFLICT_409);
-	    } catch (ServerSideProblemException $e) {
+	    } catch (ServerSideProblemException|FailedDBConnectionWithDBException $e) {
 		    $response = RequestHelper::errorResponse('Server side problems', ResponseCodes::NOT_IMPLEMENTED_501);
 	    }
 
-        return $response;
+	    return $response;
     }
 
 }

@@ -23,7 +23,7 @@ class CodeTypeNotFoundException extends Exception
 
 		$message = sprintf(self::MESSAGE_TEMPLATE, $actualType, implode(', ', $codeTypesList));
 
-		parent::__construct($message, 64, null);
+		parent::__construct($message, 64);
 	}
 
 

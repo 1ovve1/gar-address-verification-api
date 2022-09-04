@@ -26,8 +26,7 @@ class ParamNotFoundException extends Exception
 
 		parent::__construct(
 			$message,
-			1,
-			null
+			1
 		);
 	}
 

@@ -5,7 +5,6 @@ namespace DB\ORM\QueryBuilder\QueryTypes\ContinueWhere;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\QueryTypes\NestedCondition\ClientNestedCondition;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
-use DB\ORM\QueryBuilder\ActiveRecord\SQLNestedWhereConstructor;
 use DB\ORM\QueryBuilder\Templates\SQL;
 
 class ImplNestedWhereAnd extends ContinueWhereQuery

@@ -52,7 +52,7 @@ class PDOQueryResult implements QueryResult
 	 */
 	function fetchAllAssoc(): array|false
 	{
-		return $this->fetchAll(QueryResult::PDO_F_ASSOC);
+		return $this->fetchAll();
 	}
 
 	/**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GAR\Middleware;
 
 use GAR\Exceptions\{AddressValidationException, CodeTypeNotFoundException};
+use Psr\Http\Message\ResponseInterface;
 use GAR\Helpers\{RequestHelper, ResponseCodes, Validation};
 use GAR\Repository\Codes;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -13,7 +14,7 @@ use Slim\Routing\RouteContext;
 
 class CodeMiddleware
 {
-    public function __invoke(Request $request, RequestHandler $handler): \Psr\Http\Message\ResponseInterface
+    public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
     {
         $args = RouteContext::fromRequest($request)->getRoute()->getArguments();
 

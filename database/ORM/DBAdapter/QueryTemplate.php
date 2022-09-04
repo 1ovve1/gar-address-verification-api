@@ -7,7 +7,7 @@ namespace DB\ORM\DBAdapter;
 use DB\Exceptions\BadQueryResultException;
 
 /**
- * Common query tempalte interface for prepared statements
+ * Common query template interface for prepared statements
  *
  * @phpstan-import-type DatabaseContract from DBAdapter
  */

@@ -10,7 +10,7 @@ class ChainNotFoundException extends Exception
 
 	public function __construct()
 	{
-		parent::__construct(self::MESSAGE, 2, null);
+		parent::__construct(self::MESSAGE, 2);
 	}
 
 

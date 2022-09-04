@@ -12,7 +12,7 @@ class AddressValidationException extends Exception
 	{
 		$message = sprintf(self::MESSAGE_TEMPLATE, $message);
 
-		parent::__construct($message, 32, null);
+		parent::__construct($message, 32);
 	}
 
 

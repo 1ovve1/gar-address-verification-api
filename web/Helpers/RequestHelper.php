@@ -4,7 +4,6 @@ namespace GAR\Helpers;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Psr7\Factory\ServerRequestFactory;
-use Psr\Http\Message\RequestInterface;
 use Slim\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 
@@ -22,7 +21,7 @@ class RequestHelper
 	 * @param string $uri
 	 * @param array<string> $params
 	 * @param string $method
-	 * @return RequestInterface
+	 * @return ServerRequestInterface
 	 */
 	static function createRequest(string $uri, array $params, string $method = 'GET'): ServerRequestInterface
 	{
@@ -66,7 +65,7 @@ class RequestHelper
 	 * @param int $flag
 	 * @return void
 	 */
-	static function writeDataJson(ResponseInterface &$response, array $data, int $flag = JSON_FORCE_OBJECT): void
+	static function writeDataJson(ResponseInterface $response, array $data, int $flag = JSON_FORCE_OBJECT): void
 	{
 		$response->getBody()->write(json_encode($data, JSON_FORCE_OBJECT));
 	}

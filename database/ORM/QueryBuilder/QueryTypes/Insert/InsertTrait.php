@@ -35,7 +35,7 @@ function prepareArgsIntoFieldsAndValues(array $fields_values) : array
 }
 
 /**
- * @param $values
+ * @param array $values
  * @return array<array<mixed>>
  */
 function normalizeValues(array $values) : array

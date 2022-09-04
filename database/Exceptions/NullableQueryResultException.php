@@ -12,8 +12,7 @@ class NullableQueryResultException extends Exception
 	{
 		parent::__construct(
 			self::MESSAGE,
-			ExceptionCodes::NULLABLE_QUERY_RESULT_CODE,
-			null
+			ExceptionCodes::NULLABLE_QUERY_RESULT_CODE
 		);
 	}
 
