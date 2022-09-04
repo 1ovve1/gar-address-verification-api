@@ -60,7 +60,7 @@ class AS_ADDR_OBJ extends XMLFile
     {
         $region = $this->getIntRegion();
 
-        if (empty($table->getFirstObjectId($region, $values['OBJECTID']))) {
+        if ($table->getFirstObjectId($region, $values['OBJECTID'])->isEmpty()) {
 
             unset($values['ISACTUAL']); unset($values['ISACTIVE']);
 

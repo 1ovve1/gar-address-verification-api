@@ -64,7 +64,7 @@ class AS_ADDR_OBJ_PARAMS extends XMLFile
 				return;
 	    };
 
-        if ($table->getFirstObjectIdAddrObj($region, $values['OBJECTID'])) {
+        if ($table->getFirstObjectIdAddrObj($region, $values['OBJECTID'])->isNotEmpty()) {
             $values['REGION'] = $region;
 
             $table->forceInsert($values);
