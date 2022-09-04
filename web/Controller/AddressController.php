@@ -68,7 +68,7 @@ class AddressController
 		    }
 
 		    $data = $this->addressByCodeRepo->getCode($params['objectid'], $args['type']);
-		    $response->getBody()->write(json_encode($data, JSON_FORCE_OBJECT));
+			RequestHelper::writeDataJson($response, $data);
 	    } catch (AddressNotFoundException|CodeNotFoundException $e) {
 		    $response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::NOT_FOUND_404);
 	    } catch (ParamNotFoundException $e) {
