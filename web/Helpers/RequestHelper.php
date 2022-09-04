@@ -2,16 +2,72 @@
 
 namespace GAR\Helpers;
 
+use Psr\Http\Message\ServerRequestInterface;
+use Slim\Psr7\Factory\ServerRequestFactory;
+use Psr\Http\Message\RequestInterface;
 use Slim\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
 
-class RequestFactory
+class RequestHelper
 {
-	static function errorResponse(string $message, int $status = 400): Response
+	/**
+	 * @return Response
+	 */
+	static function createEmptyResponse(): Response
+	{
+		return new Response();
+	}
+
+	/**
+	 * @param string $uri
+	 * @param array<string> $params
+	 * @param string $method
+	 * @return RequestInterface
+	 */
+	static function createRequest(string $uri, array $params, string $method = 'GET'): ServerRequestInterface
+	{
+		$paramsCollection = [];
+		foreach ($params as $name => $value) {
+
+			$paramsCollection[] = $name . '=' . $value;
+		}
+
+		$uriWithParams = match (empty($paramsCollection)) {
+			true => $uri,
+			false => $uri . '?' . implode('&', $paramsCollection)
+		};
+
+		return (new ServerRequestFactory())->createServerRequest($method, $uriWithParams);
+	}
+
+	/**
+	 * @param string $message
+	 * @param ResponseCodes $status
+	 * @param bool $jsonType
+	 * @return Response
+	 */
+	static function errorResponse(string $message, ResponseCodes $status, bool $jsonType = true): Response
 	{
 		$response = new Response();
 		$response->getBody()->write(json_encode([
 			'error' => $message,
 		]));
-		return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
+		$statusValue = $status->value;
+
+		return match($jsonType) {
+			true => $response->withHeader('Content-Type', 'application/json')->withStatus($statusValue),
+			false => $response->withStatus($statusValue),
+		};
+	}
+
+	/**
+	 * @param ResponseInterface &$response
+	 * @param array<mixed> $data
+	 * @param int $flag
+	 * @return void
+	 */
+	static function writeDataJson(ResponseInterface &$response, array $data, int $flag = JSON_FORCE_OBJECT): void
+	{
+		$response->getBody()->write(json_encode($data, JSON_FORCE_OBJECT));
 	}
 }

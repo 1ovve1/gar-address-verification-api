@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace GAR\Middleware;
 
-use Psr\Http\Message\RequestInterface as Request;
+use GAR\Exceptions\AddressValidationException;
+use GAR\Helpers\ResponseCodes;
+use GAR\Helpers\Validation;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
-use Slim\Psr7\Response;
+use GAR\Helpers\RequestHelper;
 
 class AddressNameMiddleware
 {
@@ -14,40 +17,24 @@ class AddressNameMiddleware
     {
         $params = $request->getQueryParams();
         
-        if (!key_exists('address', $params)) {
-            return $this->errorResponse("require 'address' param", 406);
-        } elseif (strlen($params['address']) >= 1000) {
-            return $this->errorResponse("address param too large", 414);
+        if (isset($params['address'])) {
+			$userAddress = $params['address'];
+        } else {
+	        return RequestHelper::errorResponse("require 'address' param", ResponseCodes::PRECONDITION_FAILED_412);
         }
 
-        $formattedAddress = explode(',', $params['address']);
-        foreach ($formattedAddress as $key => $value) {
-            $formattedAddress[$key] = trim($value);
-        }
-        if (count($formattedAddress) > 1 && empty($formattedAddress[0])) {
-            return $this->errorResponse("parent address shouldn't be empty", 411);
-        }
+	    try {
+		    $formattedAddress = Validation::validateUserAddress($userAddress);
+	    } catch (AddressValidationException $e) {
+		    return RequestHelper::errorResponse($e->getMessage(), ResponseCodes::PRECONDITION_FAILED_412);
+	    }
 
-        $response = $handler->handle(
-            $request->withQueryParams([
-                'address' => $formattedAddress,
-            ])
-        );
-
-        if (empty((string)$response->getBody())) {
-            return $this->errorResponse("address not found", 404);
-        }
+		$response = $handler->handle(
+			$request->withQueryParams([
+				'address' => $formattedAddress,
+			])
+		);
 
         return $response->withHeader('Content-Type', 'application/json');
-    }
-
-
-    protected function errorResponse(string $message, int $status = 400): Response
-    {
-        $response = new Response();
-        $response->getBody()->write(json_encode([
-            'error' => $message,
-        ]));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
     }
 }

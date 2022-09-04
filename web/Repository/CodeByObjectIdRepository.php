@@ -8,6 +8,7 @@ use DB\Exceptions\BadQueryResultException;
 use DB\Models\AddrObjParams;
 use DB\Models\Database;
 use GAR\Exceptions\CodeNotFoundException;
+use GAR\Exceptions\ServerSideProblemException;
 use http\Exception\RuntimeException;
 
 /**
@@ -19,20 +20,25 @@ class CodeByObjectIdRepository extends BaseRepo
 	 * Return code by specific $type and objectid
 	 * @param int $objectId - concrete objectid address
 	 * @param string $type - type of code
-	 * @return array<mixed>
-	 * @throws CodeNotFoundException|BadQueryResultException
+	 * @return array|null
+	 * @throws CodeNotFoundException - if codes was not found
+	 * @throws ServerSideProblemException - if we fined server side problems
 	 */
     public function getCode(int $objectId, string $type): ?array
     {
 		$code = [];
 
-        if (Codes::tryFrom($type)) {
-            if (Codes::from($type) === Codes::ALL) {
-                $code = $this->getAllCodesByObjectId($objectId);
-            } else {
-                $code = $this->getCodeByObjectId($objectId, $type);
-            }
-        }
+		try {
+			if (Codes::tryFrom($type)) {
+				if (Codes::from($type) === Codes::ALL) {
+					$code = $this->getAllCodesByObjectId($objectId);
+				} else {
+					$code = $this->getCodeByObjectId($objectId, $type);
+				}
+			}
+		} catch (BadQueryResultException $e) {
+			throw new ServerSideProblemException($e);
+		}
 
 		if (empty($code)) {
 			throw new CodeNotFoundException($objectId);

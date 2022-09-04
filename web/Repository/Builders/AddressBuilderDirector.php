@@ -208,15 +208,18 @@ class AddressBuilderDirector
 	{
 		return match($this->isParentPosNotOverflow()) {
 			true => $this->userAddress[$this->parentPos],
-			false => "parent_" . (1 - $this->parentPos)
+			false => "parent_" . (-$this->parentPos)
 		};
 	}
 
+	/**
+	 * @return string
+	 */
 	function getPrevParentName(): string
 	{
-		return match($this->parentPos >= 1) {
-			true => $this->userAddress[$this->parentPos - 1],
-			false => "parent_" . (1 - ($this->parentPos - 1))
+		return match($this->parentPos >= -1) {
+			true => $this->userAddress[$this->parentPos + 1],
+			false => "parent_" . (-$this->parentPos + 1)
 		};
 	}
 

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace GAR\Middleware;
 
+use GAR\Helpers\RequestHelper;
+use GAR\Helpers\ResponseCodes;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
-use Slim\Psr7\Response;
 
 class BeforeMiddleware
 {
@@ -14,23 +15,12 @@ class BeforeMiddleware
     {
         $params = $request->getQueryParams();
         foreach ($params as $value) {
-            if (!preg_match('/^[A-ЯЁа-яё\,\-. \d]*$/', $value)) {
-                return $this->errorResponse("supports only rus characters, digits, '.' and ',' symbols", 415);
+            if (!preg_match('/^[абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ,\-. \d]*$/', $value)) {
+                return RequestHelper::errorResponse("supports only rus characters, digits, '.' and ',' symbols", ResponseCodes::PRECONDITION_FAILED_412);
             }
         }
 
-        $response = $handler->handle($request);
-
-        return $response;
+	    return $handler->handle($request);
     }
 
-
-    protected function errorResponse(string $message, int $status = 400): Response
-    {
-        $response = new Response();
-        $response->getBody()->write(json_encode([
-            'error' => $message,
-        ]));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
-    }
 }

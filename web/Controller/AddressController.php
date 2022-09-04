@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace GAR\Controller;
 
-use DB\Exceptions\BadQueryResultException;
-use GAR\Exceptions\CodeNotFoundException;
-use GAR\Exceptions\ParamNotFoundException;
-use GAR\Repository\AddressByNameRepository;
-use GAR\Repository\Builders\AddressBuilderImplement;
-use GAR\Repository\CodeByObjectIdRepository;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use GAR\Exceptions\{AddressNotFoundException,
+	CodeNotFoundException,
+	ParamNotFoundException,
+	ServerSideProblemException};
+use GAR\Helpers\{RequestHelper, ResponseCodes};
+use GAR\Repository\{AddressByNameRepository, Builders\AddressBuilderImplement, CodeByObjectIdRepository};
+use Psr\Http\Message\{ResponseInterface as Response, ServerRequestInterface as Request};
 
 /**
  * Address controller
@@ -19,27 +18,36 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AddressController
 {
-    /**
-     * @var AddressByNameRepository
-     */
+    /** @var AddressByNameRepository */
     protected AddressByNameRepository $addressByNameRepo;
+	/** @var CodeByObjectIdRepository  */
     protected CodeByObjectIdRepository $addressByCodeRepo;
 
-    public function __construct(
-  ) {
+    public function __construct()
+    {
         $this->addressByNameRepo = new AddressByNameRepository(new AddressBuilderImplement());
         $this->addressByCodeRepo = new CodeByObjectIdRepository();
     }
 
+	/**
+	 * @param Request $request
+	 * @param Response $response
+	 * @return Response
+	 */
     public function getAddressByName(Request $request, Response $response): Response
     {
         $address = $request->getQueryParams()['address'];
 
-        $likeAddress = $this->addressByNameRepo->getFullAddress($address);
-
-        if (!empty($likeAddress)) {
-            $response->getBody()->write(json_encode($likeAddress, JSON_FORCE_OBJECT));
-        }
+	    try {
+		    $likeAddress = $this->addressByNameRepo->getFullAddress($address);
+		    RequestHelper::writeDataJson($response, $likeAddress);
+	    } catch (AddressNotFoundException $e) {
+			$response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::NOT_FOUND_404);
+	    } catch (ParamNotFoundException $e) {
+			$response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::CONFLICT_409);
+	    } catch (ServerSideProblemException $e) {
+			$response = RequestHelper::errorResponse('Server side problems' . $e->getMessage(), ResponseCodes::NOT_IMPLEMENTED_501);
+	    }
 
         return $response;
     }
@@ -49,21 +57,27 @@ class AddressController
 	 * @param Response $response
 	 * @param array<string> $args
 	 * @return Response
-	 * @throws CodeNotFoundException
-	 * @throws ParamNotFoundException
-	 * @throws BadQueryResultException
 	 */
     public function getCodeByType(Request $request, Response $response, array $args): Response
     {
         $params = $request->getQueryParams();
 
-        if (null === $params['objectid']) {
-	        $params['objectid'] = $this->addressByNameRepo->getChiledObjectIdFromAddress($params['address']);
-        }
+	    try {
+		    if (null === $params['objectid']) {
+			    $params['objectid'] = $this->addressByNameRepo->getChiledObjectIdFromAddress($params['address']);
+		    }
 
-        $data = $this->addressByCodeRepo->getCode($params['objectid'], $args['type']);
-        $response->getBody()->write(json_encode($data, JSON_FORCE_OBJECT));
+		    $data = $this->addressByCodeRepo->getCode($params['objectid'], $args['type']);
+		    $response->getBody()->write(json_encode($data, JSON_FORCE_OBJECT));
+	    } catch (AddressNotFoundException|CodeNotFoundException $e) {
+		    $response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::NOT_FOUND_404);
+	    } catch (ParamNotFoundException $e) {
+		    $response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::CONFLICT_409);
+	    } catch (ServerSideProblemException $e) {
+		    $response = RequestHelper::errorResponse('Server side problems', ResponseCodes::NOT_IMPLEMENTED_501);
+	    }
 
         return $response;
     }
+
 }

@@ -196,7 +196,7 @@ class AddressCodeTest extends BaseTestSetup
         }, $data);
 
 
-        $this->assertEquals(406, $response->getStatusCode());
+        $this->assertEquals(412, $response->getStatusCode());
         $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
         $this->assertStringNotContainsString('OKATO', $data);
         $this->assertStringNotContainsString('OKTMO', $data);

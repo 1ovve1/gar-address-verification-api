@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace GAR\Repository;
 
 use DB\Exceptions\BadQueryResultException;
+use GAR\Exceptions\AddressNotFoundException;
 use GAR\Exceptions\ChainNotFoundException;
 use GAR\Exceptions\ParamNotFoundException;
+use GAR\Exceptions\ServerSideProblemException;
 use GAR\Repository\Builders\AddressBuilder;
 use GAR\Repository\Builders\AddressBuilderDirector;
 use GAR\Repository\Elements\ChainPoint;
@@ -32,10 +34,11 @@ class AddressByNameRepository extends BaseRepo
 	}
 
 	/**
-	 * @param array $userAddress
+	 * @param array<string> $userAddress
 	 * @return int
-	 * @throws BadQueryResultException
+	 * @throws AddressNotFoundException
 	 * @throws ParamNotFoundException - if objectid was not found
+	 * @throws ServerSideProblemException
 	 */
 	function getChiledObjectIdFromAddress(array $userAddress): int
 	{
@@ -48,25 +51,37 @@ class AddressByNameRepository extends BaseRepo
 	 * Return full address by fragment of $halfAddress
 	 * @param array<string> $userAddress - exploded input address fragment
 	 * @return array<int, array<string, array<int, array<string, string|int>>>> - full address
-	 * @throws BadQueryResultException - objectid was not found
+	 * @throws AddressNotFoundException - address was not found
 	 * @throws ParamNotFoundException - objectid was not found
+	 * @throws ServerSideProblemException - bd server error
 	 */
     function getFullAddress(array $userAddress): array
     {
 		$this->addressBuilderDirector = new AddressBuilderDirector($this->addressBuilder, $userAddress);
-		switch(count($userAddress)) {
-			case self::SINGLE_WORD:
-				$this->handleSingleWordUserAddress();
-				break;
-			case self::DOUBLE_WORD:
-				$this->handleDoubleWordUserAddress();
-				break;
-			default:
-				$this->handleComplexUserAddress();
 
+		try {
+			switch(count($userAddress)) {
+				case self::SINGLE_WORD:
+					$this->handleSingleWordUserAddress();
+					break;
+				case self::DOUBLE_WORD:
+					$this->handleDoubleWordUserAddress();
+					break;
+				default:
+					$this->handleComplexUserAddress();
+
+			}
+		} catch (BadQueryResultException $e) {
+			throw new ServerSideProblemException($e);
 		}
 
-        return $this->addressBuilder->getAddress();
+		$address = $this->addressBuilder->getAddress();
+
+		if (empty($address)) {
+			throw new AddressNotFoundException();
+		}
+
+        return $address;
     }
 
 	/**
@@ -76,43 +91,37 @@ class AddressByNameRepository extends BaseRepo
 	protected function handleSingleWordUserAddress(): void
 	{
 		$word = $this->addressBuilderDirector->getCurrentChiledName();
-		$checkLikeAddress = $this->db->getLikeAddress($word);
 
-		if ($checkLikeAddress->hasOnlyOneRow()) {
-			$this->addressBuilderDirector->addParentAddr($checkLikeAddress);
-		} elseif ($checkLikeAddress->isNotEmpty()) {
-			$this->addressBuilderDirector->addChiledVariant($checkLikeAddress);
-		}
+		$this->completeAddressChainBackward($word);
 	}
 
 	/**
 	 * @return void
 	 * @throws BadQueryResultException
-	 * @throws ParamNotFoundException - if objectid was not found
 	 */
 	function handleDoubleWordUserAddress(): void
 	{
 		$parentName = $this->addressBuilderDirector->getCurrentParentName();
 
-		$parentLikeAddress = $this->db->getLikeAddress($parentName);
+		$this->completeAddressChainBackward($parentName);
 
-		if ($parentLikeAddress->hasOnlyOneRow()) {
-			$this->addressBuilderDirector->addParentAddr($parentLikeAddress);
+		try {
+			$parentObjectId = $this->addressBuilderDirector->findObjectIdFromIdentifier($parentName);
+		} catch (ParamNotFoundException) {
+			// it is mean that after completeAddressChainBackward we
+			// get an address with variants identifier
+			// (addressBuilder didn't have a identifier like $parentName)
+			return;
+		}
 
-			$chiledName = $this->addressBuilderDirector->getCurrentParentName();
-			$parentObjectId = $this->addressBuilderDirector->findParentObjectId();
+		$currChiledName = $this->addressBuilderDirector->getCurrentChiledName();
 
-			$chiledLikeAddress = $this->db->getChiledAddressByParentObjectIdAndChiledName($parentObjectId, $chiledName);
+		$chiledLikeAddress = $this->db->getChiledAddressByParentObjectIdAndChiledName($parentObjectId, $currChiledName);
 
-			if ($chiledLikeAddress->hasOnlyOneRow()) {
-				$this->addressBuilderDirector->addChiledAddr($chiledLikeAddress);
-			} else {
-				$this->addressBuilderDirector->addChiledVariant($chiledLikeAddress);
-			}
-
-		} elseif ($parentLikeAddress->isNotEmpty()) {
-			$this->addressBuilderDirector->addChiledVariant($parentLikeAddress);
-
+		if ($chiledLikeAddress->hasOnlyOneRow()) {
+			$this->addressBuilderDirector->addChiledAddr($chiledLikeAddress);
+		} elseif ($chiledLikeAddress->isNotEmpty()) {
+			$this->addressBuilderDirector->addChiledVariant($chiledLikeAddress);
 		}
 	}
 
@@ -166,14 +175,17 @@ class AddressByNameRepository extends BaseRepo
 	}
 
 	/**
-	 * @param int $currObjectId
+	 * @param int|string $currObjectIdOrName
 	 * @throws BadQueryResultException
 	 */
-    protected function completeAddressChainBackward(int $currObjectId): void
+    protected function completeAddressChainBackward(int|string $currObjectIdOrName): void
     {
-	    $parentAddress = $this->db->getAddressByObjectId($currObjectId);
+	    $parentAddress = match(is_string($currObjectIdOrName)) {
+			true => $this->db->getLikeAddress($currObjectIdOrName),
+			false => $this->db->getAddressByObjectId($currObjectIdOrName),
+        };
 
-	    while ($parentAddress->isNotEmpty()) {
+	    while ($parentAddress->hasOnlyOneRow()) {
 			$this->addressBuilderDirector->addParentAddr($parentAddress);
 
 		    try {
@@ -184,15 +196,22 @@ class AddressByNameRepository extends BaseRepo
 
 		    $parentAddress = $this->db->getParentAddressByObjectId($parentObjectId);
 		}
+
+		if ($parentAddress->hasManyRows()) {
+			$this->addressBuilderDirector->addChiledVariant($parentAddress);
+		}
     }
 
 	/**
-	 * @param int $currObjectId
+	 * @param int|string $currObjectIdOrName
 	 * @throws BadQueryResultException
 	 */
-    protected function completeAddressChainForward(int $currObjectId): void
+    protected function completeAddressChainForward(int|string $currObjectIdOrName): void
     {
-	    $chiledAddress = $this->db->getAddressByObjectId($currObjectId);
+		$chiledAddress = match(is_string($currObjectIdOrName)) {
+			true => $this->db->getLikeAddress($currObjectIdOrName),
+			false => $this->db->getAddressByObjectId($currObjectIdOrName)
+		};
 
         while ($chiledAddress->hasOnlyOneRow())
         {
