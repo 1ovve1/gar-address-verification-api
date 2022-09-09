@@ -29,7 +29,10 @@ class CodeByObjectIdStorage extends BaseStorage
 			if (Codes::from($type) === Codes::ALL) {
 				$code = $this->getAllCodesByObjectId($objectId);
 			} else {
-				$code = [$this->getCodeByObjectId($objectId, $type)];
+				$code = $this->getCodeByObjectId($objectId, $type);
+				if (!empty($code)) {
+					$code = [$code];
+				}
 			}
 		}
 
