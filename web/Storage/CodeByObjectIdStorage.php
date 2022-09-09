@@ -18,7 +18,7 @@ class CodeByObjectIdStorage extends BaseStorage
 	 * Return code by specific $type and objectid
 	 * @param int $objectId - concrete objectid address
 	 * @param string $type - type of code
-	 * @return array<string, string>|null
+	 * @return array<int, array<string, string>>
 	 * @throws CodeNotFoundException - if codes was not found
 	 */
     public function getCode(int $objectId, string $type): ?array
@@ -29,7 +29,7 @@ class CodeByObjectIdStorage extends BaseStorage
 			if (Codes::from($type) === Codes::ALL) {
 				$code = $this->getAllCodesByObjectId($objectId);
 			} else {
-				$code = $this->getCodeByObjectId($objectId, $type);
+				$code = [$this->getCodeByObjectId($objectId, $type)];
 			}
 		}
 
