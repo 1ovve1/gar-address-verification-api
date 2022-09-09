@@ -15,21 +15,21 @@ interface QueryResult
 	 * Fetching last query by special flag
 	 *
 	 * @param int $flag - fetching flag
-	 * @return array<int, array<int|string, mixed>>|false
+	 * @return array<int, array<int|string, mixed>>
 	 */
-	function fetchAll(int $flag = PDO::FETCH_ASSOC): array|false;
+	function fetchAll(int $flag = PDO::FETCH_ASSOC): array;
 
 	/**
 	 * Alias for fetchAll with assoc keys array
-	 * @return array<int, array<string, mixed>>|false
+	 * @return array<int, array<string, mixed>>
 	 */
-	function fetchAllAssoc(): array|false;
+	function fetchAllAssoc(): array;
 
 	/**
 	 * Alias for fetchAll with num keys array
-	 * @return array<int, array<int, mixed>>|false
+	 * @return array<int, array<int, mixed>>
 	 */
-	function fetchAllNum(): array|false;
+	function fetchAllNum(): array;
 
 	/**
 	 * Return rows count in query result

@@ -34,13 +34,13 @@ class PDOQueryResult implements QueryResult
 	/**
 	 * @inheritDoc
 	 */
-	public function fetchAll(int $flag = QueryResult::PDO_F_ASSOC): array|false
+	public function fetchAll(int $flag = QueryResult::PDO_F_ASSOC): array
 	{
 		if (null === $this->fetchResult) {
 			try {
 				$this->fetchResult = $this->getQueryResult()->fetchAll($flag);
 			} catch (NullableQueryResultException) {
-				return false;
+				return [];
 			}
 		}
 
@@ -50,7 +50,7 @@ class PDOQueryResult implements QueryResult
 	/**
 	 * @inheritDoc
 	 */
-	function fetchAllAssoc(): array|false
+	function fetchAllAssoc(): array
 	{
 		return $this->fetchAll();
 	}
@@ -58,7 +58,7 @@ class PDOQueryResult implements QueryResult
 	/**
 	 * @inheritDoc
 	 */
-	function fetchAllNum(): array|false
+	function fetchAllNum(): array
 	{
 		return $this->fetchAll(QueryResult::PDO_F_NUM);
 	}

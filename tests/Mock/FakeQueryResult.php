@@ -39,7 +39,7 @@ class FakeQueryResult implements QueryResult
 	 * @param int $flag
 	 * @return array<int, array<int|string, DatabaseContract>>|false
 	 */
-	function fetchAll(int $flag = \PDO::FETCH_ASSOC): array|false
+	function fetchAll(int $flag = \PDO::FETCH_ASSOC): array
 	{
 		return $this->assocFetch + $this->numFetch;
 	}
@@ -47,7 +47,7 @@ class FakeQueryResult implements QueryResult
 	/**
 	 * @return array<int, array<string, DatabaseContract>>|false
 	 */
-	function fetchAllAssoc(): array|false
+	function fetchAllAssoc(): array
 	{
 		return $this->assocFetch;
 	}
@@ -55,7 +55,7 @@ class FakeQueryResult implements QueryResult
 	/**
 	 * @return array<int, array<int, DatabaseContract>>
 	 */
-	function fetchAllNum(): array|false
+	function fetchAllNum(): array
 	{
 		return $this->numFetch;
 	}
