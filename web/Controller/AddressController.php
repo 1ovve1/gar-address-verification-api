@@ -10,7 +10,7 @@ use GAR\Exceptions\{AddressNotFoundException,
 	ServerSideProblemException};
 use DB\Exceptions\FailedDBConnectionWithDBException;
 use GAR\Helpers\{RequestHelper, ResponseCodes};
-use GAR\Repository\{AddressByNameRepository, Builders\AddressBuilderImplement, CodeByObjectIdRepository};
+use GAR\Storage\{AddressByNameStorage, Builders\AddressBuilderImplement, CodeByObjectIdStorage};
 use Psr\Http\Message\{ResponseInterface as Response, ServerRequestInterface as Request};
 
 /**
@@ -19,15 +19,15 @@ use Psr\Http\Message\{ResponseInterface as Response, ServerRequestInterface as R
 
 class AddressController
 {
-    /** @var AddressByNameRepository */
-    protected AddressByNameRepository $addressByNameRepo;
-	/** @var CodeByObjectIdRepository  */
-    protected CodeByObjectIdRepository $addressByCodeRepo;
+    /** @var AddressByNameStorage */
+    protected AddressByNameStorage $addressByNameRepo;
+	/** @var CodeByObjectIdStorage  */
+    protected CodeByObjectIdStorage $addressByCodeRepo;
 
     public function __construct()
     {
-        $this->addressByNameRepo = new AddressByNameRepository(new AddressBuilderImplement());
-        $this->addressByCodeRepo = new CodeByObjectIdRepository();
+        $this->addressByNameRepo = new AddressByNameStorage(new AddressBuilderImplement());
+        $this->addressByCodeRepo = new CodeByObjectIdStorage();
     }
 
 	/**

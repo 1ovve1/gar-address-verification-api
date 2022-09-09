@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GAR\Repository;
+namespace GAR\Storage;
 
 use DB\Exceptions\BadQueryResultException;
 use DB\Exceptions\FailedDBConnectionWithDBException;
@@ -10,16 +10,16 @@ use GAR\Exceptions\AddressNotFoundException;
 use GAR\Exceptions\ChainNotFoundException;
 use GAR\Exceptions\ParamNotFoundException;
 use GAR\Exceptions\ServerSideProblemException;
-use GAR\Repository\Builders\AddressBuilder;
-use GAR\Repository\Builders\AddressBuilderDirector;
-use GAR\Repository\Elements\ChainPoint;
+use GAR\Storage\Builders\AddressBuilder;
+use GAR\Storage\Builders\AddressBuilderDirector;
+use GAR\Storage\Elements\ChainPoint;
 use RuntimeException;
 
 
 /**
  * Repo that contains methods that use for get full name of address by specific name address
  */
-class AddressByNameRepository extends BaseRepo
+class AddressByNameStorage extends BaseStorage
 {
 	const SINGLE_WORD = 1;
 	const DOUBLE_WORD = 2;

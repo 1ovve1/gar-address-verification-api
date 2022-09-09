@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GAR\Repository;
+namespace GAR\Storage;
 
 use GAR\Exceptions\CodeTypeNotFoundException;
 

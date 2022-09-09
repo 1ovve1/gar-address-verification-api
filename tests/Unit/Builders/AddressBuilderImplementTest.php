@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Builders;
 
-use GAR\Repository\Builders\AddressBuilder;
-use GAR\Repository\Builders\AddressBuilderDirector;
-use GAR\Repository\Builders\AddressBuilderImplement;
-use GAR\Repository\Collections\AddressObjectCollection;
-use GAR\Repository\Collections\HouseCollection;
+use GAR\Storage\Builders\AddressBuilder;
+use GAR\Storage\Builders\AddressBuilderDirector;
+use GAR\Storage\Builders\AddressBuilderImplement;
+use GAR\Storage\Collections\AddressObjectCollection;
+use GAR\Storage\Collections\HouseCollection;
 use PHPUnit\Framework\TestCase;
 use Tests\Mock\FakeQueryResult;
 

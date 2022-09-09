@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GAR\Repository;
+namespace GAR\Storage;
 
 use DB\Exceptions\BadQueryResultException;
 use DB\Exceptions\FailedDBConnectionWithDBException;
@@ -12,7 +12,7 @@ use GAR\Exceptions\ServerSideProblemException;
 /**
  * Repository for getting code by concrete objectid
  */
-class CodeByObjectIdRepository extends BaseRepo
+class CodeByObjectIdStorage extends BaseStorage
 {
 	/**
 	 * Return code by specific $type and objectid

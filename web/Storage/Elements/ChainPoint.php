@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GAR\Repository\Elements;
+namespace GAR\Storage\Elements;
 
 use DB\ORM\DBAdapter\QueryResult;
 

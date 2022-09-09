@@ -3,7 +3,7 @@
 namespace GAR\Exceptions;
 
 use Exception;
-use GAR\Repository\Codes;
+use GAR\Storage\Codes;
 
 class CodeTypeNotFoundException extends Exception
 {

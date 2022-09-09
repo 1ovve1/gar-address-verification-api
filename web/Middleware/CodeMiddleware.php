@@ -7,7 +7,7 @@ namespace GAR\Middleware;
 use GAR\Exceptions\{AddressValidationException, CodeTypeNotFoundException};
 use Psr\Http\Message\ResponseInterface;
 use GAR\Helpers\{RequestHelper, ResponseCodes, Validation};
-use GAR\Repository\Codes;
+use GAR\Storage\Codes;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Routing\RouteContext;

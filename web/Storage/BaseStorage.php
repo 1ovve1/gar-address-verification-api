@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace GAR\Repository;
+namespace GAR\Storage;
 
 use DB\Models\Database;
 
 /**
  * Basic repository class, contains production database
  */
-class BaseRepo
+class BaseStorage
 {
 	protected readonly Database $db;
 

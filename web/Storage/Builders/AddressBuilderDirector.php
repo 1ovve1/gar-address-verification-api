@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace GAR\Repository\Builders;
+namespace GAR\Storage\Builders;
 
 use DB\ORM\DBAdapter\QueryResult;
 use GAR\Exceptions\ParamNotFoundException;
-use GAR\Repository\Elements\ChainPoint;
+use GAR\Storage\Elements\ChainPoint;
 use RuntimeException;
 
 class AddressBuilderDirector
