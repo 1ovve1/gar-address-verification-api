@@ -52,32 +52,22 @@ class ImplFileCollection implements FileCollection
 
     private function readSingleRegions(ReaderVisitor &$reader): bool
     {
-        $manager = new ProcessManager(1);
-
         foreach ($this->singleFiles as $singleFile) {
-            $manager->newTask(function () use ($singleFile, $reader) {
-                $reader->read($singleFile);
-            });
+            $reader->read($singleFile);
         }
-
-        $manager->waitAll();
 
         return true;
     }
 
     private function readEveryRegions(ReaderVisitor &$reader): bool
     {
-        $manager = new ProcessManager(2);
 
         foreach ($this->listOfRegions as $region) {
             foreach ($this->everyRegionFiles as $everyRegionFile) {
                 $everyRegionFile->setRegion($region);
 
-                $manager->newTask(function() use ($reader, $everyRegionFile) {
-                    $reader->read($everyRegionFile);
-                }, true);
+                $reader->read($everyRegionFile);
             }
-            $manager->waitAll();
         }
 
         return true;
