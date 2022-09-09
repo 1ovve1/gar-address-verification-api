@@ -23,7 +23,6 @@ class DBFacade
 	 * Get curr instance of database
 	 *
 	 * @return DBAdapter
-	 * @throws FailedDBConnectionWithDBException
 	 */
     public static function getDBInstance(): DBAdapter
     {
@@ -38,7 +37,6 @@ class DBFacade
 	/**
 	 * Connection without singleton
 	 * @return DBAdapter
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	public static function getImmutableDBConnection(): DBAdapter
 	{
@@ -49,7 +47,6 @@ class DBFacade
 	 * Connection via PDO
 	 *
 	 * @return DBAdapter
-	 * @throws FailedDBConnectionWithDBException
 	 */
     public static function connectViaPDO(): DBAdapter
     {

@@ -3,18 +3,19 @@
 namespace DB\Exceptions\Unchecked;
 
 use DB\Exceptions\ExceptionCodes;
-use Exception;
+use RuntimeException;
+use Throwable;
 
-class FailedDBConnectionWithDBException extends Exception
+class FailedDBConnectionWithDBException extends RuntimeException
 {
 	const MESSAGE_TEMPLATE = "Failed connection to database with these params: " . PHP_EOL .
 							 "Dsn: %s" . PHP_EOL . "Message from DBAdapter: %s";
 
 	/**
 	 * @param string $dsn
-	 * @param Exception $previous
+	 * @param Throwable $previous
 	 */
-	public function __construct(string $dsn, Exception $previous)
+	public function __construct(string $dsn, Throwable $previous)
 	{
 		$message = sprintf(self::MESSAGE_TEMPLATE, $dsn, $previous->getMessage());
 		parent::__construct(

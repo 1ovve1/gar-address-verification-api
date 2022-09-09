@@ -2,9 +2,9 @@
 
 namespace GAR\Exceptions\Unchecked;
 
-use Exception;
+use RuntimeException;
 
-class AddressValidationException extends Exception
+class AddressValidationException extends RuntimeException
 {
 	const MESSAGE_TEMPLATE = "Error while parse address because %s";
 

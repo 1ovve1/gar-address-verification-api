@@ -13,6 +13,6 @@ parameters:
         - bootstrap.php
 
     exceptions:
-        checkedExceptionRegexes:
-            - '#^DB\\Exceptions\\Checked\\#'
-            - '#^GAR\\Exceptions\\Checked\\#'
+        uncheckedExceptionRegexes:
+            - '#^DB\\Exceptions\\Unchecked\\#'
+            - '#^GAR\\Exceptions\\Unchecked\\#'

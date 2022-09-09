@@ -5,17 +5,18 @@ namespace DB\Exceptions\Unchecked;
 
 
 use DB\Exceptions\ExceptionCodes;
-use Exception;
+use RuntimeException;
+use Throwable;
 
-class BadQueryResultException extends Exception
+class BadQueryResultException extends RuntimeException
 {
 	const MESSAGE_FORMAT = "Bad query request: '%s' " . PHP_EOL . "Message: %s" . PHP_EOL;
 
 	/**
 	 * @param string $rawSql
-	 * @param Exception|null $previous
+	 * @param Throwable|null $previous
 	 */
-	public function __construct(string $rawSql, Exception|null $previous = null)
+	public function __construct(string $rawSql, Throwable|null $previous = null)
 	{
 		$message = sprintf(self::MESSAGE_FORMAT, $rawSql, $previous?->getMessage() ?? 'PDO return false');
 

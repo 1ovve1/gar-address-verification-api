@@ -2,10 +2,10 @@
 
 namespace GAR\Exceptions\Unchecked;
 
-use Exception;
+use RuntimeException;
 use Throwable;
 
-class ServerSideProblemException extends Exception
+class ServerSideProblemException extends RuntimeException
 {
 	const MESSAGE = 'Problems with server';
 

@@ -3,9 +3,9 @@
 namespace DB\Exceptions\Unchecked;
 
 use DB\Exceptions\ExceptionCodes;
-use Exception;
+use RuntimeException;
 
-class InvalidForceInsertConfigurationException extends Exception
+class InvalidForceInsertConfigurationException extends RuntimeException
 {
 	public function __construct(string $message)
 	{

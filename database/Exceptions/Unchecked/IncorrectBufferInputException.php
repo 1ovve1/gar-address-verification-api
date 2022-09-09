@@ -4,9 +4,9 @@ namespace DB\Exceptions\Unchecked;
 
 
 use DB\Exceptions\ExceptionCodes;
-use Exception;
+use RuntimeException;
 
-class IncorrectBufferInputException extends Exception
+class IncorrectBufferInputException extends RuntimeException
 {
 	const MESSAGE_TEMPLATE = "Curr buffer configuration (require '%d' rows) are not compilable with actual given values (['%s'])";
 

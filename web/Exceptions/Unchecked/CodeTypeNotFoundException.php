@@ -2,10 +2,10 @@
 
 namespace GAR\Exceptions\Unchecked;
 
-use Exception;
 use GAR\Storage\Codes;
+use RuntimeException;
 
-class CodeTypeNotFoundException extends Exception
+class CodeTypeNotFoundException extends RuntimeException
 {
 	const MESSAGE_TEMPLATE = "Code '%s' type not found, use these types: '%s'";
 

@@ -22,7 +22,6 @@ interface DBAdapter
 	 * @param string $dbName - db name
 	 * @param string $dbPort - port
 	 * @return self;
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	static function connectViaDSN(string $dbType, string $dbHost,
 	                              string $dbName, string $dbPort,
