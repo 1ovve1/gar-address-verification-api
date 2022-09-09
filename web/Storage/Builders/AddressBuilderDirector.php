@@ -253,7 +253,7 @@ class AddressBuilderDirector
 			}
 		}
 
-		throw new ParamNotFoundException($param, $data, $backLog ?? "Identifier {$identifier} not found");
+		throw new ParamNotFoundException($param, $backLog ?? "Identifier {$identifier} not found");
 	}
 
 	/**
@@ -265,7 +265,7 @@ class AddressBuilderDirector
 	{
 		$objectId = $this->findParamFromIdentifier(self::OBJECTID, $identifier);
 		if (!is_int($objectId)) {
-			throw new ParamNotFoundException('objectid', [$objectId], 'Object id is not an integer');
+			throw new ParamNotFoundException('objectid', 'Object id is not an integer');
 		}
 
 		return $objectId;

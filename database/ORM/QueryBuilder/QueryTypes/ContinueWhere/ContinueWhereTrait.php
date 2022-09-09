@@ -18,7 +18,7 @@ trait ContinueWhereTrait
 			return new ImplNestedWhereAnd($this, $field_or_nested_clbk);
 		}
 
-		[$field, $sign, $value] = DBFacade::whereArgsHandler($field_or_nested_clbk, $sign_or_value, $value);
+		['field' => $field, 'sign' => $sign, 'value' => $value] = DBFacade::whereArgsHandler($field_or_nested_clbk, $sign_or_value, $value);
 
 
 		return new ImplWhereAnd($this, $field, $sign, $value);
@@ -35,7 +35,7 @@ trait ContinueWhereTrait
 			return new ImplNestedWhereOr($this, $field_or_nested_clbk);
 		}
 
-		[$field, $sign, $value] = DBFacade::whereArgsHandler($field_or_nested_clbk, $sign_or_value, $value);
+		['field' => $field, 'sign' => $sign, 'value' => $value] = DBFacade::whereArgsHandler($field_or_nested_clbk, $sign_or_value, $value);
 
 		return new ImplWhereOr($this, $field, $sign, $value);
 	}

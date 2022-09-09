@@ -17,7 +17,7 @@ trait NestedContinueConditionTrait
 			return new ImplNestedInNestedAnd($this, $field_or_nested_clbk);
 		}
 
-		[$field, $sign, $value] = DBFacade::whereArgsHandler($field_or_nested_clbk, $sign_or_value, $value);
+		['field' => $field, 'sign' => $sign, 'value' => $value] = DBFacade::whereArgsHandler($field_or_nested_clbk, $sign_or_value, $value);
 
 
 		return new ImplNestedConditionAnd($this, $field, $sign, $value);
@@ -34,7 +34,7 @@ trait NestedContinueConditionTrait
 			return new ImplNestedInNestedOr($this, $field_or_nested_clbk);
 		}
 
-		[$field, $sign, $value] = DBFacade::whereArgsHandler($field_or_nested_clbk, $sign_or_value, $value);
+		['field' => $field, 'sign' => $sign, 'value' => $value] = DBFacade::whereArgsHandler($field_or_nested_clbk, $sign_or_value, $value);
 
 		return new ImplNestedConditionOr($this, $field, $sign, $value);
 	}

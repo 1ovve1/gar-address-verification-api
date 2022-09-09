@@ -2,11 +2,13 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Delete;
 
+use DB\ORM\QueryBuilder\QueryBuilder;
+
 trait DeleteTrait
 {
 	public static function delete(?string $tableName = null): DeleteQuery
 	{
-		$tableName ??= self::table();
+		$tableName ??= QueryBuilder::table(static::class);
 
 		return new ImplDelete($tableName);
 	}

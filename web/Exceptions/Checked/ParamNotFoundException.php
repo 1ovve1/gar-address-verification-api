@@ -10,10 +10,9 @@ class ParamNotFoundException extends Exception
 
 	/**
 	 * @param string $paramName
-	 * @param array<mixed> $actualDataStructure
 	 * @param string $additional
 	 */
-	public function __construct(string $paramName, array $actualDataStructure, string $additional = '')
+	public function __construct(string $paramName, string $additional = '')
 	{
 		if (!empty($additional)) {
 			$additional = 'Additional: ' . $additional . PHP_EOL;

@@ -111,9 +111,9 @@ abstract class XMLFile
 
 	/**
 	 * procedure that contains main operations from exec method
-	 * @param array<mixed> &$values - current parse element
-	 * @param QueryBuilder $table - table that you return int getTable() method
+	 * @param array<DatabaseContract> &$values - current parse element
+	 * @param mixed $table - table that you return int getTable() method
 	 * @return void
 	 */
-    abstract public function execDoWork(array &$values, QueryBuilder &$table): void;
+    abstract public function execDoWork(array &$values, mixed &$table): void;
 }

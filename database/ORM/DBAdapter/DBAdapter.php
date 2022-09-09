@@ -4,15 +4,10 @@ declare(strict_types=1);
 
 namespace DB\ORM\DBAdapter;
 
-use DB\Exceptions\Unchecked\BadQueryResultException;
-use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
-use DB\Exceptions\Unchecked\InvalidForceInsertConfigurationException;
 use DB\ORM\Migration\Container\Query;
 
 /**
  * Common interface for database connection
- *
- * @phpstan-type DatabaseContract int|float|string|bool|null
  */
 interface DBAdapter
 {
@@ -32,7 +27,6 @@ interface DBAdapter
 	 *
 	 * @param Query $query - query container
 	 * @return QueryResult
-	 * @throws BadQueryResultException
 	 */
     public function rawQuery(Query $query): QueryResult;
   
@@ -49,10 +43,9 @@ interface DBAdapter
 	 * Prepare lazy insert template and
 	 *
 	 * @param string $tableName
-	 * @param array<mixed> $fields - fields
+	 * @param array<string> $fields - fields
 	 * @param int $stagesCount - stages count
 	 * @return QueryTemplate - prepared statement object
-	 * @throws InvalidForceInsertConfigurationException
 	 */
     public function getForceInsertTemplate(
         string $tableName,

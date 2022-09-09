@@ -2,27 +2,28 @@
 
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
-use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\Templates\SQL;
 use Throwable;
 
 /**
  * Query immutable box class
- *
- * @phpstan-import-type DatabaseContract from DBAdapter
  */
 class QueryBox
 {
-	/** @var string  */
-	public readonly string $querySnapshot;
-	/** @var array<int, DatabaseContract> */
-	public readonly array $dryArgs;
+	/**
+	 * @var string
+	 */
+	private string $querySnapshot;
+	/**
+	 * @var array<int, DatabaseContract>
+	 */
+	private array $dryArgs;
 
 	/**
 	 * @param SQL $template
-	 * @param string|int|array<string,int> $clearArgs
-	 * @param mixed $dryArgs
+	 * @param array<string|int> $clearArgs
+	 * @param array<int, DatabaseContract> $dryArgs
 	 * @param QueryBox|null $parentBox
 	 */
 	public function __construct(SQL       $template,
@@ -34,9 +35,8 @@ class QueryBox
 		$parentDryArgs = [];
 
 		if (null !== $parentBox) {
-			$parentSnapshot = $parentBox->querySnapshot;
-			$parentDryArgs = $parentBox->dryArgs;
-
+			$parentSnapshot = $parentBox->getQuerySnapshot();
+			$parentDryArgs = $parentBox->getDryArgs();
 		}
 
 		$this->querySnapshot = $parentSnapshot . self::genPreparedQuery($template, $clearArgs);
@@ -46,7 +46,7 @@ class QueryBox
 
 	/**
 	 * @param SQL $template
-	 * @param array<mixed> $clearArgs
+	 * @param array<string|int> $clearArgs
 	 * @return string
 	 */
 	private static function genPreparedQuery(SQL $template,
@@ -65,5 +65,21 @@ class QueryBox
 		}
 
 		return $query . SQL::SEPARATOR->value;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getQuerySnapshot(): string
+	{
+		return $this->querySnapshot;
+	}
+
+	/**
+	 * @return array<DatabaseContract>
+	 */
+	public function getDryArgs(): array
+	{
+		return $this->dryArgs;
 	}
 }

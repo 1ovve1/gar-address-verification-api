@@ -4,7 +4,7 @@ namespace GAR\Storage\Builders;
 
 class AddressBuilderImplement implements AddressBuilder
 {
-	/** @var array<string, array<string|int, mixed>> */
+	/** @var array<int, array<string, AddressElementContract>> */
 	private array $address = [];
 
 	/**

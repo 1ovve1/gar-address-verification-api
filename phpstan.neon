@@ -12,6 +12,10 @@ parameters:
     bootstrapFiles:
         - bootstrap.php
 
+    typeAliases:
+        DatabaseContract: 'int|float|string|bool|null'
+        AddressElementContract: 'array<int, array<string, string|int>>'
+
     exceptions:
         uncheckedExceptionRegexes:
             - '#^DB\\Exceptions\\Unchecked\\#'

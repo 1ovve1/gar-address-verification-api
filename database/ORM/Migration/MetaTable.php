@@ -2,7 +2,6 @@
 
 namespace DB\ORM\Migration;
 
-use DB\Exceptions\Unchecked\BadQueryResultException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\Migration\Options\Migrate\{Migrate, MigrateImpl};
 use DB\ORM\Migration\Options\Rollback\{Rollback, RollbackImpl};
@@ -35,7 +34,6 @@ class MetaTable implements Migrate, MigrateImmutable, Rollback, RollbackImmutabl
 
 	/**
 	 * @inheritDoc
-	 * @throws BadQueryResultException
 	 */
 	static function migrate(DBAdapter $db, string $tableName, array $paramsToCreate = []): void
 	{
@@ -44,7 +42,6 @@ class MetaTable implements Migrate, MigrateImmutable, Rollback, RollbackImmutabl
 
 	/**
 	 * @inheritDoc
-	 * @throws BadQueryResultException
 	 */
 	static function migrateFromMigrateAble(DBAdapter $db, string $className): void
 	{
@@ -53,7 +50,6 @@ class MetaTable implements Migrate, MigrateImmutable, Rollback, RollbackImmutabl
 
 	/**
 	 * @inheritDoc
-	 * @throws BadQueryResultException
 	 */
 	function doMigrate(string $tableName, array $paramsToCreate = []): void
 	{
@@ -62,7 +58,6 @@ class MetaTable implements Migrate, MigrateImmutable, Rollback, RollbackImmutabl
 
 	/**
 	 * @inheritDoc
-	 * @throws BadQueryResultException
 	 */
 	function doMigrateFromMigrateAble(string $className): void
 	{
@@ -71,7 +66,6 @@ class MetaTable implements Migrate, MigrateImmutable, Rollback, RollbackImmutabl
 
 	/**
 	 * @inheritDoc
-	 * @throws BadQueryResultException
 	 */
 	static function deleteTable(DBAdapter $db, array|string $tableName): void
 	{
@@ -80,7 +74,6 @@ class MetaTable implements Migrate, MigrateImmutable, Rollback, RollbackImmutabl
 
 	/**
 	 * @inheritDoc
-	 * @throws BadQueryResultException
 	 */
 	static function deleteTableFromMigrateAble(DBAdapter $db, array|string $className): void
 	{
@@ -89,7 +82,6 @@ class MetaTable implements Migrate, MigrateImmutable, Rollback, RollbackImmutabl
 
 	/**
 	 * @inheritDoc
-	 * @throws BadQueryResultException
 	 */
 	function doDeleteTable(array|string $tableName): void
 	{
@@ -98,7 +90,6 @@ class MetaTable implements Migrate, MigrateImmutable, Rollback, RollbackImmutabl
 
 	/**
 	 * @inheritDoc
-	 * @throws BadQueryResultException
 	 */
 	function doDeleteTableFromMigrateAble(array|string $className): void
 	{

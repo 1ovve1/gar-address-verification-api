@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace DB\ORM\DBAdapter\PDO;
 
 use DB\Exceptions\Unchecked\BadQueryResultException;
-use DB\ORM\DBAdapter\{DBAdapter, QueryResult, QueryTemplate};
+use DB\ORM\DBAdapter\{QueryResult, QueryTemplate};
 use PDOException;
 use PDOStatement;
 
 /**
  * Simple PDOTemplate container
- *
- * @phpstan-import-type DatabaseContract from DBAdapter
  */
 class PDOTemplate implements QueryTemplate
 {

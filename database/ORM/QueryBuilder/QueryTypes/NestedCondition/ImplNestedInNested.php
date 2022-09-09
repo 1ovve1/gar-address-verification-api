@@ -19,8 +19,8 @@ class ImplNestedInNested extends NestedConditionQuery
 		parent::__construct(
 			$this->createQueryBox(
 				template: SQL::NESTED_CONDITION,
-				clearArgs: [trim($callbackQueryBox->querySnapshot)],
-				dryArgs: $callbackQueryBox->dryArgs
+				clearArgs: [trim($callbackQueryBox->getQuerySnapshot())],
+				dryArgs: $callbackQueryBox->getDryArgs()
 			)
 		);
 	}

@@ -44,8 +44,6 @@ class AddressController
 		    RequestHelper::writeDataJson($response, $likeAddress);
 	    } catch (AddressNotFoundException $e) {
 			$response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::NOT_FOUND_404);
-	    } catch (ServerSideProblemException|FailedDBConnectionWithDBException $e) {
-			$response = RequestHelper::errorResponse('Server side problems' . $e->getMessage(), ResponseCodes::NOT_IMPLEMENTED_501);
 	    }
 
 	    return $response;
@@ -72,8 +70,6 @@ class AddressController
 		    $response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::NOT_FOUND_404);
 	    } catch (ParamNotFoundException $e) {
 		    $response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::CONFLICT_409);
-	    } catch (ServerSideProblemException|FailedDBConnectionWithDBException $e) {
-		    $response = RequestHelper::errorResponse('Server side problems', ResponseCodes::NOT_IMPLEMENTED_501);
 	    }
 
 	    return $response;

@@ -20,8 +20,8 @@ class ImplNestedWhereAnd extends ContinueWhereQuery
 		parent::__construct(
 			$this->createQueryBox(
 				template: SQL::WHERE_NESTED_AND,
-				clearArgs: [trim($callbackQueryBox->querySnapshot)],
-				dryArgs: $callbackQueryBox->dryArgs,
+				clearArgs: [trim($callbackQueryBox->getQuerySnapshot())],
+				dryArgs: $callbackQueryBox->getDryArgs(),
 				parentBox: $parent->getQueryBox()
 			)
 		);

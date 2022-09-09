@@ -50,7 +50,7 @@ class AS_OBJECT_LEVELS extends XMLFile
     /**
      * {@inheritdoc}
      */
-    public function execDoWork(array &$values, QueryBuilder &$table): void
+    public function execDoWork(array &$values, mixed &$table): void
     {
         unset($values['ISACTIVE']);
 

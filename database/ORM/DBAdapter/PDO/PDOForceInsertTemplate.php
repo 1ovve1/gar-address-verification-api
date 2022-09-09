@@ -4,9 +4,6 @@ namespace DB\ORM\DBAdapter\PDO;
 
 
 use DB\Exceptions\Checked\QueryTemplateNotFoundException;
-use DB\Exceptions\Unchecked\BadQueryResultException;
-use DB\Exceptions\Unchecked\IncorrectBufferInputException;
-use DB\Exceptions\Unchecked\InvalidForceInsertConfigurationException;
 use DB\ORM\DBAdapter\{DBAdapter, InsertBuffer, QueryResult, QueryTemplate};
 
 /**
@@ -20,18 +17,12 @@ use DB\ORM\DBAdapter\{DBAdapter, InsertBuffer, QueryResult, QueryTemplate};
  * You can also call save() method when you need it, but notice that
  * class creating new template any time then you call save() with stageBuffer
  * that have random count of values
- *
- * @phpstan-import-type DatabaseContract from DBAdapter
  */
 class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 {
-    /**
-     * @var DBAdapter - curr database connection
-     */
+    /** @var DBAdapter - curr database connection */
     private readonly DBAdapter $db;
-    /**
-     * @var array<QueryTemplate> $states - prepared insert statements
-     */
+    /** @var array<QueryTemplate> $states - prepared insert statements */
     private array $states = [];
 
 	/**
@@ -39,7 +30,6 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 	 * @param string $tableName - name of prepared table
 	 * @param String[] $fields - fields of prepared table
 	 * @param int $stagesCount - default stages count
-	 * @throws InvalidForceInsertConfigurationException
 	 */
     public function __construct(
         DBAdapter $db,
@@ -74,11 +64,7 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 	 */
     public function exec(array $values = []): QueryResult
     {
-		try{
-			$this->setBuffer($values);
-		} catch (IncorrectBufferInputException $incorrectBufferInputException) {
-			throw new BadQueryResultException("unused", $incorrectBufferInputException);
-		}
+		$this->setBuffer($values);
 
         if ($this->isBufferFull()) {
             $queryResult = $this->save();

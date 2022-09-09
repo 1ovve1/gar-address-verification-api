@@ -31,7 +31,7 @@ class ChainPoint
 	{
 		[[$parentObjectId, $chiledObjectId]] = $queryResult->fetchAllNum();
 
-		return new self($parentObjectId, $parentPosition, $chiledObjectId, $chiledPosition);
+		return new self((int)$parentObjectId, $parentPosition, (int)$chiledObjectId, $chiledPosition);
 	}
 
 }

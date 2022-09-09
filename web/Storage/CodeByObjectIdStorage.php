@@ -18,25 +18,19 @@ class CodeByObjectIdStorage extends BaseStorage
 	 * Return code by specific $type and objectid
 	 * @param int $objectId - concrete objectid address
 	 * @param string $type - type of code
-	 * @return array|null
+	 * @return array<string, string>|null
 	 * @throws CodeNotFoundException - if codes was not found
-	 * @throws FailedDBConnectionWithDBException
-	 * @throws ServerSideProblemException - if we fined server side problems
 	 */
     public function getCode(int $objectId, string $type): ?array
     {
 		$code = [];
 
-		try {
-			if (Codes::tryFrom($type)) {
-				if (Codes::from($type) === Codes::ALL) {
-					$code = $this->getAllCodesByObjectId($objectId);
-				} else {
-					$code = $this->getCodeByObjectId($objectId, $type);
-				}
+		if (Codes::tryFrom($type)) {
+			if (Codes::from($type) === Codes::ALL) {
+				$code = $this->getAllCodesByObjectId($objectId);
+			} else {
+				$code = $this->getCodeByObjectId($objectId, $type);
 			}
-		} catch (BadQueryResultException $e) {
-			throw new ServerSideProblemException($e);
 		}
 
 		if (empty($code)) {
@@ -50,9 +44,7 @@ class CodeByObjectIdStorage extends BaseStorage
 	 * Return code by $type using specific objectid address
 	 * @param int $objectId - objectid address
 	 * @param string $type - type of code
-	 * @return array<mixed>
-	 * @throws BadQueryResultException
-	 * @throws FailedDBConnectionWithDBException
+	 * @return array<string, string>
 	 */
     public function getCodeByObjectId(int $objectId, string $type): array
     {
@@ -70,9 +62,7 @@ class CodeByObjectIdStorage extends BaseStorage
 	/**
 	 * Return all codes using concrete objectid address
 	 * @param int $objectId - concrete objectid address
-	 * @return array<mixed>
-	 * @throws BadQueryResultException
-	 * @throws FailedDBConnectionWithDBException
+	 * @return array<int, array<string, string>>
 	 */
     public function getAllCodesByObjectId(int $objectId): array
     {

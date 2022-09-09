@@ -2,7 +2,6 @@
 
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
-use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;
@@ -23,19 +22,17 @@ abstract class ActiveRecordImpl implements ActiveRecord
 	 *
 	 * @param QueryBox $queryBox
 	 * @return QueryTemplate
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	private static function getState(QueryBox $queryBox) : QueryTemplate
 	{
 		$db = DBFacade::getDBInstance();
-		$template = $queryBox->querySnapshot;
+		$template = $queryBox->getQuerySnapshot();
 
 		return $db->prepare($template);
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	public function execute(array $values): QueryResult
 	{
@@ -45,12 +42,11 @@ abstract class ActiveRecordImpl implements ActiveRecord
 
 	/**
 	 * {@inheritDoc}
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	public function save(): QueryResult
 	{
 		$state = self::getState($this->queryBox);
-		return $state->exec($this->queryBox->dryArgs);
+		return $state->exec($this->queryBox->getDryArgs());
 	}
 
 	/**
@@ -63,8 +59,8 @@ abstract class ActiveRecordImpl implements ActiveRecord
 
 	/**
 	 * @param SQL $template
-	 * @param array<mixed> $clearArgs
-	 * @param array<mixed> $dryArgs
+	 * @param array<string|int> $clearArgs
+	 * @param array<DatabaseContract> $dryArgs
 	 * @param QueryBox|null $parentBox
 	 * @return QueryBox
 	 */

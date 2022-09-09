@@ -2,7 +2,6 @@
 
 namespace DB\ORM\Migration\Options\Migrate;
 
-use DB\Exceptions\Unchecked\BadQueryResultException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\Migration\Container\QueryGenerator;
 use DB\ORM\Migration\Options\BaseOptionFacade;
@@ -12,8 +11,6 @@ class MigrateImpl extends BaseOptionFacade implements Migrate
 {
 	/**
 	 * @inheritDoc
-	 * @throws BadQueryResultException
-	 * @throws BadQueryResultException
 	 */
 	static function migrate(DBAdapter $db, string $tableName, array $paramsToCreate = []): void
 	{
@@ -26,7 +23,7 @@ class MigrateImpl extends BaseOptionFacade implements Migrate
 
 		try {
 			parent::executeContainer($db, $container);
-		} catch (RuntimeException $e) {
+		} catch (RuntimeException) {
 			exit(sprintf(
 				'Cant create table by this SQL: %s (maybe table already exists)' . PHP_EOL,
 				$container->getRawSQL()
@@ -36,7 +33,6 @@ class MigrateImpl extends BaseOptionFacade implements Migrate
 
 	/**
 	 * @inheritDoc
-	 * @throws BadQueryResultException
 	 */
 	static function migrateFromMigrateAble(DBAdapter $db, string $className): void
 	{

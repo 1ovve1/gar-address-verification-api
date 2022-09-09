@@ -2,7 +2,6 @@
 
 namespace DB\ORM;
 
-use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\PDO\PDOObject;
 use DB\ORM\QueryBuilder\Templates\Conditions;
@@ -138,7 +137,7 @@ class DBFacade
 	}
 
 	/**
-	 * @param array<mixed> $tableNamesWithPseudonyms
+	 * @param array<int|string, int|string> $tableNamesWithPseudonyms
 	 * @return string
 	 */
 	public static function tableNamesWithPseudonymsToString(array $tableNamesWithPseudonyms): string
@@ -165,6 +164,12 @@ class DBFacade
 		return substr($strBuffer, 0, -2);
 	}
 
+	/**
+	 * @param array<int|string, string>|string $field
+	 * @param DatabaseContract $sign_or_value
+	 * @param DatabaseContract $value
+	 * @return array{field: string, sign: string, value: DatabaseContract}
+	 */
 	public static function whereArgsHandler(array|string                $field,
 	                                        int|float|bool|string|null  $sign_or_value = '',
 	                                        float|int|bool|string|null  $value = null) : array
@@ -184,16 +189,13 @@ class DBFacade
 
 		} else {
 			$sign = Conditions::tryFind($sign_or_value);
-			if (false === $sign) {
-				DBFacade::dumpException(null, 'Incorrect params', func_get_args());
-			}
 		}
 
-		return [$field, $sign, $value];
+		return ['field' => $field, 'sign' => $sign, 'value' => $value];
 	}
 
 	/**
-	 * @param array|string $tableName
+	 * @param array<string, string>|string $tableName
 	 * @param array<string|int, string> $condition - support:
 	 * 1. Pseudonym notation
 	 *      [
@@ -248,7 +250,7 @@ class DBFacade
 	 * Dump exception
 	 * @param mixed $item
 	 * @param string $message
-	 * @param array<mixed> $params
+	 * @param array<int, mixed> $params
 	 * @return void
 	 */
 	public static function dumpException(mixed $item, string $message, array $params): void

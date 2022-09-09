@@ -2,15 +2,11 @@
 
 namespace DB\ORM\QueryBuilder;
 
-use DB\Exceptions\Unchecked\BadQueryResultException;
-use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\QueryResult;
 
 
 /**
  * Common interface for query builder
- *
- * @phpstan-import-type DatabaseContract from DBAdapter
  */
 interface BuilderOptions
 {
@@ -21,7 +17,6 @@ interface BuilderOptions
 	 * @param  DatabaseContract $value - value for compare
 	 * @param  string|null $anotherTable - table name
 	 * @return QueryResult
-	 * @throws BadQueryResultException
 	 */
 	static function findFirst(string $field,
                               mixed $value,
@@ -32,7 +27,6 @@ interface BuilderOptions
 	 *
 	 * @param array<DatabaseContract> $values - values for the force insert
 	 * @return QueryResult
-	 * @throws BadQueryResultException
 	 */
 	function forceInsert(array $values): QueryResult;
 
@@ -40,7 +34,6 @@ interface BuilderOptions
 	 * Save changes in forceInsert buffer
 	 *
 	 * @return QueryResult
-	 * @throws BadQueryResultException
 	 */
 	function saveForceInsert(): QueryResult;
 

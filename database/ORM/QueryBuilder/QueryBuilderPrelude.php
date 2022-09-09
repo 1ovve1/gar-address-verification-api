@@ -2,10 +2,6 @@
 
 namespace DB\ORM\QueryBuilder;
 
-use DB\Exceptions\Unchecked\BadQueryResultException;
-use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
-use DB\Exceptions\Unchecked\InvalidForceInsertConfigurationException;
-use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;
@@ -23,8 +19,6 @@ use RuntimeException;
 
 /**
  * Common interface for query builder
- *
- * @phpstan-import-type DatabaseContract from DBAdapter
  */
 abstract class QueryBuilderPrelude
 	implements SelectAble, InsertAble, UpdateAble, DeleteAble, BuilderOptions
@@ -39,8 +33,6 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	/**
 	 * @param array<string> $fields
 	 * @param string|null $tableName
-	 * @throws InvalidForceInsertConfigurationException
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	public function __construct(array $fields = [],
 	                            ?string $tableName = null)
@@ -68,7 +60,6 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 
 	/**
 	 * {@inheritDoc}
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	public static function findFirst(string $field,
 	                                 mixed $value,
@@ -90,9 +81,8 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	/**
 	 * Execute template by name
 	 * @param string $templateName
-	 * @param array<mixed> $queryArguments
+	 * @param array<DatabaseContract> $queryArguments
 	 * @return QueryResult
-	 * @throws BadQueryResultException
 	 */
 	public function __call(string $templateName, array $queryArguments)
 	{
@@ -124,9 +114,9 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	/**
 	 * @inheritDoc
 	 */
-	static function table(): string
+	static function table(?string $className = null): string
 	{
-		return DBFacade::genTableNameByClassName(static::class);
+		return DBFacade::genTableNameByClassName($className ?? static::class);
 	}
 
 

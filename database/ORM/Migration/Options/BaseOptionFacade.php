@@ -2,7 +2,6 @@
 
 namespace DB\ORM\Migration\Options;
 
-use DB\Exceptions\Unchecked\BadQueryResultException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBFacade;
@@ -44,7 +43,6 @@ abstract class BaseOptionFacade
 	 * @param DBAdapter $db
 	 * @param string $tableName - name of table
 	 * @return bool
-	 * @throws BadQueryResultException
 	 */
 	protected static function isTableExists(DBAdapter $db, string $tableName): bool
 	{
@@ -64,7 +62,6 @@ abstract class BaseOptionFacade
 	 * @param DBAdapter $db
 	 * @param Query $container
 	 * @return void
-	 * @throws BadQueryResultException
 	 */
 	protected static function executeContainer(DBAdapter $db, Query $container): void
 	{

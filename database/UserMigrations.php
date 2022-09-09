@@ -2,8 +2,6 @@
 
 namespace DB;
 
-use DB\Exceptions\Unchecked\BadQueryResultException;
-use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
 use DB\ORM\DBFacade;
 use DB\ORM\Migration\MetaTable;
 use DB\ORM\Migration\MigrateAble;
@@ -11,10 +9,6 @@ use RuntimeException;
 
 class UserMigrations
 {
-	/**
-	 * @throws FailedDBConnectionWithDBException
-	 * @throws BadQueryResultException
-	 */
 	static function migrateFromConfig(): void
 	{
 		//TODO: write custom exceptions
@@ -23,23 +17,11 @@ class UserMigrations
 
 		foreach ($classList as $tableName => $params) {
 			if (is_string($params) && is_a($params, MigrateAble::class, true)) {
-				try {
-					$migrateTool->doMigrateFromMigrateAble($params);
-				} catch (Exceptions\Unchecked\BadQueryResultException $e) {
-					//TODO: write custom exception
-					echo 'Migration failed' . PHP_EOL . $e->getMessage() . PHP_EOL;
-					die();
-				}
+				$migrateTool->doMigrateFromMigrateAble($params);
 			} else if (is_array($params)) {
 				if (is_string($tableName)) {
 					if (key_exists('fields', $params)) {
-						try {
-							$migrateTool->doMigrate($tableName, $params);
-						} catch (Exceptions\Unchecked\BadQueryResultException $e) {
-							//TODO: write custom exception
-							echo 'Migration failed' . PHP_EOL . $e->getMessage() . PHP_EOL;
-							die();
-						}
+						$migrateTool->doMigrate($tableName, $params);
 						continue;
 					}
 					var_dump($params);
@@ -58,21 +40,13 @@ class UserMigrations
 	/**
 	 * Delete tables from config
 	 * @return void
-	 * @throws FailedDBConnectionWithDBException
-	 * @throws BadQueryResultException
 	 */
 	static function dropTablesFromConfig(): void
 	{
 		$classList = $_SERVER['config']('migration');
 		$migrateTool = MetaTable::createImmutable(DBFacade::getImmutableDBConnection());
 
-		try {
-			$migrateTool->doDeleteTableFromMigrateAble($classList);
-		} catch (Exceptions\Unchecked\BadQueryResultException $e) {
-			//TODO: write custom exception
-			echo 'Drop tables failed' . PHP_EOL . $e->getMessage() . PHP_EOL;
-			die();
-		}
+		$migrateTool->doDeleteTableFromMigrateAble($classList);
 	}
 
 }

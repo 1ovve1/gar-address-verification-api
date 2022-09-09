@@ -2,7 +2,6 @@
 
 namespace DB\ORM\Migration\Options\Rollback;
 
-use DB\Exceptions\Unchecked\BadQueryResultException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\Migration\Container\QueryGenerator;
 use DB\ORM\Migration\Options\BaseOptionFacade;
@@ -11,8 +10,6 @@ class RollbackImpl extends BaseOptionFacade implements Rollback
 {
 	/**
 	 * @inheritDoc
-	 * @throws BadQueryResultException
-	 * @throws BadQueryResultException
 	 */
 	static function deleteTable(DBAdapter $db, array|string $tableName): void
 	{
@@ -40,7 +37,6 @@ class RollbackImpl extends BaseOptionFacade implements Rollback
 
 	/**
 	 * @inheritDoc
-	 * @throws BadQueryResultException
 	 */
 	static function deleteTableFromMigrateAble(DBAdapter $db, array|string $className): void
 	{

@@ -28,7 +28,7 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 		$result = AddrObj::select(
 			['addr' => ['one', 'two'], 'rose', 'house' => 'free'],
 			['addr' => 'AddrObj', 'house' => 'Houses']
-		)->getQueryBox()->querySnapshot;
+		)->getQueryBox()->getQuerySnapshot();
 
 
 		$this->assertEquals(self::SELECT_RESULT, $result);
@@ -56,8 +56,8 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 			$builder->where(['rose'], '>=', self::WHERE_DRY_ARGS[4])
 		)->queryBox;
 
-		$this->assertEquals(self::SELECT_RESULT . self::WHERE_RESULT, $result->querySnapshot);
-		$this->assertEquals(self::WHERE_DRY_ARGS, $result->dryArgs);
+		$this->assertEquals(self::SELECT_RESULT . self::WHERE_RESULT, $result->getQuerySnapshot());
+		$this->assertEquals(self::WHERE_DRY_ARGS, $result->getDryArgs());
 	}
 
 	/**************************
@@ -79,7 +79,7 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 			'table', ['field' => 'free']
 		)->queryBox;
 
-		$this->assertEquals(self::SELECT_RESULT . self::JOIN_RESULT, $result->querySnapshot);
+		$this->assertEquals(self::SELECT_RESULT . self::JOIN_RESULT, $result->getQuerySnapshot());
 	}
 
 	/**************************
@@ -96,7 +96,7 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 			['addr' => 'AddrObj', 'house' => 'Houses']
 		)->limit(10)->queryBox;
 
-		$this->assertEquals(self::SELECT_RESULT . self::LIMIT_RESULT, $result->querySnapshot);
+		$this->assertEquals(self::SELECT_RESULT . self::LIMIT_RESULT, $result->getQuerySnapshot());
 	}
 
 	/**************************
@@ -123,8 +123,8 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 			false
 		)->queryBox;
 
-		$this->assertEquals(self::SELECT_RESULT . self::ORDER_BY_ASC_RESULT, $orderByAsc->querySnapshot);
-		$this->assertEquals(self::SELECT_RESULT . self::ORDER_BY_DESC_RESULT, $orderByDesc->querySnapshot);
+		$this->assertEquals(self::SELECT_RESULT . self::ORDER_BY_ASC_RESULT, $orderByAsc->getQuerySnapshot());
+		$this->assertEquals(self::SELECT_RESULT . self::ORDER_BY_DESC_RESULT, $orderByDesc->getQuerySnapshot());
 	}
 
 	/**************************
@@ -132,6 +132,7 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 	 *
 	 */
 	const INSERT_RESULT = "INSERT INTO addr_obj (one, two, free) VALUES (?, ?, ?),(?, ?, ?)" . SEPARATOR;
+	/** @var array<string, array<int, int|string>|int|string> */
 	private array $INSERT_DRY_INPUT = [
 		'one' => [1, '3'],
 		'two' => [2, 3],
@@ -147,8 +148,8 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 			$this->INSERT_DRY_INPUT
 		)->queryBox;
 
-		$this->assertEquals(self::INSERT_RESULT, $queryBox->querySnapshot);
-		$this->assertEquals(self::INSERT_DRY_ARGS, $queryBox->dryArgs);
+		$this->assertEquals(self::INSERT_RESULT, $queryBox->getQuerySnapshot());
+		$this->assertEquals(self::INSERT_DRY_ARGS, $queryBox->getDryArgs());
 	}
 
 	/**************************
@@ -162,8 +163,8 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 	{
 		$result = AddrObj::update('one', 2)->queryBox;
 
-		$this->assertEquals(self::UPDATE_RESULT, $result->querySnapshot);
-		$this->assertEquals(self::UPDATE_DRY_ARGS, $result->dryArgs);
+		$this->assertEquals(self::UPDATE_RESULT, $result->getQuerySnapshot());
+		$this->assertEquals(self::UPDATE_DRY_ARGS, $result->getDryArgs());
 	}
 
 	/**************************
@@ -176,6 +177,6 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 	{
 		$result = AddrObj::delete()->queryBox;
 
-		$this->assertEquals(self::DELETE_RESULT, $result->querySnapshot);
+		$this->assertEquals(self::DELETE_RESULT, $result->getQuerySnapshot());
 	}
 }

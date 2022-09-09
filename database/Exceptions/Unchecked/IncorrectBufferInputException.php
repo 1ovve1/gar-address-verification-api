@@ -12,7 +12,7 @@ class IncorrectBufferInputException extends RuntimeException
 
 	/**
 	 * @param int $requireLengthOfInputArray
-	 * @param array<mixed> $givenValues
+	 * @param array<DatabaseContract> $givenValues
 	 */
 	public function __construct(int $requireLengthOfInputArray, array $givenValues)
 	{

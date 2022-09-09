@@ -37,16 +37,17 @@ class AddressByNameStorage extends BaseStorage
 	/**
 	 * @param array<string> $userAddress
 	 * @return int
-	 * @throws AddressNotFoundException
-	 * @throws ParamNotFoundException - if objectid was not found
-	 * @throws ServerSideProblemException
-	 * @throws FailedDBConnectionWithDBException
+	 * @throws AddressNotFoundException|ParamNotFoundException
 	 */
 	function getChiledObjectIdFromAddress(array $userAddress): int
 	{
 		$this->getFullAddress($userAddress);
 
-		return $this->addressBuilderDirector->findChiledObjectId();
+		try {
+			return $this->addressBuilderDirector->findChiledObjectId();
+		} catch (ParamNotFoundException) {
+			throw new AddressNotFoundException();
+		}
 	}
 
 	/**
@@ -54,27 +55,21 @@ class AddressByNameStorage extends BaseStorage
 	 * @param array<string> $userAddress - exploded input address fragment
 	 * @return array<int, array<string, array<int, array<string, string|int>>>> - full address
 	 * @throws AddressNotFoundException - address was not found
-	 * @throws FailedDBConnectionWithDBException
-	 * @throws ServerSideProblemException - bd server error
 	 */
     function getFullAddress(array $userAddress): array
     {
 		$this->addressBuilderDirector = new AddressBuilderDirector($this->addressBuilder, $userAddress);
 
-		try {
-			switch(count($userAddress)) {
-				case self::SINGLE_WORD:
-					$this->handleSingleWordUserAddress();
-					break;
-				case self::DOUBLE_WORD:
-					$this->handleDoubleWordUserAddress();
-					break;
-				default:
-					$this->handleComplexUserAddress();
+		switch(count($userAddress)) {
+			case self::SINGLE_WORD:
+				$this->handleSingleWordUserAddress();
+				break;
+			case self::DOUBLE_WORD:
+				$this->handleDoubleWordUserAddress();
+				break;
+			default:
+				$this->handleComplexUserAddress();
 
-			}
-		} catch (BadQueryResultException $e) {
-			throw new ServerSideProblemException($e);
 		}
 
 		$address = $this->addressBuilder->getAddress();
@@ -88,8 +83,6 @@ class AddressByNameStorage extends BaseStorage
 
 	/**
 	 * @return void
-	 * @throws BadQueryResultException
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	protected function handleSingleWordUserAddress(): void
 	{
@@ -100,8 +93,6 @@ class AddressByNameStorage extends BaseStorage
 
 	/**
 	 * @return void
-	 * @throws BadQueryResultException
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	function handleDoubleWordUserAddress(): void
 	{
@@ -131,10 +122,6 @@ class AddressByNameStorage extends BaseStorage
 
 	/**
 	 * @return void
-	 * @throws BadQueryResultException
-	 * @throws FailedDBConnectionWithDBException
-	 * @throws FailedDBConnectionWithDBException
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	protected function handleComplexUserAddress(): void
 	{
@@ -156,9 +143,7 @@ class AddressByNameStorage extends BaseStorage
 	/**
 	 * @param array<string> $userAddress
 	 * @return ChainPoint
-	 * @throws BadQueryResultException
 	 * @throws ChainNotFoundException
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	protected function findSimilarAddressChain(array $userAddress): ChainPoint
 	{
@@ -184,8 +169,6 @@ class AddressByNameStorage extends BaseStorage
 
 	/**
 	 * @param int|string $currObjectIdOrName
-	 * @throws BadQueryResultException
-	 * @throws FailedDBConnectionWithDBException
 	 */
     protected function completeAddressChainBackward(int|string $currObjectIdOrName): void
     {
@@ -213,8 +196,6 @@ class AddressByNameStorage extends BaseStorage
 
 	/**
 	 * @param int|string $currObjectIdOrName
-	 * @throws BadQueryResultException
-	 * @throws FailedDBConnectionWithDBException
 	 */
     protected function completeAddressChainForward(int|string $currObjectIdOrName): void
     {

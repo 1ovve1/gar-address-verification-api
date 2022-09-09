@@ -14,7 +14,7 @@ class Validation
 	static function validateUserAddress(string $userAddress): array
 	{
 		if (strlen($userAddress) >= 1000) {
-            throw new AddressValidationException($userAddress, 'length of address are to large');
+            throw new AddressValidationException('length of address are to large');
         }
 
 		$formattedAddress = null;

@@ -7,7 +7,7 @@ interface JoinAble
 	/**
 	 * Create INNER JOIN template
 	 *
-	 * @param array<mixed>|string $table - name of table
+	 * @param array<string, string>|string $table - name of table
 	 * @param array<string|int, string> $condition - ON condition by fliedName = filedName
 	 * @return JoinQuery
 	 */
@@ -16,7 +16,7 @@ interface JoinAble
 	/**
 	 * Create LEFT OUTER JOIN template
 	 *
-	 * @param array<mixed>|string $table - name of table
+	 * @param array<string, string>|string $table - name of table
 	 * @param array<string|int, string> $condition - ON condition by fliedName = filedName
 	 * @return JoinQuery
 	 */
@@ -25,7 +25,7 @@ interface JoinAble
 	/**
 	 * Create RIGHT OUTER JOIN template
 	 *
-	 * @param array<mixed>|string $table - name of table
+	 * @param array<string, string>|string $table - name of table
 	 * @param array<string|int, string> $condition - ON condition by fliedName = filedName
 	 * @return JoinQuery
 	 */

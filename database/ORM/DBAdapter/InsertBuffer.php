@@ -9,8 +9,6 @@ use SplFixedArray;
 
 /**
  * Lazy insert abstract class
- *
- * @phpstan-import-type DatabaseContract from DBAdapter
  */
 abstract class InsertBuffer
 {
@@ -22,14 +20,13 @@ abstract class InsertBuffer
     private readonly int $bufferSize;
     /** @var int - cursor of the buffer index */
     private int $bufferCursor = 0;
-    /** @var SplFixedArray - buffer of stage values */
+    /** @var SplFixedArray<DatabaseContract> - buffer of stage values */
     private SplFixedArray $buffer;
 
     /**
      * @param string $tableName - name of table
      * @param String[] $tableFields - table fields
      * @param int $groupInsertCount - number of groups in group insert
-     * @throws InvalidForceInsertConfigurationException
      */
     public function __construct(string $tableName, array $tableFields, int $groupInsertCount)
     {
@@ -48,10 +45,9 @@ abstract class InsertBuffer
      * Create exception if input is incorrect
      *
      * @param string $tableName - name of table
-     * @param array<mixed> $tableFields - fields to create
+     * @param array<string> $tableFields - fields to create
      * @param int $groupInsertCount - stage count
      * @return void
-     * @throws InvalidForceInsertConfigurationException
      */
     public static function isValid(string $tableName, array $tableFields, int $groupInsertCount): void
     {
@@ -174,9 +170,8 @@ abstract class InsertBuffer
 
 	/**
 	 * Set stage buffer by $insertValues
-	 * @param DatabaseContract[] $insertValues - values that need add in $buffer
+	 * @param array<DatabaseContract> $insertValues - values that need add in $buffer
 	 * @return void
-	 * @throws IncorrectBufferInputException
 	 */
     public function setBuffer(array $insertValues): void
     {

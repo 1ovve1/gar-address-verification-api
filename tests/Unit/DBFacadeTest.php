@@ -15,6 +15,7 @@ class DBFacadeTest extends TestCase
 		$this->assertEquals(self::DB_NAME, DBFacade::genTableNameByClassName(self::CLASS_NAME));
 	}
 
+	/** @var array<string|int, string|array<string>> */
 	private array $fieldsWithPseudonyms = [
 		'addr' => [
 			'one', 'two'
@@ -32,6 +33,7 @@ class DBFacadeTest extends TestCase
 	}
 
 	const STRING_TABLENAMES_WITH_PSEUDONYMS_RESULT = 'addr_obj as addr, houses as house, four, five';
+	/** @var array<string|int, string|array<string>> */
 	private array $tableNamesWithPseudonyms = [
 		'addr' => 'addr_obj',
 		'house' => 'houses',

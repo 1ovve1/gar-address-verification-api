@@ -46,7 +46,7 @@ class AS_MUN_HIERARCHY extends XMLFile
 	/**
 	 * {@inheritDoc}
 	 */
-    public function execDoWork(array &$values, QueryBuilder &$table): void
+    public function execDoWork(array &$values, mixed &$table): void
     {
         $region = $this->getIntRegion();
 

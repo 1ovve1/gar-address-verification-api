@@ -57,7 +57,7 @@ class AS_HOUSES extends XMLFile
 	/**
 	 * {@inheritDoc}
 	 */
-    public function execDoWork(array &$values, QueryBuilder &$table): void
+    public function execDoWork(array &$values, mixed &$table): void
     {
         $region = $this->getIntRegion();
 

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace DB\Models;
 
-use DB\Exceptions\Unchecked\BadQueryResultException;
-use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\QueryBuilder\QueryBuilder;
 
@@ -160,8 +158,6 @@ class Database extends QueryBuilder
 	 * Return single name address name by objectid param of concrete address
 	 * @param int $objectId - object id concrete address
 	 * @return QueryResult
-	 * @throws BadQueryResultException
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	public function getAddressByObjectId(int $objectId): QueryResult
 	{
@@ -182,8 +178,6 @@ class Database extends QueryBuilder
 	 * @param int $parentObjectId - parent address objectid
 	 * @param string $chiledName - chiled name fragment
 	 * @return QueryResult
-	 * @throws BadQueryResultException
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	public function getChiledAddressByParentObjectIdAndChiledName(int $parentObjectId, string $chiledName): QueryResult
 	{
@@ -213,8 +207,6 @@ class Database extends QueryBuilder
 	 * Return parent name using chiled address objectid
 	 * @param int $chiledObjectId - chiled address objectid
 	 * @return QueryResult
-	 * @throws BadQueryResultException
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	public function getParentAddressByObjectId(int $chiledObjectId): QueryResult
 	{
@@ -237,8 +229,6 @@ class Database extends QueryBuilder
 	 * Return houses object id using parent address objectid
 	 * @param int $objectId - parent address objectid
 	 * @return QueryResult
-	 * @throws BadQueryResultException
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	public function getHousesByParentObjectId(int $objectId): QueryResult
 	{
@@ -275,8 +265,6 @@ class Database extends QueryBuilder
 	 * @param string $parentName - parent address name
 	 * @param string $chiledName - chiled address name
 	 * @return QueryResult
-	 * @throws BadQueryResultException
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	public function findChainByParentAndChiledAddressName(string $parentName, string $chiledName): QueryResult
 	{
@@ -329,8 +317,6 @@ class Database extends QueryBuilder
 	 * Return like address name by address name fragment
 	 * @param string $halfAddress - address name fragment
 	 * @return QueryResult
-	 * @throws BadQueryResultException
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	public function getLikeAddress(string $halfAddress): QueryResult
 	{
@@ -362,8 +348,6 @@ class Database extends QueryBuilder
 	 * @param int $objectId
 	 * @param string $type
 	 * @return QueryResult
-	 * @throws BadQueryResultException
-	 * @throws FailedDBConnectionWithDBException
 	 */
 	function findAddrObjParamByObjectIdAndType(int $objectId, string $type): QueryResult
 	{

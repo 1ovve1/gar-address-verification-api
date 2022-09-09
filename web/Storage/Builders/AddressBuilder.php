@@ -6,33 +6,33 @@ interface AddressBuilder
 {
 	/**
 	 * @param string $identifier
-	 * @param array<string, mixed> $data
+	 * @param AddressElementContract $data
 	 * @return AddressBuilder
 	 */
 	function addParentAddr(string $identifier, array $data): self;
 
 	/**
 	 * @param string $identifier
-	 * @param array<string, mixed> $data
+	 * @param AddressElementContract $data
 	 * @return AddressBuilder
 	 */
 	function addChiledAddr(string $identifier, array $data): self;
 
 	/**
-	 * @param array<string, mixed> $data
+	 * @param AddressElementContract $data
 	 * @return AddressBuilder
 	 */
 	function addChiledHouses(array $data): self;
 
 	/**
-	 * @param array<string|int, mixed> $data
+	 * @param AddressElementContract $data
 	 * @return AddressBuilder
 	 */
 	function addChiledVariant(array $data): self;
 
 	/**
 	 * Return complete address structure
-	 * @return array<int, array<string, array<int, array<string, string|int>>>>
+	 * @return array<int, array<string, AddressElementContract>>
 	 */
 	function getAddress(): array;
 }

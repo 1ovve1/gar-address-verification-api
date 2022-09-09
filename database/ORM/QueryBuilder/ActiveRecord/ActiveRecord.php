@@ -2,14 +2,10 @@
 
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
-use DB\Exceptions\Unchecked\BadQueryResultException;
-use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\QueryResult;
 
 /**
  * ActiveRecord interface
- *
- * @phpstan-import-type DatabaseContract from DBAdapter
  */
 interface ActiveRecord
 {
@@ -18,7 +14,6 @@ interface ActiveRecord
 	 *
 	 * @param array<DatabaseContract> $values - values to execute
 	 * @return QueryResult
-	 * @throws BadQueryResultException
 	 */
 	public function execute(array $values): QueryResult;
 
@@ -26,7 +21,6 @@ interface ActiveRecord
 	 * Execute query using state that was included into instruction
 	 *
 	 * @return QueryResult
-	 * @throws BadQueryResultException
 	 */
 	public function save(): QueryResult;
 

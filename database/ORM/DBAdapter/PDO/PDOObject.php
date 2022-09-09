@@ -13,8 +13,6 @@ use PDOException;
 
 /**
  * Implements DBAdapter for PDO connection type
- *
- * @phpstan-import-type DatabaseContract from DBAdapter
  */
 class PDOObject implements DBAdapter
 {

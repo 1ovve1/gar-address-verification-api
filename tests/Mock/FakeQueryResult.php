@@ -7,10 +7,16 @@ use RuntimeException;
 
 class FakeQueryResult implements QueryResult
 {
+	/** @var array<int, array<string, DatabaseContract>> */
 	readonly array $assocFetch;
+	/** @var array<int, array<int, DatabaseContract>> */
 	readonly array $numFetch;
+	/** @var int  */
 	readonly int $size;
 
+	/**
+	 * @param array<int, array<int|string, DatabaseContract>> $data
+	 */
 	public function __construct(array $data)
 	{
 		$this->assocFetch = $data;
@@ -19,9 +25,6 @@ class FakeQueryResult implements QueryResult
 		foreach ($data as $element) {
 			$tmpElement = [];
 			foreach ($element as $attribute) {
-				if (is_array($attribute)) {
-					throw new RuntimeException('Bad format QueryResult');
-				}
 				$tmpElement[] = $attribute;
 			}
 			$numData[] = $tmpElement;
@@ -34,7 +37,7 @@ class FakeQueryResult implements QueryResult
 
 	/**
 	 * @param int $flag
-	 * @return array|false
+	 * @return array<int, array<int|string, DatabaseContract>>|false
 	 */
 	function fetchAll(int $flag = \PDO::FETCH_ASSOC): array|false
 	{
@@ -42,7 +45,7 @@ class FakeQueryResult implements QueryResult
 	}
 
 	/**
-	 * @return array|false
+	 * @return array<int, array<string, DatabaseContract>>|false
 	 */
 	function fetchAllAssoc(): array|false
 	{
@@ -50,7 +53,7 @@ class FakeQueryResult implements QueryResult
 	}
 
 	/**
-	 * @return array|false|mixed[]
+	 * @return array<int, array<int, DatabaseContract>>
 	 */
 	function fetchAllNum(): array|false
 	{
