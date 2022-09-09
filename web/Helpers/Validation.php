@@ -2,7 +2,7 @@
 
 namespace GAR\Helpers;
 
-use GAR\Exceptions\AddressValidationException;
+use GAR\Exceptions\Unchecked\AddressValidationException;
 
 class Validation
 {

@@ -2,8 +2,7 @@
 
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
-use DB\Exceptions\BadQueryResultException;
-use DB\Exceptions\FailedDBConnectionWithDBException;
+use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;

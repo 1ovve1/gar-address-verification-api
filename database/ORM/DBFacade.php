@@ -2,8 +2,7 @@
 
 namespace DB\ORM;
 
-use DB\Exceptions\BadQueryResultException;
-use DB\Exceptions\FailedDBConnectionWithDBException;
+use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\PDO\PDOObject;
 use DB\ORM\QueryBuilder\Templates\Conditions;

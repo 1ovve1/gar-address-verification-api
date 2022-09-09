@@ -2,9 +2,9 @@
 
 namespace DB\ORM\QueryBuilder;
 
-use DB\Exceptions\BadQueryResultException;
-use DB\Exceptions\FailedDBConnectionWithDBException;
-use DB\Exceptions\InvalidForceInsertConfigurationException;
+use DB\Exceptions\Unchecked\BadQueryResultException;
+use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
+use DB\Exceptions\Unchecked\InvalidForceInsertConfigurationException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBAdapter\QueryTemplate;

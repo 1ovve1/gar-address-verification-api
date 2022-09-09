@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace DB\Exceptions;
+namespace DB\Exceptions\Checked;
 
+use DB\Exceptions\ExceptionCodes;
 use Exception;
 
 class QueryTemplateNotFoundException extends Exception

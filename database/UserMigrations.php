@@ -2,8 +2,8 @@
 
 namespace DB;
 
-use DB\Exceptions\BadQueryResultException;
-use DB\Exceptions\FailedDBConnectionWithDBException;
+use DB\Exceptions\Unchecked\BadQueryResultException;
+use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
 use DB\ORM\DBFacade;
 use DB\ORM\Migration\MetaTable;
 use DB\ORM\Migration\MigrateAble;
@@ -25,7 +25,7 @@ class UserMigrations
 			if (is_string($params) && is_a($params, MigrateAble::class, true)) {
 				try {
 					$migrateTool->doMigrateFromMigrateAble($params);
-				} catch (Exceptions\BadQueryResultException $e) {
+				} catch (Exceptions\Unchecked\BadQueryResultException $e) {
 					//TODO: write custom exception
 					echo 'Migration failed' . PHP_EOL . $e->getMessage() . PHP_EOL;
 					die();
@@ -35,7 +35,7 @@ class UserMigrations
 					if (key_exists('fields', $params)) {
 						try {
 							$migrateTool->doMigrate($tableName, $params);
-						} catch (Exceptions\BadQueryResultException $e) {
+						} catch (Exceptions\Unchecked\BadQueryResultException $e) {
 							//TODO: write custom exception
 							echo 'Migration failed' . PHP_EOL . $e->getMessage() . PHP_EOL;
 							die();
@@ -68,7 +68,7 @@ class UserMigrations
 
 		try {
 			$migrateTool->doDeleteTableFromMigrateAble($classList);
-		} catch (Exceptions\BadQueryResultException $e) {
+		} catch (Exceptions\Unchecked\BadQueryResultException $e) {
 			//TODO: write custom exception
 			echo 'Drop tables failed' . PHP_EOL . $e->getMessage() . PHP_EOL;
 			die();

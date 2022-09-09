@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace DB\ORM\DBAdapter;
 
-use DB\Exceptions\BadQueryResultException;
-use DB\Exceptions\FailedDBConnectionWithDBException;
-use DB\Exceptions\InvalidForceInsertConfigurationException;
+use DB\Exceptions\Unchecked\BadQueryResultException;
+use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
+use DB\Exceptions\Unchecked\InvalidForceInsertConfigurationException;
 use DB\ORM\Migration\Container\Query;
 
 /**

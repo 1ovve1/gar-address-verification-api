@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace GAR\Storage;
 
-use DB\Exceptions\BadQueryResultException;
-use DB\Exceptions\FailedDBConnectionWithDBException;
-use GAR\Exceptions\AddressNotFoundException;
-use GAR\Exceptions\ChainNotFoundException;
-use GAR\Exceptions\ParamNotFoundException;
-use GAR\Exceptions\ServerSideProblemException;
+use DB\Exceptions\Unchecked\BadQueryResultException;
+use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
+use GAR\Exceptions\Checked\AddressNotFoundException;
+use GAR\Exceptions\Checked\ChainNotFoundException;
+use GAR\Exceptions\Checked\ParamNotFoundException;
+use GAR\Exceptions\Unchecked\ServerSideProblemException;
 use GAR\Storage\Builders\AddressBuilder;
 use GAR\Storage\Builders\AddressBuilderDirector;
 use GAR\Storage\Elements\ChainPoint;

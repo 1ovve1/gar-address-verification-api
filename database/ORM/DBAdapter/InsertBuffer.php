@@ -2,8 +2,8 @@
 
 namespace DB\ORM\DBAdapter;
 
-use DB\Exceptions\IncorrectBufferInputException;
-use DB\Exceptions\InvalidForceInsertConfigurationException;
+use DB\Exceptions\Unchecked\IncorrectBufferInputException;
+use DB\Exceptions\Unchecked\InvalidForceInsertConfigurationException;
 use DB\ORM\DBFacade;
 use SplFixedArray;
 

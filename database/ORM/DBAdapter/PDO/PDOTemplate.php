@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DB\ORM\DBAdapter\PDO;
 
-use DB\Exceptions\BadQueryResultException;
+use DB\Exceptions\Unchecked\BadQueryResultException;
 use DB\ORM\DBAdapter\{DBAdapter, QueryResult, QueryTemplate};
 use PDOException;
 use PDOStatement;

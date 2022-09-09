@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace DB\Models;
 
-use DB\Exceptions\BadQueryResultException;
-use DB\Exceptions\FailedDBConnectionWithDBException;
+use DB\Exceptions\Unchecked\BadQueryResultException;
+use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\QueryBuilder\QueryBuilder;
 

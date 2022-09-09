@@ -1,0 +1,18 @@
+parameters:
+    level: 6
+    paths:
+        - web
+        - database
+        - cli
+        - tests
+        - config
+        - gar
+        - bootstrap.php
+
+    bootstrapFiles:
+        - bootstrap.php
+
+    exceptions:
+        checkedExceptionRegexes:
+            - '#^DB\\Exceptions\\Checked\\#'
+            - '#^GAR\\Exceptions\\Checked\\#'

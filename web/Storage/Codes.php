@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GAR\Storage;
 
-use GAR\Exceptions\CodeTypeNotFoundException;
+use GAR\Exceptions\Unchecked\CodeTypeNotFoundException;
 
 /**
  * Enums type of codes

@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace DB\Exceptions;
+namespace DB\Exceptions\Unchecked;
 
 
+use DB\Exceptions\ExceptionCodes;
 use Exception;
 
 class IncorrectBufferInputException extends Exception

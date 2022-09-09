@@ -2,7 +2,7 @@
 
 namespace DB\ORM\Migration\Options\Rollback;
 
-use DB\Exceptions\BadQueryResultException;
+use DB\Exceptions\Unchecked\BadQueryResultException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\Migration\Container\QueryGenerator;
 use DB\ORM\Migration\Options\BaseOptionFacade;

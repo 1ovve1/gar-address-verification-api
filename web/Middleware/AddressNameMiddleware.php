@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace GAR\Middleware;
 
-use GAR\Exceptions\AddressValidationException;
+use GAR\Exceptions\Unchecked\AddressValidationException;
+use GAR\Helpers\RequestHelper;
 use GAR\Helpers\ResponseCodes;
 use GAR\Helpers\Validation;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
-use GAR\Helpers\RequestHelper;
 
 class AddressNameMiddleware
 {

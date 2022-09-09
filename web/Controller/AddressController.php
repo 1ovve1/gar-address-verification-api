@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace GAR\Controller;
 
-use GAR\Exceptions\{AddressNotFoundException,
-	CodeNotFoundException,
-	ParamNotFoundException,
-	ServerSideProblemException};
-use DB\Exceptions\FailedDBConnectionWithDBException;
+use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
+use GAR\Exceptions\{Checked\AddressNotFoundException,
+	Checked\CodeNotFoundException,
+	Checked\ParamNotFoundException,
+	Unchecked\ServerSideProblemException};
 use GAR\Helpers\{RequestHelper, ResponseCodes};
 use GAR\Storage\{AddressByNameStorage, Builders\AddressBuilderImplement, CodeByObjectIdStorage};
 use Psr\Http\Message\{ResponseInterface as Response, ServerRequestInterface as Request};

@@ -2,7 +2,7 @@
 
 namespace DB\ORM\DBAdapter\PDO;
 
-use DB\Exceptions\NullableQueryResultException;
+use DB\Exceptions\Checked\NullableQueryResultException;
 use DB\ORM\DBAdapter\QueryResult;
 use PDOStatement;
 

@@ -2,7 +2,7 @@
 
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
-use DB\Exceptions\BadQueryResultException;
+use DB\Exceptions\Unchecked\BadQueryResultException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\QueryResult;
 

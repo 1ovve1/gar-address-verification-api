@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DB\ORM\DBAdapter;
 
-use DB\Exceptions\BadQueryResultException;
+use DB\Exceptions\Unchecked\BadQueryResultException;
 
 /**
  * Common query template interface for prepared statements

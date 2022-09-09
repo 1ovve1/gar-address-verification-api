@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GAR\Exceptions;
+namespace GAR\Exceptions\Unchecked;
 
 use Exception;
 use GAR\Storage\Codes;

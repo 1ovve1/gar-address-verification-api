@@ -3,16 +3,11 @@
 namespace DB\ORM\DBAdapter\PDO;
 
 
-use DB\Exceptions\BadQueryResultException;
-use DB\Exceptions\IncorrectBufferInputException;
-use DB\Exceptions\InvalidForceInsertConfigurationException;
-use DB\Exceptions\QueryTemplateNotFoundException;
-use DB\ORM\DBAdapter\{
-	DBAdapter,
-	InsertBuffer,
-	QueryResult,
-	QueryTemplate
-};
+use DB\Exceptions\Checked\QueryTemplateNotFoundException;
+use DB\Exceptions\Unchecked\BadQueryResultException;
+use DB\Exceptions\Unchecked\IncorrectBufferInputException;
+use DB\Exceptions\Unchecked\InvalidForceInsertConfigurationException;
+use DB\ORM\DBAdapter\{DBAdapter, InsertBuffer, QueryResult, QueryTemplate};
 
 /**
  * Lazy Insert SQL object Using PDO

@@ -3,7 +3,7 @@
 namespace GAR\Storage\Builders;
 
 use DB\ORM\DBAdapter\QueryResult;
-use GAR\Exceptions\ParamNotFoundException;
+use GAR\Exceptions\Checked\ParamNotFoundException;
 use GAR\Storage\Elements\ChainPoint;
 use RuntimeException;
 

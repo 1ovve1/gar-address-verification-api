@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace GAR\Middleware;
 
-use GAR\Exceptions\{AddressValidationException, CodeTypeNotFoundException};
-use Psr\Http\Message\ResponseInterface;
+use GAR\Exceptions\{Unchecked\AddressValidationException, Unchecked\CodeTypeNotFoundException};
 use GAR\Helpers\{RequestHelper, ResponseCodes, Validation};
 use GAR\Storage\Codes;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Routing\RouteContext;
