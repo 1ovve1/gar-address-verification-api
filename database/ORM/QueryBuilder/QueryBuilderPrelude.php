@@ -15,11 +15,10 @@ use DB\ORM\QueryBuilder\QueryTypes\{Delete\DeleteAble,
 	Select\SelectTrait,
 	Update\UpdateAble,
 	Update\UpdateTrait};
+use RuntimeException;
 
 /**
  * Common interface for query builder
- *
- * @phpstan-import-type DatabaseContract from \DB\ORM\DBAdapter\DBAdapter
  */
 abstract class QueryBuilderPrelude
 	implements SelectAble, InsertAble, UpdateAble, DeleteAble, BuilderOptions
@@ -40,7 +39,7 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	{
 		$this->userStates = $this->prepareStates();
 
-		$tableName ??= self::getTableName();
+		$tableName ??= self::table();
 
 		if ($this instanceof MigrateAble) {
 			$params = $this::migrationParams();
@@ -64,7 +63,7 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	 */
 	public static function findFirst(string $field,
 	                                 mixed $value,
-	                                 ?string $anotherTable = null): array
+	                                 ?string $anotherTable = null): QueryResult
 	{
 		return static::select($field, $anotherTable)->where($field, $value)->save();
 	}
@@ -82,15 +81,15 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	/**
 	 * Execute template by name
 	 * @param string $templateName
-	 * @param array<mixed> $queryArguments
-	 * @return array<mixed>|false|null
+	 * @param array<DatabaseContract> $queryArguments
+	 * @return QueryResult
 	 */
 	public function __call(string $templateName, array $queryArguments)
 	{
 		$state = $this->userStates[$templateName] ?? null;
 
 		if (null === $state) {
-			throw new \RuntimeException('Unknown state');
+			throw new RuntimeException('Unknown state');
 		}
 
 		return $state->execute($queryArguments);
@@ -115,9 +114,9 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	/**
 	 * @inheritDoc
 	 */
-	static function getTableName(): string
+	static function table(?string $className = null): string
 	{
-		return DBFacade::genTableNameByClassName(static::class);
+		return DBFacade::genTableNameByClassName($className ?? static::class);
 	}
 
 

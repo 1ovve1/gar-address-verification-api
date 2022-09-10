@@ -1,0 +1,22 @@
+parameters:
+    level: 7
+    paths:
+        - web
+        - database
+        - cli
+        - tests
+        - config
+        - gar
+        - bootstrap.php
+
+    bootstrapFiles:
+        - bootstrap.php
+
+    typeAliases:
+        DatabaseContract: 'int|float|string|bool|null'
+        AddressElementContract: 'array<int, array<string, string|int>>'
+
+    exceptions:
+        uncheckedExceptionRegexes:
+            - '#^DB\\Exceptions\\Unchecked\\#'
+            - '#^GAR\\Exceptions\\Unchecked\\#'

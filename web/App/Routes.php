@@ -3,14 +3,18 @@
 declare(strict_types=1);
 
 
+use GAR\Controller\AddressController;
+use GAR\Middleware\AddressNameMiddleware;
+use GAR\Middleware\CodeMiddleware;
+use Slim\Routing\RouteCollectorProxy;
 
 return function (Slim\App $app) {
-    $app->get('/address', [\GAR\Controller\AddressController::class, 'getAddressByName'])
-    ->add(\GAR\Middleware\AddressNameMiddleware::class);
+    $app->get('/address', [AddressController::class, 'getAddressByName'])
+    ->add(AddressNameMiddleware::class);
 
-    $app->group('/code', function (\Slim\Routing\RouteCollectorProxy $group) {
-        $group->get('/{type}', [\GAR\Controller\AddressController::class, 'getCodeByType'])
-      ->add(\GAR\Middleware\CodeMiddleware::class);
+    $app->group('/code', function (RouteCollectorProxy $group) {
+        $group->get('/{type}', [AddressController::class, 'getCodeByType'])
+      ->add(CodeMiddleware::class);
     });
 
     $routeCollector = $app->getRouteCollector();

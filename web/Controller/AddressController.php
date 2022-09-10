@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace GAR\Controller;
 
-use DB\EntityFactory;
-use GAR\Repository\AddressByNameRepository;
-use GAR\Repository\CodeByObjectIdRepository;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
+use GAR\Exceptions\{Checked\AddressNotFoundException,
+	Checked\CodeNotFoundException,
+	Checked\ParamNotFoundException,
+	Unchecked\ServerSideProblemException};
+use GAR\Helpers\{RequestHelper, ResponseCodes};
+use GAR\Storage\{AddressByNameStorage, Builders\AddressBuilderImplement, CodeByObjectIdStorage};
+use Psr\Http\Message\{ResponseInterface as Response, ServerRequestInterface as Request};
 
 /**
  * Address controller
@@ -16,59 +19,60 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AddressController
 {
-    /**
-     * @var AddressByNameRepository
-     */
-    protected AddressByNameRepository $addressByNameRepo;
-    protected CodeByObjectIdRepository $addressByCodeRepo;
+    /** @var AddressByNameStorage */
+    protected AddressByNameStorage $addressByNameRepo;
+	/** @var CodeByObjectIdStorage  */
+    protected CodeByObjectIdStorage $addressByCodeRepo;
 
-    public function __construct(
-  ) {
-        $this->addressByNameRepo = new AddressByNameRepository();
-        $this->addressByCodeRepo = new CodeByObjectIdRepository();
+    public function __construct()
+    {
+        $this->addressByNameRepo = new AddressByNameStorage(new AddressBuilderImplement());
+        $this->addressByCodeRepo = new CodeByObjectIdStorage();
     }
 
+	/**
+	 * @param Request $request
+	 * @param Response $response
+	 * @return Response
+	 */
     public function getAddressByName(Request $request, Response $response): Response
     {
         $address = $request->getQueryParams()['address'];
 
-        $likeAddress = $this->addressByNameRepo->getFullAddress($address);
+	    try {
+		    $likeAddress = $this->addressByNameRepo->getFullAddress($address);
+		    RequestHelper::writeDataJson($response, $likeAddress);
+	    } catch (AddressNotFoundException $e) {
+			$response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::NOT_FOUND_404);
+	    }
 
-        if (!empty($likeAddress)) {
-            $response->getBody()->write(json_encode($likeAddress, JSON_FORCE_OBJECT));
-        }
-
-        return $response;
+	    return $response;
     }
 
+	/**
+	 * @param Request $request
+	 * @param Response $response
+	 * @param array<string> $args
+	 * @return Response
+	 */
     public function getCodeByType(Request $request, Response $response, array $args): Response
     {
         $params = $request->getQueryParams();
 
-        if (null === $params['objectid']) {
-            $likeAddress = $this->addressByNameRepo->getFullAddress($params['address']);
+	    try {
+		    if (null === $params['objectid']) {
+			    $params['objectid'] = $this->addressByNameRepo->getChiledObjectIdFromAddress($params['address']);
+		    }
 
-            foreach (array_reverse($likeAddress) as $key => $value) {
-                if (
-          count($value) === 1 &&
-          !key_exists('houses', $value) &&
-          !key_exists('variant', $value) &&
-          !key_exists('parent_variants', $value)
-        ) {
-                    $params['objectid'] = end($value)[0]['objectid'];
-                    break;
-                }
-            }
-        }
+		    $data = $this->addressByCodeRepo->getCode($params['objectid'], $args['type']);
+			RequestHelper::writeDataJson($response, $data);
+	    } catch (AddressNotFoundException|CodeNotFoundException $e) {
+		    $response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::NOT_FOUND_404);
+	    } catch (ParamNotFoundException $e) {
+		    $response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::CONFLICT_409);
+	    }
 
-        if (null !== $params['objectid']) {
-            $data = $this->addressByCodeRepo->getCode($params['objectid'], $args['type']);
-
-            if (!empty($data)) {
-                $response->getBody()->write(json_encode($data, JSON_FORCE_OBJECT));
-            }
-        }
-
-        return $response;
+	    return $response;
     }
+
 }

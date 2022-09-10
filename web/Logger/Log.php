@@ -59,7 +59,7 @@ class Log
     /**
      * error method (making caption if error was throw)
      * @param Throwable $exception
-     * @param array $params additional strings
+     * @param array<int, mixed> $params additional strings
      * @return void
      */
     public static function error(Throwable $exception, array $params = []): void

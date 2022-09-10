@@ -5,11 +5,12 @@ namespace DB\ORM\QueryBuilder\QueryTypes\Insert;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\Templates\SQL;
 
+
 class ImplInsert extends InsertQuery
 {
 	/**
-	 * @param String[] $fields
-	 * @param array<array<mixed>> $values
+	 * @param array<string> $fields
+	 * @param array<DatabaseContract> $values
 	 * @param string $tableName
 	 */
 	public function __construct(array $fields, array $values, string $tableName)

@@ -62,7 +62,6 @@ abstract class BaseOptionFacade
 	 * @param DBAdapter $db
 	 * @param Query $container
 	 * @return void
-	 * @throws RuntimeException
 	 */
 	protected static function executeContainer(DBAdapter $db, Query $container): void
 	{

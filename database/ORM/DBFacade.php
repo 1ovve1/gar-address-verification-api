@@ -6,9 +6,7 @@ use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\PDO\PDOObject;
 use DB\ORM\QueryBuilder\Templates\Conditions;
 use DB\ORM\QueryBuilder\Templates\SQL;
-use \RuntimeException;
-use InvalidArgumentException;
-use PDOException;
+use RuntimeException;
 
 /**
  * Database facade static class
@@ -20,15 +18,16 @@ class DBFacade
      */
     public static ?DBAdapter $instance = null;
 
-    /**
-     * Get curr instance of database
-     *
-     * @return DBAdapter
-     */
+	/**
+	 * Get curr instance of database
+	 *
+	 * @return DBAdapter
+	 */
     public static function getDBInstance(): DBAdapter
     {
         if (self::$instance === null) {
-            self::$instance = self::connectViaPDO();
+	        self::$instance = self::connectViaPDO();
+
         }
 
         return self::$instance;
@@ -43,16 +42,16 @@ class DBFacade
 		return self::connectViaPDO();
 	}
 
-    /**
-     * Connection via PDO
-     *
-     * @return PDOObject
-     */
-    public static function connectViaPDO(): PDOObject
+	/**
+	 * Connection via PDO
+	 *
+	 * @return DBAdapter
+	 */
+    public static function connectViaPDO(): DBAdapter
     {
-	    return new PDOObject(
-	        $_ENV['DB_TYPE'], $_ENV['DB_HOST'],
-	        $_ENV['DB_NAME'], $_ENV['DB_PORT'],
+	    return PDOObject::connectViaDSN(
+		    $_ENV['DB_TYPE'], $_ENV['DB_HOST'],
+		    $_ENV['DB_NAME'], $_ENV['DB_PORT'],
 		    $_ENV['DB_USER'], $_ENV['DB_PASS']
 	    );
     }
@@ -137,6 +136,10 @@ class DBFacade
 		return substr($strResult, 0, -2);
 	}
 
+	/**
+	 * @param array<int|string, int|string> $tableNamesWithPseudonyms
+	 * @return string
+	 */
 	public static function tableNamesWithPseudonymsToString(array $tableNamesWithPseudonyms): string
 	{
 		$strBuffer = '';
@@ -161,6 +164,12 @@ class DBFacade
 		return substr($strBuffer, 0, -2);
 	}
 
+	/**
+	 * @param array<int|string, string>|string $field
+	 * @param DatabaseContract $sign_or_value
+	 * @param DatabaseContract $value
+	 * @return array{field: string, sign: string, value: DatabaseContract}
+	 */
 	public static function whereArgsHandler(array|string                $field,
 	                                        int|float|bool|string|null  $sign_or_value = '',
 	                                        float|int|bool|string|null  $value = null) : array
@@ -180,16 +189,13 @@ class DBFacade
 
 		} else {
 			$sign = Conditions::tryFind($sign_or_value);
-			if (false === $sign) {
-				DBFacade::dumpException(null, 'Incorrect params', func_get_args());
-			}
 		}
 
-		return [$field, $sign, $value];
+		return ['field' => $field, 'sign' => $sign, 'value' => $value];
 	}
 
 	/**
-	 * @param array|string $tableName
+	 * @param array<string, string>|string $tableName
 	 * @param array<string|int, string> $condition - support:
 	 * 1. Pseudonym notation
 	 *      [
@@ -244,7 +250,7 @@ class DBFacade
 	 * Dump exception
 	 * @param mixed $item
 	 * @param string $message
-	 * @param array<mixed> $params
+	 * @param array<int, mixed> $params
 	 * @return void
 	 */
 	public static function dumpException(mixed $item, string $message, array $params): void

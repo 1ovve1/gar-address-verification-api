@@ -10,4 +10,4 @@ $cli = new \CLI\GarCLI();
 $cli->run();
 
 echo str_repeat('*', 20) . PHP_EOL;
-echo "Time of execution: " . microtime(true) - $time . PHP_EOL;
+echo "Time of execution: " . (microtime(true) - $time) . PHP_EOL;

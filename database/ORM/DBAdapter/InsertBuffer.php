@@ -2,14 +2,13 @@
 
 namespace DB\ORM\DBAdapter;
 
+use DB\Exceptions\Unchecked\IncorrectBufferInputException;
+use DB\Exceptions\Unchecked\InvalidForceInsertConfigurationException;
 use DB\ORM\DBFacade;
-use RuntimeException;
 use SplFixedArray;
 
 /**
  * Lazy insert abstract class
- *
- * @phpstan-import-type DatabaseContract from DBAdapter
  */
 abstract class InsertBuffer
 {
@@ -21,14 +20,13 @@ abstract class InsertBuffer
     private readonly int $bufferSize;
     /** @var int - cursor of the buffer index */
     private int $bufferCursor = 0;
-    /** @var SplFixedArray - buffer of stage values */
+    /** @var SplFixedArray<DatabaseContract> - buffer of stage values */
     private SplFixedArray $buffer;
 
     /**
      * @param string $tableName - name of table
      * @param String[] $tableFields - table fields
      * @param int $groupInsertCount - number of groups in group insert
-     * @throws RuntimeException
      */
     public function __construct(string $tableName, array $tableFields, int $groupInsertCount)
     {
@@ -47,23 +45,22 @@ abstract class InsertBuffer
      * Create exception if input is incorrect
      *
      * @param string $tableName - name of table
-     * @param array<mixed> $tableFields - fields to create
+     * @param array<string> $tableFields - fields to create
      * @param int $groupInsertCount - stage count
      * @return void
-     * @throws RuntimeException
      */
     public static function isValid(string $tableName, array $tableFields, int $groupInsertCount): void
     {
         if ($groupInsertCount < 1) {
-            throw new RuntimeException(
+            throw new InvalidForceInsertConfigurationException(
                 'PDOTemplate error: stages buffer needs to be more than 0'
             );
         } elseif (empty($tableFields)) {
-            throw new RuntimeException(
+            throw new InvalidForceInsertConfigurationException(
                 'PDOTemplate error: stages buffer needs to be more than 0'
             );
         } elseif (empty($tableName)) {
-            throw new RuntimeException(
+            throw new InvalidForceInsertConfigurationException(
                 'PDOTemplate error: stages buffer needs to be more than 0'
             );
         }
@@ -92,15 +89,6 @@ abstract class InsertBuffer
     public function getBufferSize(): int
     {
         return $this->bufferSize;
-    }
-
-    /**
-     * Return curr count of buffer cursor
-     * @return int
-     */
-    public function getBufferCursor(): int
-    {
-        return $this->bufferCursor;
     }
 
     /**
@@ -180,18 +168,17 @@ abstract class InsertBuffer
         return $array->toArray();
     }
 
-    /**
-     * Set stage buffer by $insertValues
-     * @param DatabaseContract[] $insertValues - values that need add in $buffer
-     * @return void
-     */
+	/**
+	 * Set stage buffer by $insertValues
+	 * @param array<DatabaseContract> $insertValues - values that need add in $buffer
+	 * @return void
+	 */
     public function setBuffer(array $insertValues): void
     {
         if (count($insertValues) !== $this->getTableFieldsCount()) {
-            var_dump($insertValues);
-            throw new \RuntimeException('Count of insert values are more then appear:' .
-                count($insertValues) . ' !== ' . $this->getTableFieldsCount());
+            throw new IncorrectBufferInputException($this->getTableFieldsCount(), $insertValues);
         }
+
         foreach ($insertValues as $value) {
             $this->buffer[$this->bufferCursor] = $value;
             $this->incBufferCursor();

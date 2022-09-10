@@ -49,7 +49,7 @@ class AS_ADDHOUSE_TYPES extends XMLFile
 	/**
 	 * @inheritDoc
 	 */
-    public function execDoWork(array &$values, QueryBuilder &$table): void
+    public function execDoWork(array &$values, mixed &$table): void
     {
         $table->forceInsert($values);
     }

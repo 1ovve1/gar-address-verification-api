@@ -3,6 +3,8 @@
 namespace DB\ORM\QueryBuilder\QueryTypes\Select;
 
 use DB\ORM\DBFacade;
+use DB\ORM\QueryBuilder\QueryBuilder;
+use InvalidArgumentException;
 
 trait SelectTrait
 {
@@ -13,14 +15,16 @@ trait SelectTrait
 	                              null|array|string $anotherTables = null): SelectQuery
 	{
 
-		$fields = match(gettype($fields)) {
+		$fields = match($type = gettype($fields)) {
 			"string" => $fields,
-			"array" => DBFacade::fieldsWithPseudonymsToString($fields)
+			"array" => DBFacade::fieldsWithPseudonymsToString($fields),
+			default => throw new InvalidArgumentException("Type '{$type}' are unknown")
 		};
-		$anotherTables = match(gettype($anotherTables)) {
-			"NULL" => self::getTableName(),
+		$anotherTables = match($type = gettype($anotherTables)) {
+			"NULL" => QueryBuilder::table(static::class),
 			"string" => $anotherTables,
-			"array" => DBFacade::tableNamesWithPseudonymsToString($anotherTables)
+			"array" => DBFacade::tableNamesWithPseudonymsToString($anotherTables),
+			default => throw new InvalidArgumentException("Type '{$type}' are unknown")
 		};
 
 		return new ImplSelect($fields, $anotherTables);

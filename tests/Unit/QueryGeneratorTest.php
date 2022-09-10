@@ -20,7 +20,7 @@ class QueryGeneratorTest extends TestCase
 		]
 	];
 
-	public function testMakeCreateTableQuery()
+	public function testMakeCreateTableQuery(): void
 	{
 		$query = QueryGenerator::makeCreateTableQuery(self::TABLE_NAME, self::TABLE_PARAMS);
 

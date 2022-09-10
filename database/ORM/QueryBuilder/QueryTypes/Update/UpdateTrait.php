@@ -2,7 +2,7 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Update;
 
-use DB\ORM\DBFacade;
+use DB\ORM\QueryBuilder\QueryBuilder;
 
 trait UpdateTrait
 {
@@ -10,7 +10,7 @@ trait UpdateTrait
 	                              float|int|bool|string|null $value,
 	                              ?string $tableName = null): UpdateQuery
 	{
-		$tableName ??= self::getTableName();
+		$tableName ??= QueryBuilder::table(static::class);
 		return new ImplUpdate($field, $value, $tableName);
 	}
 }

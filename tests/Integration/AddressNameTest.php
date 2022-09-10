@@ -4,128 +4,222 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
+use GAR\Helpers\ResponseCodes;
+
 class AddressNameTest extends BaseTestSetup
 {
-    public function testFullAddressWithHouses()
+	public function testSingleWordAddressWithSingleResult() : void
+	{
+		$param = 'калмыкия';
+		$paramWithProp = 'address=' . $param;
+		$response = $this->runApp('GET', '/address', $paramWithProp);
+
+		$this->assertResponse(
+			response: $response,
+			code: ResponseCodes::OK_200,
+			contains: ['"калмыкия"'],
+			notContains: ['variants', 'parent', 'houses'],
+		);
+	}
+
+	public function testSingleWordAddressWithParent() : void
+	{
+		$param = 'лаганский м';
+		$paramWithProp = 'address=' . $param;
+		$response = $this->runApp('GET', '/address', $paramWithProp);
+
+		$this->assertResponse(
+			response: $response,
+			code: ResponseCodes::OK_200,
+			contains: ['parent', '"лаганский м"'],
+			notContains: ['variants', 'houses'],
+		);
+	}
+
+	public function testSingleWordAddressWithVariant() : void
+	{
+		$param = 'к';
+		$paramWithProp = 'address=' . $param;
+		$response = $this->runApp('GET', '/address', $paramWithProp);
+
+		$this->assertResponse(
+			response: $response,
+			code: ResponseCodes::OK_200,
+			contains: ['variants'],
+			notContains: ['parent', 'houses', '"к"'],
+		);
+	}
+
+	public function testEmptyInput() : void
+	{
+		$param = '';
+		$paramWithProp = 'address=' . $param;
+		$response = $this->runApp('GET', '/address', $paramWithProp);
+
+		$this->assertResponse(
+			response: $response,
+			code: ResponseCodes::OK_200,
+			contains: ['variants'],
+			notContains: ['parent', 'houses'],
+		);
+	}
+
+	public function testDoubleWordAddressWithAllVariant() : void
+	{
+		$param = 'ка,к найти предка без родителя';
+		$paramWithProp = 'address=' . $param;
+		$response = $this->runApp('GET', '/address', $paramWithProp);
+
+		$this->assertResponse(
+			response: $response,
+			code: ResponseCodes::OK_200,
+			contains: ['variants'],
+			notContains: ['"ка"', '"к найти предка без родителя"', 'parent', 'houses'],
+		);
+	}
+
+	public function testDoubleWordAddressWithSingleAddressAndVariant() : void
+	{
+		$param = 'калм,я';
+		$paramWithProp = 'address=' . $param;
+		$response = $this->runApp('GET', '/address', $paramWithProp);
+
+		$this->assertResponse(
+			response: $response,
+			code: ResponseCodes::OK_200,
+			contains: ['"калм"', 'variants'],
+			notContains: ['"я"', 'parent', 'houses'],
+		);
+	}
+
+	public function testDoubleWordAddressWithSingleAddressAndParentAndVariant() : void
+	{
+		$param = 'лаганский м,с';
+		$paramWithProp = 'address=' . $param;
+		$response = $this->runApp('GET', '/address', $paramWithProp);
+
+		$this->assertResponse(
+			response: $response,
+			code: ResponseCodes::OK_200,
+			contains: ['"лаганский м"', 'variants', 'parent'],
+			notContains: ['"с"', 'houses'],
+		);
+	}
+
+	public function testDoubleWordAddressWithTwoSingleAddresses() : void
+	{
+		$param = 'калм,яшкульск';
+		$paramWithProp = 'address=' . $param;
+		$response = $this->runApp('GET', '/address', $paramWithProp);
+
+		$this->assertResponse(
+			response: $response,
+			code: ResponseCodes::OK_200,
+			contains: ['"калм"', '"яшкульск"'],
+			notContains: ['parent', 'houses', 'variant'],
+		);
+	}
+
+	public function testDoubleWordAddressWithTwoSingleAddressesAndParent() : void
+	{
+		$param = 'лаганский м,север';
+		$paramWithProp = 'address=' . $param;
+		$response = $this->runApp('GET', '/address', $paramWithProp);
+
+		$this->assertResponse(
+			response: $response,
+			code: ResponseCodes::OK_200,
+			contains: ['"лаганский м"', '"север"', 'parent'],
+			notContains: ['variants', 'houses'],
+		);
+	}
+
+	public function testComplexAddressWithSingleResult() : void
+	{
+		$param = 'калм,лаган,кр,кра,школьная';
+		$paramWithProp = 'address=' . $param;
+		$response = $this->runApp('GET', '/address', $paramWithProp);
+
+		$this->assertResponse(
+			$response,
+			ResponseCodes::OK_200,
+			explode(',', $param),
+			['houses', 'variants', 'parent'],
+			true,
+		);
+	}
+
+	public function testComplexAddressWithHouses() : void
     {
-        $response = $this->runApp('GET', '/address', 'address=калм,лаган,кр,кра,школьная');
-        $data = (string) $response->getBody();
+	    $param = 'калм,лаган,кр,кра,школьная,';
+	    $paramWithProp = 'address=' . $param;
+	    $response = $this->runApp('GET', '/address', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringContainsString('objectid', $data);
-        $this->assertStringContainsString('typename', $data);
-        $this->assertStringContainsString('name', $data);
-        $this->assertStringContainsString('houses', $data);
-        $this->assertStringContainsString('house', $data);
-        $this->assertStringContainsString('калм', $data);
-        $this->assertStringContainsString('лаган', $data);
-        $this->assertStringContainsString('кр', $data);
-        $this->assertStringContainsString('кра', $data);
-        $this->assertStringContainsString('школьная', $data);
-        $this->assertStringNotContainsString('variants', $data);
-        $this->assertStringNotContainsString('parent', $data);
-        $this->assertStringNotContainsString('parent_variants', $data);
-        $this->assertStringNotContainsString('error', $data);
+	    $this->assertResponse(
+		    $response,
+		    ResponseCodes::OK_200,
+		    explode(',', $param),
+		    ['variants', 'parent'],
+		    true,
+	    );
     }
 
-    public function testEmptyInput()
+	public function testComplexAddressWithVariants() : void
+	{
+		$param = 'калм,лаган,кр,кра,';
+		$paramWithProp = 'address=' . $param;
+		$response = $this->runApp('GET', '/address', $paramWithProp);
+
+		$this->assertResponse(
+			response: $response,
+			code: ResponseCodes::OK_200,
+			contains: explode(',', $param),
+			notContains: ['houses', 'parent'],
+			jsonFlag: true,
+		);
+	}
+
+
+
+    public function testAddressNotFound(): void
     {
-        $response = $this->runApp('GET', '/address', 'address=');
-        $data = (string) $response->getBody();
+	    $param = 'Пушкино,Колотушкино';
+	    $paramWithProp = 'address=' . $param;
+	    $response = $this->runApp('GET', '/address', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringContainsString('objectid', $data);
-        $this->assertStringContainsString('typename', $data);
-        $this->assertStringContainsString('name', $data);
-        $this->assertStringContainsString('variants', $data);
-        $this->assertStringNotContainsString('parent', $data);
-        $this->assertStringNotContainsString('parent_variants', $data);
-        $this->assertStringNotContainsString('error', $data);
+	    $this->assertResponse(
+		    response: $response,
+		    code: ResponseCodes::NOT_FOUND_404,
+		    notContains: explode(',', $param),
+		    errorFlag: true
+	    );
     }
 
-    public function testAddressNotFound()
+    public function testTooLargeAddressIncorectInput(): void
     {
-        $response = $this->runApp('GET', '/address', 'address=Пушкино,Колотушкино');
-        $data = (string) $response->getBody();
+	    $param = str_repeat('Москва', 1000);
+	    $paramWithProp = 'address=' . $param;
+	    $response = $this->runApp('GET', '/address', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(404, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringNotContainsString('objectid', $data);
-        $this->assertStringNotContainsString('typename', $data);
-        $this->assertStringNotContainsString('name', $data);
-        $this->assertStringNotContainsString('houses', $data);
-        $this->assertStringNotContainsString('house', $data);
-        $this->assertStringNotContainsString('variants', $data);
-        $this->assertStringNotContainsString('parent', $data);
-        $this->assertStringNotContainsString('parent_variants', $data);
-        $this->assertStringContainsString('error', $data);
+	    $this->assertResponse(
+		    response: $response,
+		    code: ResponseCodes::PRECONDITION_FAILED_412,
+		    notContains: [$param],
+		    errorFlag: true
+	    );
     }
 
-    public function testTooLargeAddressIncorectInput()
+    public function testWithWrongParamIncorrectInput() : void
     {
-        $response = $this->runApp('GET', '/address', 'address=' . str_repeat('Москва', 1000));
-        $data = (string) $response->getBody();
+	    $param = 'Great Brittan, London';
+	    $paramWithProp = 'address=' . $param;
+	    $response = $this->runApp('GET', '/address', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(414, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringNotContainsString('objectid', $data);
-        $this->assertStringNotContainsString('typename', $data);
-        $this->assertStringNotContainsString('name', $data);
-        $this->assertStringNotContainsString('houses', $data);
-        $this->assertStringNotContainsString('house', $data);
-        $this->assertStringNotContainsString('variants', $data);
-        $this->assertStringNotContainsString('parent', $data);
-        $this->assertStringNotContainsString('parent_variants', $data);
-        $this->assertStringContainsString('error', $data);
-    }
-
-    public function testWithWrongParamIncorectInput()
-    {
-        $response = $this->runApp('GET', '/address', 'name=калм,лаган,кр,кра,школьная');
-        $data = (string) $response->getBody();
-
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(406, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringNotContainsString('objectid', $data);
-        $this->assertStringNotContainsString('typename', $data);
-        $this->assertStringNotContainsString('name', $data);
-        $this->assertStringNotContainsString('houses', $data);
-        $this->assertStringNotContainsString('house', $data);
-        $this->assertStringNotContainsString('калм', $data);
-        $this->assertStringNotContainsString('лаган', $data);
-        $this->assertStringNotContainsString('кр', $data);
-        $this->assertStringNotContainsString('кра', $data);
-        $this->assertStringNotContainsString('школьная', $data);
-        $this->assertStringNotContainsString('variants', $data);
-        $this->assertStringNotContainsString('parent', $data);
-        $this->assertStringNotContainsString('parent_variants', $data);
-        $this->assertStringContainsString('error', $data);
+	    $this->assertResponse(
+		    response: $response,
+		    code: ResponseCodes::PRECONDITION_FAILED_412,
+		    notContains: explode(',', $param),
+		    errorFlag: true
+	    );
     }
 }

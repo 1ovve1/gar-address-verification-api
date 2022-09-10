@@ -2,6 +2,7 @@
 
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
+use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\Templates\SQL;
@@ -25,7 +26,7 @@ abstract class ActiveRecordImpl implements ActiveRecord
 	private static function getState(QueryBox $queryBox) : QueryTemplate
 	{
 		$db = DBFacade::getDBInstance();
-		$template = $queryBox->querySnapshot;
+		$template = $queryBox->getQuerySnapshot();
 
 		return $db->prepare($template);
 	}
@@ -33,19 +34,19 @@ abstract class ActiveRecordImpl implements ActiveRecord
 	/**
 	 * {@inheritDoc}
 	 */
-	public function execute(array $values): array|false|null
+	public function execute(array $values): QueryResult
 	{
 		$state = self::getState($this->queryBox);
-		return $state->exec($values)->fetchAll();
+		return $state->exec($values);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public function save(): array|false|null
+	public function save(): QueryResult
 	{
 		$state = self::getState($this->queryBox);
-		return $state->exec($this->queryBox->dryArgs)->fetchAll();
+		return $state->exec($this->queryBox->getDryArgs());
 	}
 
 	/**
@@ -58,8 +59,8 @@ abstract class ActiveRecordImpl implements ActiveRecord
 
 	/**
 	 * @param SQL $template
-	 * @param array<mixed> $clearArgs
-	 * @param array<mixed> $dryArgs
+	 * @param array<string|int> $clearArgs
+	 * @param array<DatabaseContract> $dryArgs
 	 * @param QueryBox|null $parentBox
 	 * @return QueryBox
 	 */

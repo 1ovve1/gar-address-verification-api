@@ -5,7 +5,6 @@ namespace DB\ORM\QueryBuilder\QueryTypes\ContinueWhere;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\QueryTypes\NestedCondition\ClientNestedCondition;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
-use DB\ORM\QueryBuilder\ActiveRecord\SQLNestedWhereConstructor;
 use DB\ORM\QueryBuilder\Templates\SQL;
 
 class ImplNestedWhereAnd extends ContinueWhereQuery
@@ -21,8 +20,8 @@ class ImplNestedWhereAnd extends ContinueWhereQuery
 		parent::__construct(
 			$this->createQueryBox(
 				template: SQL::WHERE_NESTED_AND,
-				clearArgs: [trim($callbackQueryBox->querySnapshot)],
-				dryArgs: $callbackQueryBox->dryArgs,
+				clearArgs: [trim($callbackQueryBox->getQuerySnapshot())],
+				dryArgs: $callbackQueryBox->getDryArgs(),
 				parentBox: $parent->getQueryBox()
 			)
 		);

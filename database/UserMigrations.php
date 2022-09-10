@@ -5,11 +5,13 @@ namespace DB;
 use DB\ORM\DBFacade;
 use DB\ORM\Migration\MetaTable;
 use DB\ORM\Migration\MigrateAble;
+use RuntimeException;
 
 class UserMigrations
 {
 	static function migrateFromConfig(): void
 	{
+		//TODO: write custom exceptions
 		$classList = $_SERVER['config']('migration');
 		$migrateTool = MetaTable::createImmutable(DBFacade::getImmutableDBConnection());
 
@@ -23,13 +25,13 @@ class UserMigrations
 						continue;
 					}
 					var_dump($params);
-					throw new \RuntimeException("Params of migration should contains at least 'fields' param");
+					throw new RuntimeException("Params of migration should contains at least 'fields' param");
 				}
 				var_dump($params);
-				throw new \RuntimeException("Params of migration should contains string class name of MigrateAble implements or array definition");
+				throw new RuntimeException("Params of migration should contains string class name of MigrateAble implements or array definition");
 			} else {
 				var_dump($params);
-				throw new \RuntimeException("Invalid migrate configuration: {$tableName}");
+				throw new RuntimeException("Invalid migrate configuration: {$tableName}");
 			}
 
 		}

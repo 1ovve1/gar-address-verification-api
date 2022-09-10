@@ -5,7 +5,6 @@ namespace DB\ORM\QueryBuilder\QueryTypes\NestedCondition;
 use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\Templates\SQL;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
-use DB\ORM\QueryBuilder\ActiveRecord\QueryBox;
 
 class ImplNestedInNested extends NestedConditionQuery
 {
@@ -20,8 +19,8 @@ class ImplNestedInNested extends NestedConditionQuery
 		parent::__construct(
 			$this->createQueryBox(
 				template: SQL::NESTED_CONDITION,
-				clearArgs: [trim($callbackQueryBox->querySnapshot)],
-				dryArgs: $callbackQueryBox->dryArgs
+				clearArgs: [trim($callbackQueryBox->getQuerySnapshot())],
+				dryArgs: $callbackQueryBox->getDryArgs()
 			)
 		);
 	}

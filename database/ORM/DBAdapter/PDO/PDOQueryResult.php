@@ -2,13 +2,16 @@
 
 namespace DB\ORM\DBAdapter\PDO;
 
+use DB\Exceptions\Checked\NullableQueryResultException;
 use DB\ORM\DBAdapter\QueryResult;
-use PDO;
 use PDOStatement;
 
 class PDOQueryResult implements QueryResult
 {
-
+	/**
+	 * @var array<int, array<int|string, mixed>>
+	 */
+	private ?array $fetchResult = null;
 
 	function __construct(
 		private readonly ?PDOStatement $queryState
@@ -16,11 +19,97 @@ class PDOQueryResult implements QueryResult
 	{}
 
 	/**
+	 * @return PDOStatement
+	 * @throws NullableQueryResultException
+	 */
+	function getQueryResult(): PDOStatement
+	{
+		if (null === $this->queryState) {
+			throw new NullableQueryResultException();
+		}
+
+		return $this->queryState;
+	}
+
+	/**
 	 * @inheritDoc
 	 */
-	public function fetchAll(int $flag = PDO::FETCH_ASSOC): array|false|null
+	public function fetchAll(int $flag = QueryResult::PDO_F_ASSOC): array
 	{
-		return $this->queryState?->fetchAll($flag);
+		if (null === $this->fetchResult) {
+			try {
+				$this->fetchResult = $this->getQueryResult()->fetchAll($flag);
+			} catch (NullableQueryResultException) {
+				return [];
+			}
+		}
+
+		return $this->fetchResult;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	function fetchAllAssoc(): array
+	{
+		return $this->fetchAll();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	function fetchAllNum(): array
+	{
+		return $this->fetchAll(QueryResult::PDO_F_NUM);
+	}
+
+
+	/**
+	 * @inheritDoc
+	 */
+	function rowCount(): int
+	{
+		try{
+			return $this->getQueryResult()->rowCount();
+		} catch (NullableQueryResultException) {
+			return 0;
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	function isEmpty(): bool
+	{
+		return empty($this->rowCount());
+	}
+
+	/**
+	 * @return bool
+	 */
+	function isNotEmpty(): bool
+	{
+		return !$this->isEmpty();
+	}
+
+	/**
+	 * @return bool
+	 */
+	function hasOnlyOneRow(): bool
+	{
+		try {
+			return $this->getQueryResult()->rowCount() === 1;
+		} catch (NullableQueryResultException) {
+			return false;
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	function hasManyRows(): bool
+	{
+		return !$this->hasOnlyOneRow() && $this->isNotEmpty();
 	}
 
 }

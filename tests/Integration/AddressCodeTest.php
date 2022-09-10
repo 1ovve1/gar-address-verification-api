@@ -4,203 +4,159 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
+use GAR\Helpers\ResponseCodes;
+
 class AddressCodeTest extends BaseTestSetup
 {
-    public function testAllCodesByName()
+    public function testAllCodesByName(): void
     {
-        $response = $this->runApp('GET', '/code/all', 'address=калм,лаган,кр,кра,школьная');
-        $data = (string) $response->getBody();
+	    $param = 'калм,лаган,кр,кра,школьная';
+	    $paramWithProp = 'address=' . $param;
+	    $response = $this->runApp('GET', '/code/all', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringContainsString('OKATO', $data);
-        $this->assertStringContainsString('OKTMO', $data);
-        $this->assertStringContainsString('KLADR', $data);
-        $this->assertStringNotContainsString('error', $data);
+	    $this->assertResponse(
+		    response: $response,
+		    code: ResponseCodes::OK_200,
+		    contains: ['"OKATO"', '"OKTMO"', '"KLADR"'],
+	    );
     }
 
-    public function testAllCodesByObjectId()
+    public function testAllCodesByObjectId(): void
     {
-        $response = $this->runApp('GET', '/code/all', 'objectid=109874');
-        $data = (string) $response->getBody();
+	    $param = '109874';
+	    $paramWithProp = 'objectid=' . $param;
+	    $response = $this->runApp('GET', '/code/all', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringContainsString('OKATO', $data);
-        $this->assertStringContainsString('OKTMO', $data);
-        $this->assertStringContainsString('KLADR', $data);
-        $this->assertStringNotContainsString('error', $data);
+	    $this->assertResponse(
+		    response: $response,
+		    code: ResponseCodes::OK_200,
+		    contains: ['"OKATO"', '"OKTMO"', '"KLADR"'],
+	    );
     }
 
-    public function testOkatoByName()
+    public function testOkatoByName(): void
     {
-        $response = $this->runApp('GET', '/code/okato', 'address=калм,лаган,кр,кра,школьная');
-        $data = (string) $response->getBody();
+	    $param = 'калм,лаган,кр,кра,школьная';
+	    $paramWithProp = 'address=' . $param;
+	    $response = $this->runApp('GET', '/code/okato', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringContainsString('OKATO', $data);
-        $this->assertStringNotContainsString('OKTMO', $data);
-        $this->assertStringNotContainsString('KLADR', $data);
-        $this->assertStringNotContainsString('error', $data);
+	    $this->assertResponse(
+		    response: $response,
+		    code: ResponseCodes::OK_200,
+		    contains: ['"OKATO"'],
+		    notContains: ['"OKTMO"', '"KLADR"']
+	    );
     }
 
-    public function testOkatoByObjectId()
+    public function testOkatoByObjectId(): void
     {
-        $response = $this->runApp('GET', '/code/okato', 'objectid=109874');
-        $data = (string) $response->getBody();
+	    $param = '109874';
+	    $paramWithProp = 'objectid=' . $param;
+	    $response = $this->runApp('GET', '/code/okato', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringContainsString('OKATO', $data);
-        $this->assertStringNotContainsString('OKTMO', $data);
-        $this->assertStringNotContainsString('KLADR', $data);
-        $this->assertStringNotContainsString('error', $data);
+	    $this->assertResponse(
+		    response: $response,
+		    code: ResponseCodes::OK_200,
+		    contains: ['"OKATO"'],
+		    notContains: ['"OKTMO"', '"KLADR"']
+	    );
     }
 
-    public function testOktmoByName()
+    public function testOktmoByName(): void
     {
-        $response = $this->runApp('GET', '/code/oktmo', 'address=калм,лаган,кр,кра,школьная');
-        $data = (string) $response->getBody();
+	    $param = 'калм,лаган,кр,кра,школьная';
+	    $paramWithProp = 'address=' . $param;
+	    $response = $this->runApp('GET', '/code/oktmo', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringNotContainsString('OKATO', $data);
-        $this->assertStringContainsString('OKTMO', $data);
-        $this->assertStringNotContainsString('KLADR', $data);
-        $this->assertStringNotContainsString('error', $data);
+	    $this->assertResponse(
+		    response: $response,
+		    code: ResponseCodes::OK_200,
+		    contains: ['"OKTMO"'],
+		    notContains: ['"OKATO"', '"KLADR"']
+	    );
     }
 
-    public function testOktmoByObjectId()
+    public function testOktmoByObjectId(): void
     {
-        $response = $this->runApp('GET', '/code/oktmo', 'objectid=109874');
-        $data = (string) $response->getBody();
+	    $param = '109874';
+	    $paramWithProp = 'objectid=' . $param;
+	    $response = $this->runApp('GET', '/code/oktmo', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringNotContainsString('OKATO', $data);
-        $this->assertStringContainsString('OKTMO', $data);
-        $this->assertStringNotContainsString('KLADR', $data);
-        $this->assertStringNotContainsString('error', $data);
+	    $this->assertResponse(
+		    response: $response,
+		    code: ResponseCodes::OK_200,
+		    contains: ['"OKTMO"'],
+		    notContains: ['"OKATO"', '"KLADR"']
+	    );
     }
 
-    public function testKladrByName()
+    public function testKladrByName(): void
     {
-        $response = $this->runApp('GET', '/code/kladr', 'address=калм,лаган,кр,кра,школьная');
-        $data = (string) $response->getBody();
+	    $param = 'калм,лаган,кр,кра,школьная';
+	    $paramWithProp = 'address=' . $param;
+	    $response = $this->runApp('GET', '/code/kladr', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringNotContainsString('OKATO', $data);
-        $this->assertStringNotContainsString('OKTMO', $data);
-        $this->assertStringContainsString('KLADR', $data);
-        $this->assertStringNotContainsString('error', $data);
+	    $this->assertResponse(
+		    response: $response,
+		    code: ResponseCodes::OK_200,
+		    contains: ['"KLADR"'],
+		    notContains: ['"OKATO"', '"OKTMO"']
+	    );
     }
 
-    public function testKladrByObjectId()
+    public function testKladrByObjectId(): void
     {
-        $response = $this->runApp('GET', '/code/kladr', 'objectid=109874');
-        $data = (string) $response->getBody();
+	    $param = '109874';
+	    $paramWithProp = 'objectid=' . $param;
+	    $response = $this->runApp('GET', '/code/kladr', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringNotContainsString('OKATO', $data);
-        $this->assertStringNotContainsString('OKTMO', $data);
-        $this->assertStringContainsString('KLADR', $data);
-        $this->assertStringNotContainsString('error', $data);
+	    $this->assertResponse(
+		    response: $response,
+		    code: ResponseCodes::OK_200,
+		    contains: ['"KLADR"'],
+		    notContains: ['"OKATO"', '"OKTMO"']
+	    );
     }
 
-    public function testWrongAddressName()
+    public function testWrongAddressName(): void
     {
-        $response = $this->runApp('GET', '/code/kladr', 'address=Пушкино,Колотушкино');
-        $data = (string) $response->getBody();
+	    $param = 'Пушкино,Колотушкино';
+	    $paramWithProp = 'address=' . $param;
+	    $response = $this->runApp('GET', '/code/kladr', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(404, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringNotContainsString('OKATO', $data);
-        $this->assertStringNotContainsString('OKTMO', $data);
-        $this->assertStringNotContainsString('KLADR', $data);
-        $this->assertStringContainsString('error', $data);
+	    $this->assertResponse(
+		    response: $response,
+		    code: ResponseCodes::NOT_FOUND_404,
+		    notContains: ['"KLADR"', '"OKATO"', '"OKTMO"'],
+		    errorFlag: true
+	    );
     }
 
-    public function testWrongObjectId()
+    public function testWrongObjectId(): void
     {
-        $response = $this->runApp('GET', '/code/kladr', 'objectid=0');
-        $data = (string) $response->getBody();
+	    $param = '0';
+	    $paramWithProp = 'objectid=' . $param;
+	    $response = $this->runApp('GET', '/code/kladr', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(404, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringNotContainsString('OKATO', $data);
-        $this->assertStringNotContainsString('OKTMO', $data);
-        $this->assertStringNotContainsString('KLADR', $data);
-        $this->assertStringContainsString('error', $data);
+	    $this->assertResponse(
+		    response: $response,
+		    code: ResponseCodes::NOT_FOUND_404,
+		    notContains: ['"KLADR"', '"OKATO"', '"OKTMO"'],
+		    errorFlag: true
+	    );
     }
 
-    public function testIncorectParamsName()
+    public function testIncorrectParamsName(): void
     {
-        $response = $this->runApp('GET', '/code/kladr', 'dfdf=0&sdsd=2');
-        $data = (string) $response->getBody();
+	    $param = 'asdas';
+	    $paramWithProp = 'sdsdsd=' . $param;
+	    $response = $this->runApp('GET', '/code/kladr', $paramWithProp);
 
-        $data = preg_replace_callback('/\\\\u([0-9a-fA-F]{4})/', function ($match) {
-            return mb_convert_encoding(pack('H*', $match[1]), 'UTF-8', 'UTF-16BE');
-        }, $data);
-
-
-        $this->assertEquals(406, $response->getStatusCode());
-        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertStringNotContainsString('OKATO', $data);
-        $this->assertStringNotContainsString('OKTMO', $data);
-        $this->assertStringNotContainsString('KLADR', $data);
-        $this->assertStringContainsString('error', $data);
+	    $this->assertResponse(
+		    response: $response,
+		    code: ResponseCodes::PRECONDITION_FAILED_412,
+		    notContains: ['"KLADR"', '"OKATO"', '"OKTMO"'],
+		    errorFlag: true
+	    );
     }
 }

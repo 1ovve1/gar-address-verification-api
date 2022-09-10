@@ -23,7 +23,7 @@ class MigrateImpl extends BaseOptionFacade implements Migrate
 
 		try {
 			parent::executeContainer($db, $container);
-		} catch (RuntimeException $e) {
+		} catch (RuntimeException) {
 			exit(sprintf(
 				'Cant create table by this SQL: %s (maybe table already exists)' . PHP_EOL,
 				$container->getRawSQL()

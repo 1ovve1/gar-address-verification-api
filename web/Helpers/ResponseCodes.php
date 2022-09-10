@@ -1,0 +1,22 @@
+<?php
+
+namespace GAR\Helpers;
+
+enum ResponseCodes: int
+{
+	case OK_200 = 200;
+	case CREATED_201 = 201;
+	case ACCEPTED_202 = 202;
+	case NO_CONTENT_204 = 204;
+
+	case BAD_REQUEST_400 = 400;
+	case FORBIDDEN_403 = 403;
+	case NOT_FOUND_404 = 404;
+	case METHOD_NOT_ALLOWED_405 = 405;
+	case CONFLICT_409 = 409;
+	case PRECONDITION_FAILED_412 = 412;
+	case REQUEST_ENTITY_TOO_LARGE_413 = 413;
+	case REQUEST_URI_TOO_LONG_414 = 414;
+
+	case NOT_IMPLEMENTED_501 = 501;
+}

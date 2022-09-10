@@ -20,8 +20,8 @@ class ImplNestedWhere extends WhereQuery
 		parent::__construct(
 			$this->createQueryBox(
 				template: SQL::NESTED_WHERE,
-				clearArgs: [trim($callbackQueryBox->querySnapshot)],
-				dryArgs: $callbackQueryBox->dryArgs,
+				clearArgs: [trim($callbackQueryBox->getQuerySnapshot())],
+				dryArgs: $callbackQueryBox->getDryArgs(),
 				parentBox: $parent->getQueryBox()
 			)
 		);

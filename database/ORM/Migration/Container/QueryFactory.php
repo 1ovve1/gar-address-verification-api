@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace DB\ORM\Migration\Container;
 
 /**
- * Commot query factory interface that return Query containers
+ * Common query factory interface that return Query containers
  */
 interface QueryFactory
 {

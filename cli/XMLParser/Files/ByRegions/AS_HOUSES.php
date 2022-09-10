@@ -57,11 +57,11 @@ class AS_HOUSES extends XMLFile
 	/**
 	 * {@inheritDoc}
 	 */
-    public function execDoWork(array &$values, QueryBuilder &$table): void
+    public function execDoWork(array &$values, mixed &$table): void
     {
         $region = $this->getIntRegion();
 
-        if (empty($table->getFirstObjectId($values['OBJECTID'], $region))) {
+        if ($table->getFirstObjectId($values['OBJECTID'], $region)->isEmpty()) {
 
             foreach ($this::getAttributes() as $attr => $ignore) {
                 $values[$attr] ?? $values[$attr] = null;

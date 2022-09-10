@@ -2,7 +2,6 @@
 
 namespace DB\ORM\Migration;
 
-use DB\ORM\DBAdapter\DBAdapter;
 use RuntimeException;
 
 interface MigrateImmutable

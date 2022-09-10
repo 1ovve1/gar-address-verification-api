@@ -2,6 +2,8 @@
 
 namespace DB\ORM\QueryBuilder\Templates;
 
+use DB\Exceptions\Unchecked\OperationNotFoundException;
+
 enum Conditions: string
 {
 	case EQ = '=';
@@ -12,11 +14,14 @@ enum Conditions: string
 	case LIKE = 'LIKE';
 	case IN = 'IN';
 
-	public static function tryFind(mixed $operation): string|false
+	/**
+	 * @param string $operation
+	 * @return string
+	 */
+	public static function tryFind(string $operation): string
 	{
-		if (!is_string($operation)) {
-			return false;
-		}
-		return self::tryFrom(trim($operation))?->value ?? false;
+		$condition = self::tryFrom(trim($operation));
+
+		return $condition?->value ?? throw new OperationNotFoundException($operation);
 	}
 }

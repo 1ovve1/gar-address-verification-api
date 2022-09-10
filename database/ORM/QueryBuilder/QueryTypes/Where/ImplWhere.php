@@ -7,6 +7,12 @@ use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
 class ImplWhere extends WhereQuery
 {
+	/**
+	 * @param ActiveRecord $parent
+	 * @param string $field
+	 * @param string $sign
+	 * @param DatabaseContract $value
+	 */
 	public function __construct(ActiveRecord $parent,
 	                            string $field,
 	                            string $sign,

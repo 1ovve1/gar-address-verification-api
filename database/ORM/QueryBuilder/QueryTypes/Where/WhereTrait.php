@@ -18,7 +18,7 @@ trait WhereTrait
 			return new ImplNestedWhere($this, $callback);
 		}
 
-		[$field, $sign, $value] = DBFacade::whereArgsHandler($field_or_nested_clbk, $sign_or_value, $value);
+		['field' => $field, 'sign' => $sign, 'value' => $value] = DBFacade::whereArgsHandler($field_or_nested_clbk, $sign_or_value, $value);
 
 		return new ImplWhere($this, $field, $sign, $value);
 

@@ -56,11 +56,11 @@ class AS_ADDR_OBJ extends XMLFile
 	/**
 	 * {@inheritDoc}
 	 */
-    public function execDoWork(array &$values, QueryBuilder &$table): void
+    public function execDoWork(array &$values, mixed &$table): void
     {
         $region = $this->getIntRegion();
 
-        if (empty($table->getFirstObjectId($region, $values['OBJECTID']))) {
+        if ($table->getFirstObjectId($region, $values['OBJECTID'])->isEmpty()) {
 
             unset($values['ISACTUAL']); unset($values['ISACTIVE']);
 

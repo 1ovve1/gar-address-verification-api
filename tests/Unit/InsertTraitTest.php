@@ -4,8 +4,6 @@ namespace Tests\Unit;
 
 use DB\ORM\QueryBuilder\QueryTypes\Insert\InsertTrait;
 use PHPUnit\Framework\TestCase;
-use function DB\ORM\QueryBuilder\QueryTypes\Insert\normalizeValues;
-use function DB\ORM\QueryBuilder\QueryTypes\Insert\prepareArgsIntoFieldsAndValues;
 
 class InsertTraitTest extends TestCase
 {
@@ -27,7 +25,7 @@ use InsertTrait;
 
 	function testNormalize(): void
 	{
-		$result = prepareArgsIntoFieldsAndValues(self::VALUES_AND_FIELDS);
-		$this->assertEquals([self::FIELDS, self::TRUE_VALUES], $result);
+		$result = self::prepareArgsIntoFieldsAndValues(self::VALUES_AND_FIELDS);
+		$this->assertEquals(['fields' => self::FIELDS, 'values' => self::TRUE_VALUES], $result);
 	}
 }
