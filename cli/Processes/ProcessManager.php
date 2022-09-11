@@ -13,6 +13,9 @@ class ProcessManager
 	/** @var Process[] */
 	private array $history = [];
 
+	/**
+	 * @param int $maxProcessCount
+	 */
 	function __construct(int $maxProcessCount)
 	{
 		if ($maxProcessCount <= 0) {
@@ -22,6 +25,12 @@ class ProcessManager
 		$this->maxProcessCount = $maxProcessCount;
 	}
 
+	/**
+	 * Create task and handle it
+	 * @param callable $taskCallback
+	 * @param bool $queueMod
+	 * @return void
+	 */
 	function newTask(callable $taskCallback, bool $queueMod = false): void
 	{
 		$this->updateInfoAboutActiveProcesses();
@@ -36,16 +45,29 @@ class ProcessManager
 		$this->createProcessAndRun($taskCallback);
 	}
 
+	/**
+	 * Check if process buffer is not full
+	 * @return bool
+	 */
 	function isProcessBufferNotFull(): bool 
 	{
 		return count($this->processBuffer) < $this->maxProcessCount;
 	}
 
+	/**
+	 * Accept task and run process
+	 * @param callable $task
+	 * @return void
+	 */
 	private function createProcessAndRun(callable $task): void 
 	{
 		$this->processBuffer[] = new Process($task);
 	}
 
+	/**
+	 * Wait by async model (until any of active process die)
+	 * @return void
+	 */
 	function waitAsync(): void
 	{
 		Process::waitUntilLastProcessComplete();		
@@ -53,6 +75,10 @@ class ProcessManager
 		$this->updateInfoAboutActiveProcesses();
 	}
 
+	/**
+	 * Wait by FILO
+	 * @return void
+	 */
 	function waitQueue(): void
 	{
 		$shiftProcess = array_shift($this->processBuffer);
@@ -60,6 +86,10 @@ class ProcessManager
 		$this->history[] = $shiftProcess;
 	}
 
+	/**
+	 * Wait until all processes will be died
+	 * @return void
+	 */
 	function waitAll(): void
 	{
 		foreach ($this->processBuffer as $process) {
@@ -76,6 +106,9 @@ class ProcessManager
 		return $this->history;
 	}
 
+	/**
+	 * @return void
+	 */
 	private function updateInfoAboutActiveProcesses(): void
 	{
 		foreach ($this->processBuffer as $key => $process) {

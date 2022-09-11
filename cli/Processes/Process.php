@@ -9,6 +9,9 @@ class Process
 	/** @var null|int */
 	private ?int $status = null;
 
+	/**
+	 * @param callable $task - callback
+	 */
 	function __construct(callable $task)
 	{
 		$pid = pcntl_fork();
@@ -22,19 +25,26 @@ class Process
 		$this->run($task);
 	}
 
-	private function run(callable $task): self
+	/**
+	 * @param callable $task
+	 * @return void
+	 */
+	private function run(callable $task): void
 	{
-		if (!$this->isParentTime()) {
+		if (!$this->isParentScope()) {
 			$task();
 			exit(1);
 		}
-
-		return $this;
 	}
 
+	/**
+	 * wait process by flag option
+	 * @param int $flag
+	 * @return void
+	 */
 	function wait(int $flag = 0): void
 	{
-		if ($this->isParentTime()) {
+		if ($this->isParentScope()) {
 			$tryStatus = 0;
 			pcntl_waitpid($this->pid, $tryStatus, $flag);
 			if ($tryStatus) {
@@ -43,11 +53,18 @@ class Process
 		}
 	}
 
+	/**
+	 * Update process status
+	 * @return void
+	 */
 	function updateStatus(): void
 	{
 		$this->wait(WNOHANG);
 	}
 
+	/**
+	 * @return int - status of process die
+	 */
 	static function waitUntilLastProcessComplete(): int
 	{
 		$status = 0;
@@ -57,11 +74,19 @@ class Process
 		return $status;
 	}
 
-	private function isParentTime(): bool 
+	/**
+	 * Check if it is a parent scope
+	 * @return bool
+	 */
+	private function isParentScope(): bool
 	{
 		return $this->pid > 0;
 	}
 
+	/**
+	 * Return status of active process
+	 * @return int|null
+	 */
 	function getStatus(): null|int 
 	{
 		return match ($this->status) {
@@ -71,11 +96,20 @@ class Process
 		};
 	}
 
-	function setStatus(int $value): void
+	/**
+	 * set status by value
+	 * @param int $value
+	 * @return void
+	 */
+	private function setStatus(int $value): void
 	{
 		$this->status = $value;
 	}
 
+	/**
+	 * return pid of process
+	 * @return int
+	 */
 	function getPid(): int 
 	{
 		return $this->pid;
