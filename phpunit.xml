@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit
+        bootstrap = "bootstrap.php"
+        backupGlobals               = "false"
+        backupStaticAttributes      = "false"
+        colors                      = "true"
+        convertErrorsToExceptions   = "true"
+        convertNoticesToExceptions  = "true"
+        convertWarningsToExceptions = "true"
+        processIsolation            = "false"
+        stopOnFailure               = "true">
+
+    <testsuites>
+        <testsuite name="Integration tests">
+            <directory>tests/Integration/</directory>
+        </testsuite>
+        <testsuite name="Unit tests">
+            <directory>tests/Unit/</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <const name="PHPUNIT_TEST_RUNTIME" value="true"/>
+    </php>
+
+</phpunit>
