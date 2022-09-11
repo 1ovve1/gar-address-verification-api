@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
-require __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 use Dotenv\Dotenv;
+
 
 if (defined('TEST_ENV')) {
 	$envName = '.env.test';
@@ -28,6 +29,12 @@ foreach ($_ENV as $index => &$param) {
 			$param = __DIR__ . $param;
 		}
 	}
+}
+
+// add error handler
+
+if (!defined('PHPUNIT_TEST_RUNTIME')) {
+	require_once __DIR__ . '/default_handler_and_logger.php';
 }
 
 // check context (cli or web)
