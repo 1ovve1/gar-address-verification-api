@@ -50,7 +50,6 @@ trait InsertTrait
 		$startElem = current($values);
 		$maxCount = is_array($startElem) ? count($startElem): 1;
 
-		$flagOfChanges = false;
 
 		foreach ($values as $elem) {
 			$currCount = match(is_array($elem)) {
@@ -58,31 +57,25 @@ trait InsertTrait
 				false => 1
 			};
 
-			if ($currCount !== $maxCount) {
-				if ($currCount > $maxCount) {
-					$maxCount = $currCount;
-				}
-
-				$flagOfChanges = true;
+			if ($currCount > $maxCount) {
+				$maxCount = $currCount;
 			}
 
 		}
 
-		if($flagOfChanges) {
-			$stepSize = count($values);
+		$stepSize = count($values);
 
-			foreach ($values as $coll => $row) {
-				if (!is_array($row)) {
-					$row = [$row];
-				}
-
-				for ($index = 0; $index < $maxCount; ++$index) {
-
-					$normalized[$coll + $index * $stepSize] = $row[$index] ?? null;
-				}
+		foreach ($values as $coll => $row) {
+			if (!is_array($row)) {
+				$row = [$row];
 			}
-			ksort($normalized);
+
+			for ($index = 0; $index < $maxCount; ++$index) {
+
+				$normalized[$coll + $index * $stepSize] = $row[$index] ?? null;
+			}
 		}
+		ksort($normalized);
 
 		return $normalized;
 	}
