@@ -19,7 +19,7 @@ class ProcessManager
 	function __construct(int $maxProcessCount)
 	{
 		if ($maxProcessCount <= 0) {
-			throw new \RuntimeException("Incorect tasks count '{$maxProcessCount}'");
+			throw new \RuntimeException("Incorrect tasks count '{$maxProcessCount}'");
 		} 
 
 		$this->maxProcessCount = $maxProcessCount;
