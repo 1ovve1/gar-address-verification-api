@@ -7,9 +7,9 @@ use RuntimeException;
 
 class FakeQueryResult implements QueryResult
 {
-	/** @var array<int, array<string, DatabaseContract>> */
+	/** @var array<int, array<string|int, DatabaseContract>> */
 	readonly array $assocFetch;
-	/** @var array<int, array<int, DatabaseContract>> */
+	/** @var array<int, array<string|int, DatabaseContract>> */
 	readonly array $numFetch;
 	/** @var int  */
 	readonly int $size;
@@ -37,7 +37,7 @@ class FakeQueryResult implements QueryResult
 
 	/**
 	 * @param int $flag
-	 * @return array<int, array<int|string, DatabaseContract>>|false
+	 * @return array<int, array<int|string, DatabaseContract>>
 	 */
 	function fetchAll(int $flag = \PDO::FETCH_ASSOC): array
 	{
@@ -45,7 +45,7 @@ class FakeQueryResult implements QueryResult
 	}
 
 	/**
-	 * @return array<int, array<string, DatabaseContract>>|false
+	 * @return array<int, array<string|int, DatabaseContract>>
 	 */
 	function fetchAllAssoc(): array
 	{
@@ -53,7 +53,7 @@ class FakeQueryResult implements QueryResult
 	}
 
 	/**
-	 * @return array<int, array<int, DatabaseContract>>
+	 * @return array<int, array<string|int, DatabaseContract>>
 	 */
 	function fetchAllNum(): array
 	{

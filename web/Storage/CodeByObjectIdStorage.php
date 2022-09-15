@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace GAR\Storage;
 
-use DB\Exceptions\Unchecked\BadQueryResultException;
-use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
 use GAR\Exceptions\Checked\CodeNotFoundException;
-use GAR\Exceptions\Unchecked\ServerSideProblemException;
 
 /**
  * Repository for getting code by concrete objectid
