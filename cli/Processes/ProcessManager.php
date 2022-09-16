@@ -7,7 +7,7 @@ pcntl_async_signals(true);
 class ProcessManager
 {
 	/** @var int **/
-	private readonly int $maxProcessCount;
+	public readonly int $maxProcessCount;
 	/** @var Process[] */
 	private array $processBuffer = [];
 	/** @var Process[] */
@@ -18,7 +18,7 @@ class ProcessManager
 	 */
 	function __construct(int $maxProcessCount)
 	{
-		if ($maxProcessCount <= 0) {
+		if ($maxProcessCount < 0) {
 			throw new \RuntimeException("Incorrect tasks count '{$maxProcessCount}'");
 		} 
 

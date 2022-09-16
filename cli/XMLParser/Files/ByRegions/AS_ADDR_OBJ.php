@@ -6,14 +6,12 @@ namespace CLI\XMLParser\Files\ByRegions;
 
 use DB\Models\AddrObj;
 use CLI\XMLParser\Files\XMLFile;
-use DB\ORM\DBAdapter\QueryResult;
-use DB\ORM\DBFacade;
-use DB\ORM\QueryBuilder\QueryBuilder;
 
 class AS_ADDR_OBJ extends XMLFile
 {
 	/**
 	 * {@inheritDoc}
+	 * @return AddrObj
 	 */
 	public static function getTable(): AddrObj
 	{
@@ -22,8 +20,9 @@ class AS_ADDR_OBJ extends XMLFile
 
 	/**
 	 * {@inheritDoc}
+	 * @param AddrObj $table
 	 */
-	public static function callbackOperationWithTable(QueryBuilder $table): void
+	public static function callbackOperationWithTable(mixed $table): void
 	{
 		$table->saveForceInsert();
 	}
@@ -55,18 +54,26 @@ class AS_ADDR_OBJ extends XMLFile
 
 	/**
 	 * {@inheritDoc}
+	 * @param AddrObj $table
+	 * @param array{
+	 *     ISACTUAL: bool, ISACTIVE: bool,
+	 *     OBJECTID: int, LEVEL: int,
+	 *     NAME: string, TYPENAME: string
+	 * } $values
 	 */
-    public function execDoWork(array &$values, mixed &$table): void
+    public function execDoWork(array $values, mixed $table): void
     {
         $region = $this->getIntRegion();
 
-        if ($table->getFirstObjectId($region, $values['OBJECTID'])->isEmpty()) {
+        if ($table->checkIfAddrObjNotExists($region, $values['OBJECTID'])) {
 
-            unset($values['ISACTUAL']); unset($values['ISACTIVE']);
-
-            $values['REGION'] = $region;
-
-            $table->forceInsert($values);
+            $table->forceInsert([
+				$values['OBJECTID'],
+	            $values['LEVEL'],
+	            $values['NAME'],
+	            $values['TYPENAME'],
+	            $region
+            ]);
         }
     }
 }

@@ -13,48 +13,64 @@ use Monolog\Logger;
  * @param String[] $secondColumn
  * @return string
  */
-$tableFormatter = function(array $firstColumn, array $secondColumn) {
+$tableFormatter = function(array $captions, array $data) {
 	// first find max len of column element and total width
-	$maxWordLengthFromFirstColumn = 0; $maxWordLengthFromSecondColumn = 0;
-	foreach ($firstColumn as $index => $firstColumnData) {
-		$secondColumnData = $secondColumn[$index];
-		$maxWordLengthFromFirstColumnEscapeEOL = strlen(array_reduce(
-			explode("\n", $firstColumnData),
-			fn($acc, $elem) => (strlen($acc ?? '') > strlen($elem ?? '')) ? $acc: $elem
+	$maxWordLength = 0;
+
+	foreach ($captions as $index => $caption) {
+		$singleData = $data[$index];
+
+		$maxWordLengthFromCaptionsEscapeEOL = strlen(array_reduce(
+			explode("\n", $caption),
+			fn(string $acc, string $elem) => (strlen($acc) > strlen($elem)) ? $acc: $elem,
+			initial: ''
 		));
-		$maxWordLengthFromSecondColumnsEscapeEOL = strlen(array_reduce(
-			explode("\n", $secondColumnData),
-			fn($acc, $elem) => (strlen($acc ?? '') > strlen($elem) ?? '') ? $acc: $elem
+		$maxWordLengthFromDataEscapeEOL = strlen(array_reduce(
+			explode("\n", $singleData),
+			fn(string $acc, string $elem) => (strlen($acc) > strlen($elem)) ? $acc: $elem,
+			initial: ''
 		));
-		if ($maxWordLengthFromFirstColumn < $maxWordLengthFromFirstColumnEscapeEOL) {
-			$maxWordLengthFromFirstColumn = $maxWordLengthFromFirstColumnEscapeEOL;
+
+		if ($maxWordLength < $maxWordLengthFromCaptionsEscapeEOL) {
+			$maxWordLength = $maxWordLengthFromCaptionsEscapeEOL;
 		}
-		if ($maxWordLengthFromSecondColumn < $maxWordLengthFromSecondColumnsEscapeEOL) {
-			$maxWordLengthFromSecondColumn = $maxWordLengthFromSecondColumnsEscapeEOL;
+		if ($maxWordLength < $maxWordLengthFromDataEscapeEOL) {
+			$maxWordLength = $maxWordLengthFromDataEscapeEOL;
 		}
 	}
 
-	$totalTableWidth = $maxWordLengthFromFirstColumn + $maxWordLengthFromSecondColumn + 6;
+	$totalTableWidth = $maxWordLength + 3;
 
 	// now complete the table
 	$table = PHP_EOL . str_repeat('-', $totalTableWidth) . PHP_EOL;
-	foreach ($firstColumn as $rowIndex => $rowTitle) {
-		$rowTitle = explode("\n", $rowTitle);
-		$rowData = explode("\n", $secondColumn[$rowIndex]);
+	/**
+	 * @param String[] $info
+	 * @param int $maxWordLength
+	 * @param int $totalTableWidth
+	 * @return string
+	 */
+	$rowCreator = function (array $info) use ($maxWordLength, $totalTableWidth) {
+		$row = '';
+		$infoHeight = count($info);
 
-		$biggestRowHeight = (count($rowTitle) > count($rowData)) ? count($rowTitle): count($rowData);
-
-		for ($index = 0; $index < $biggestRowHeight; ++$index) {
-			$rowTitleElem = $rowTitle[$index] ?? '';
-			$rowDataElem = $rowData[$index] ?? '';
-			$offsetTitleElem = $maxWordLengthFromFirstColumn - strlen($rowTitleElem);
-			$offsetDataElem = $maxWordLengthFromSecondColumn - strlen($rowDataElem);
-
-			$table .= '| ' . $rowTitleElem . str_repeat(' ', $offsetTitleElem);
-			$table .= " | " . $rowDataElem . str_repeat(' ', $offsetDataElem) . ' |' . PHP_EOL;
+		for ($index = 0; $index < $infoHeight; ++$index) {
+			$infoElem = $info[$index] ?? '';
+			$offsetInfoElem = $maxWordLength - strlen($infoElem);
+			$row .= '| ' . $infoElem . str_repeat(' ', $offsetInfoElem) . '|' . PHP_EOL;
 		}
 
-		$table .= str_repeat('-', $totalTableWidth) . PHP_EOL;
+		$row .= str_repeat('-', $totalTableWidth) . PHP_EOL;
+		return $row;
+	};
+
+	foreach ($captions as $rowIndex => $rowTitle) {
+		$rowData = explode("\n", $data[$rowIndex]);
+		$rowTitle = array_map(
+			fn(string $elem) => str_repeat(' ', intdiv($totalTableWidth - strlen($elem), 2) - 3) . $elem,
+			explode("\n", $rowTitle)
+		);
+
+		$table .= $rowCreator($rowTitle) . $rowCreator($rowData);
 	}
 
 	return $table;
@@ -85,8 +101,8 @@ set_error_handler(
 		$monolog()->error(
 			'ERROR WAS FOUND!' .
 			$tableFormatter(
-				['Field', 'Code', 'Message', 'Error file', 'Error line'],
-				['Error info', (string) $code, $message, $errorFileName, (string) $errorLine]
+				['<<Code>>', '<<Message>>', '<<Error file>>', '<<Error line>>'],
+				[(string) $code, $message, $errorFileName, (string) $errorLine]
 			)
 		);
 
@@ -99,11 +115,10 @@ set_exception_handler(
 		$monolog()->emergency(
 			'UNCHECKED EXCEPTION!' .
 			$tableFormatter(
-				['Field', 'Message', 'Code', 'Stacktrace', 'Full'],
-				['Exception info', $ex->getMessage(), (string)$ex->getCode(), $ex->getTraceAsString(), (string)$ex]
+				['<<Message>>', '<<Code>>', '<<Stacktrace>>', '<<Full>>'],
+				[$ex->getMessage(), (string)$ex->getCode(), $ex->getTraceAsString(), (string)$ex]
 			)
 		);
 	}
 );
-
 $_SERVER['MONOLOG'] = $monolog;

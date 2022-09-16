@@ -31,21 +31,21 @@ class Database extends QueryBuilder
 			'getAddressByObjectId' =>
 				Database::select(
 					['addr' => ['name', 'typename', 'objectid']],
-					['addr' => 'addr_obj']
+					['addr' => AddrObj::table()]
 				)->where(
-					['addr' => 'objectid'], '?'
+					['addr' => 'objectid']
 				),
 
 
-			'getChiledNameByObjectIdAndName' =>
+			'getChiledAddressByParentObjectIdAndChiledAddressName' =>
 				Database::select(
 					['chiled' => ['name', 'typename', 'objectid']],
-					['mun' => 'mun_hierarchy']
+					['map' => AddrObjByAddrObjHierarchy::table()]
 				)->innerJoin(
-					['chiled' => 'addr_obj'],
-					['chiled' => 'objectid', 'mun' => 'chiledobjid_addr']
+					['chiled' => AddrObj::table()],
+					['chiled' => 'objectid', 'map' => 'chiledobjid_addr']
 				)->where(
-					['mun' => 'parentobjid_addr'], '?'
+					['map' => 'parentobjid_addr']
 				)->andWhere(fn($builder) =>
 					$builder->where(
 						"CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', '?'
@@ -54,19 +54,18 @@ class Database extends QueryBuilder
 					)
 				),
 
-			'getParentAddressByObjectId' =>
+			'getParentAddressByChiledObjectId' =>
 				Database::select(
 					['parent' => ['name', 'typename', 'objectid']],
-					['mun' => 'mun_hierarchy']
+					['map' => AddrObjByAddrObjHierarchy::table()]
 				)->innerJoin(
-					['parent' => 'addr_obj'],
-					['parent' => 'objectid', 'mun' => 'parentobjid_addr']
+					['parent' => AddrObj::table()],
+					['parent' => 'objectid', 'map' => 'parentobjid_addr']
 				)->where(
-					['mun' => 'chiledobjid_addr'],
-					'?'
+					['map' => 'chiledobjid_addr'],
 				),
 
-			'getHousesByObjectId' =>
+			'getHousesByParentObjectId' =>
 				Database::select(
 					"TRIM(' ' FROM " .
 					"CONCAT(" .
@@ -75,59 +74,53 @@ class Database extends QueryBuilder
 					"COALESCE(addht2.short, ''), ' ', COALESCE(chiled.addnum2, '')" .
 					")" .
 					") as house",
-					['mun' => 'mun_hierarchy']
+					['map' => HousesByAddrObjHierarchy::table()]
 				)->innerJoin(
-					['chiled' => 'houses'],
-					['chiled' => 'objectid', 'mun' => 'chiledobjid_houses']
+					['chiled' => Houses::table()],
+					['chiled' => 'objectid', 'map' => 'chiledobjid_houses']
 				)->leftJoin(
-					['ht' => 'housetype'],
+					['ht' => Housetype::table()],
 					['ht' => 'id', 'chiled' => 'id_housetype']
 				)->leftJoin(
-					['addht1' => 'addhousetype'],
+					['addht1' => Addhousetype::table()],
 					['addht1' => 'id', 'chiled' => 'id_addtype1']
 				)->leftJoin(
-					['addht2' => 'addhousetype'],
+					['addht2' => Addhousetype::table()],
 					['addht2' => 'id', 'chiled' => 'id_addtype2']
 				)->where(
-					['mun' => 'parentobjid_addr'],
-					'?'
+					['map' => 'parentobjid_addr']
 				),
 
 			'findChainByParentAndChiledAddressName' =>
 				Database::select(
-					'DISTINCT mun.parentobjid_addr, mun.chiledobjid_addr',
-					['mun' => 'mun_hierarchy']
+					'DISTINCT map.parentobjid_addr, map.chiledobjid_addr',
+					['map' => AddrObjByAddrObjHierarchy::table()]
 				)->innerJoin(
-					['parent' => 'addr_obj'],
-					['parent' => 'objectid', 'mun' => 'parentobjid_addr']
+					['parent' => AddrObj::table()],
+					['parent' => 'objectid', 'map' => 'parentobjid_addr']
 				)->leftJoin(
-					['chiled' => 'addr_obj'],
-					['chiled' => 'objectid', 'mun' => 'chiledobjid_addr']
+					['chiled' => AddrObj::table()],
+					['chiled' => 'objectid', 'map' => 'chiledobjid_addr']
 				)->where(
 					['parent' => 'id_level'],
 					'<=',
-					'?'
 				)->andWhere(
 					fn($builder) =>
 					$builder->where(fn($builder) =>
 						$builder->where(
 							"CONCAT(parent.name, ' ', parent.typename)",
 							'LIKE',
-							'?'
 						)->orWhere(
 							"CONCAT(parent.typename, ' ',parent.name)",
 							'LIKE',
-							'?'
 						)
 					)->andWhere(fn($builder) =>
 						$builder->where(
 							"CONCAT(chiled.name, ' ', chiled.typename)",
 							'LIKE',
-							'?'
 						)->orWhere(
 							"CONCAT(chiled.typename, ' ', chiled.name)",
 							'LIKE',
-							'?'
 						)
 					)
 				)->limit(2),
@@ -135,22 +128,20 @@ class Database extends QueryBuilder
 			'getLikeAddress' =>
 				Database::select(
 					['addr' => ['name', 'typename', 'objectid']],
-					['addr' => 'addr_obj']
+					['addr' => AddrObj::table()]
 				)->where(
 					['addr' => 'id_level'],
-					'<=',
-					'?'
+					'<='
 				)->andWhere(fn($builder) =>
 					$builder->where(
 						"CONCAT(addr.name, ' ', addr.typename)",
 						'LIKE',
-						'?'
 					)->orWhere(
 						"CONCAT(addr.typename, ' ', addr.name)",
 						'LIKE',
-						'?'
 					)
 				)->limit(100),
+
 			'findAddrObjParamByObjectIdAndType' =>
 				Database::select(
 					['params' => 'value'],
@@ -188,7 +179,7 @@ class Database extends QueryBuilder
 	 * @param string $chiledName - chiled name fragment
 	 * @return QueryResult
 	 */
-	public function getChiledAddressByParentObjectIdAndChiledName(int $parentObjectId, string $chiledName): QueryResult
+	public function getChiledAddressByParentObjectIdAndChiledAddressName(int $parentObjectId, string $chiledName): QueryResult
 	{
 		$chiledName .= '%';
 
@@ -208,7 +199,7 @@ class Database extends QueryBuilder
 //			)
 //		)->save();
 
-		return $this->userStates['getChiledNameByObjectIdAndName']
+		return $this->userStates['getChiledAddressByParentObjectIdAndChiledAddressName']
 			->execute([$parentObjectId, $chiledName, $chiledName]);
 	}
 
@@ -217,7 +208,7 @@ class Database extends QueryBuilder
 	 * @param int $chiledObjectId - chiled address objectid
 	 * @return QueryResult
 	 */
-	public function getParentAddressByObjectId(int $chiledObjectId): QueryResult
+	public function getParentAddressByChiledObjectId(int $chiledObjectId): QueryResult
 	{
 //		return Database::select(
 //			['parent' => ['name', 'typename', 'objectid']],
@@ -230,7 +221,7 @@ class Database extends QueryBuilder
 //			$chiledObjectId
 //		)->save();
 
-		return $this->userStates['getParentAddressByObjectId']
+		return $this->userStates['getParentAddressByChiledObjectId']
 			->execute([$chiledObjectId]);
 	}
 
@@ -265,7 +256,7 @@ class Database extends QueryBuilder
 //			$objectId
 //		)->save();
 
-		return $this->userStates['getHousesByObjectId']
+		return $this->userStates['getHousesByParentObjectId']
 			->execute([$objectId]);
 	}
 

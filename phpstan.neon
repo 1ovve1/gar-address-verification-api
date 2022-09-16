@@ -20,3 +20,4 @@ parameters:
         uncheckedExceptionRegexes:
             - '#^DB\\Exceptions\\Unchecked\\#'
             - '#^GAR\\Exceptions\\Unchecked\\#'
+            - '#^CLI\\Exceptions\\Unchecked\\#'

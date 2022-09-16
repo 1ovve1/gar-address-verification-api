@@ -16,12 +16,19 @@ class Houses extends QueryBuilder implements MigrateAble
 	protected function prepareStates(): array
 	{
 		return [
-			'getFirstObjectId' =>
+			'checkIfHousesObjExists' =>
 				Houses::select('region')
 					->where('region')
 					->andWhere('objectid')
 					->limit(1),
 		];
+	}
+
+	function checkIfHousesObjNotExists(int $region, int $addrObjId): bool
+	{
+		return $this->userStates['checkIfHousesObjExists']
+			->execute([$region, $addrObjId])
+			->isEmpty();
 	}
 
 	/**

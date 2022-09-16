@@ -6,12 +6,12 @@ namespace CLI\XMLParser\Files\ByRegions;
 
 use CLI\XMLParser\Files\XMLFile;
 use DB\Models\AddrObjParams;
-use DB\ORM\QueryBuilder\QueryBuilder;
 
 class AS_ADDR_OBJ_PARAMS extends XMLFile
 {
 	/**
 	 * {@inheritDoc}
+	 * @return AddrObjParams
 	 */
 	public static function getTable(): AddrObjParams
 	{
@@ -20,8 +20,9 @@ class AS_ADDR_OBJ_PARAMS extends XMLFile
 
 	/**
 	 * @inheritDoc
+	 * @param AddrObjParams $table
 	 */
-	public static function callbackOperationWithTable(QueryBuilder $table): void
+	public static function callbackOperationWithTable(mixed $table): void
 	{
 		$table->saveForceInsert();
 	}
@@ -48,26 +49,32 @@ class AS_ADDR_OBJ_PARAMS extends XMLFile
 
 	/**
 	 * {@inheritDoc}
+	 * @param array{
+	 *     OBJECTID: int,
+	 *     TYPEID: int,
+	 *     VALUE: string
+	 * } $values
+	 * @param AddrObjParams $table
 	 */
-    public function execDoWork(array &$values, mixed &$table): void
+    public function execDoWork(array $values, mixed $table): void
     {
         $region = $this->getIntRegion();
 
-	    switch ($values['TYPEID']) {
-		    case 6:
-				$values['TYPEID'] = 'OKATO'; break;
-		    case 7:
-			    $values['TYPEID'] = 'OKTMO'; break;
-		    case 10:
-			    $values['TYPEID'] = 'KLADR'; break;
-		    default:
-				return;
+	    $type = match ($values['TYPEID']) {
+		    6 => 'OKATO',
+		    7 => 'OKTMO',
+		    10 => 'KLADR',
+		    default => false
 	    };
 
-        if ($table->getFirstObjectIdAddrObj($region, $values['OBJECTID'])->isNotEmpty()) {
-            $values['REGION'] = $region;
+        if ($type && $table->checkIfAddrObjExists($region, $values['OBJECTID'])) {
 
-            $table->forceInsert($values);
+            $table->forceInsert([
+				$values['OBJECTID'],
+	            $type,
+	            $values['VALUE'],
+	            $region
+            ]);
         }
     }
 

@@ -15,12 +15,14 @@ enum Conditions: string
 	case IN = 'IN';
 
 	/**
-	 * @param string $operation
+	 * @param mixed $operation
 	 * @return string
 	 */
-	public static function tryFind(string $operation): string
+	public static function tryFind(mixed $operation): string
 	{
-		$condition = self::tryFrom(trim($operation));
+		if (is_string($operation)) {
+			$condition = self::tryFrom(trim($operation));
+		}
 
 		return $condition?->value ?? throw new OperationNotFoundException($operation);
 	}

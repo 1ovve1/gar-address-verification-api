@@ -6,22 +6,23 @@ namespace CLI\XMLParser\Files\ByRoot;
 
 use DB\Models\Housetype;
 use CLI\XMLParser\Files\XMLFile;
-use DB\ORM\QueryBuilder\QueryBuilder;
 
 class AS_HOUSE_TYPES extends XMLFile
 {
 	/**
 	 * @inheritDoc
+	 * @return Housetype
 	 */
-	public static function getTable(): QueryBuilder
+	public static function getTable(): Housetype
 	{
 		return new Housetype();
 	}
 
 	/**
 	 * @inheritDoc
+	 * @param Housetype $table
 	 */
-	public static function callbackOperationWithTable(QueryBuilder $table): void
+	public static function callbackOperationWithTable(mixed $table): void
 	{
 		$table->saveForceInsert();
 	}
@@ -48,9 +49,19 @@ class AS_HOUSE_TYPES extends XMLFile
 
 	/**
 	 * @inheritDoc
+	 * @param array{
+	 *     ID: int,
+	 *     SHORTNAME: string,
+	 *     NAME: string
+	 * } $values
+	 * @param Housetype $table
 	 */
-    public function execDoWork(array &$values, mixed &$table): void
+    public function execDoWork(array $values, mixed $table): void
     {
-        $table->forceInsert($values);
+        $table->forceInsert([
+	        $values['ID'],
+	        $values['SHORTNAME'],
+	        $values['NAME']
+        ]);
     }
 }

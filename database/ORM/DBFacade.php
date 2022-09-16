@@ -2,6 +2,7 @@
 
 namespace DB\ORM;
 
+use DB\Exceptions\Unchecked\OperationNotFoundException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\PDO\PDOObject;
 use DB\ORM\QueryBuilder\Templates\Conditions;
@@ -184,9 +185,13 @@ class DBFacade
 
 		// now we try to make our 'where' by different params
 		if (null === $value) {
-			$sign = Conditions::EQ->value;
-			$value = $sign_or_value;
-
+			if (is_string($sign_or_value) && Conditions::tryFrom($sign_or_value)) {
+				$sign = $sign_or_value;
+				$value = null;
+			} else {
+				$sign = Conditions::EQ->value;
+				$value = $sign_or_value;
+			}
 		} else {
 			$sign = Conditions::tryFind($sign_or_value);
 		}

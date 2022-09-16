@@ -12,16 +12,18 @@ class AS_ADDHOUSE_TYPES extends XMLFile
 {
 	/**
 	 * @inheritDoc
+	 * @return Addhousetype
 	 */
-	public static function getTable(): QueryBuilder
+	public static function getTable(): Addhousetype
 	{
 		return new Addhousetype();
 	}
 
 	/**
 	 * @inheritDoc
+	 * @param Addhousetype $table
 	 */
-	public static function callbackOperationWithTable(QueryBuilder $table): void
+	public static function callbackOperationWithTable(mixed $table): void
 	{
 		$table->saveForceInsert();
 	}
@@ -48,9 +50,19 @@ class AS_ADDHOUSE_TYPES extends XMLFile
 
 	/**
 	 * @inheritDoc
+	 * @param array{
+	 *     ID: int,
+	 *     SHORTNAME: string,
+	 *     NAME: string
+	 * } $values
+	 * @param Addhousetype $table
 	 */
-    public function execDoWork(array &$values, mixed &$table): void
+    public function execDoWork(array $values, mixed $table): void
     {
-        $table->forceInsert($values);
+        $table->forceInsert([
+			$values['ID'],
+	        $values['SHORTNAME'],
+	        $values['NAME']
+        ]);
     }
 }

@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace GAR\Storage;
 
-use DB\Exceptions\Unchecked\BadQueryResultException;
-use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
 use GAR\Exceptions\Checked\AddressNotFoundException;
 use GAR\Exceptions\Checked\ChainNotFoundException;
 use GAR\Exceptions\Checked\ParamNotFoundException;
-use GAR\Exceptions\Unchecked\ServerSideProblemException;
 use GAR\Storage\Builders\AddressBuilder;
 use GAR\Storage\Builders\AddressBuilderDirector;
 use GAR\Storage\Elements\ChainPoint;
@@ -111,7 +108,7 @@ class AddressByNameStorage extends BaseStorage
 
 		$currChiledName = $this->addressBuilderDirector->getCurrentChiledName();
 
-		$chiledLikeAddress = $this->db->getChiledAddressByParentObjectIdAndChiledName($parentObjectId, $currChiledName);
+		$chiledLikeAddress = $this->db->getChiledAddressByParentObjectIdAndChiledAddressName($parentObjectId, $currChiledName);
 
 		if ($chiledLikeAddress->hasOnlyOneRow()) {
 			$this->addressBuilderDirector->addChiledAddr($chiledLikeAddress);
@@ -186,7 +183,7 @@ class AddressByNameStorage extends BaseStorage
 				break;
 		    }
 
-		    $parentAddress = $this->db->getParentAddressByObjectId($parentObjectId);
+		    $parentAddress = $this->db->getParentAddressByChiledObjectId($parentObjectId);
 		}
 
 		if ($parentAddress->hasManyRows()) {
@@ -218,7 +215,7 @@ class AddressByNameStorage extends BaseStorage
 				break;
 			}
 
-	        $chiledAddress = $this->db->getChiledAddressByParentObjectIdAndChiledName($parentObjectId, $nextChiledName);
+	        $chiledAddress = $this->db->getChiledAddressByParentObjectIdAndChiledAddressName($parentObjectId, $nextChiledName);
         }
 
 		if ($chiledAddress->hasManyRows()) {

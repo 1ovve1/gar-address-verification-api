@@ -1,14 +1,11 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace DB\Models;
 
 use DB\ORM\Migration\MigrateAble;
 use DB\ORM\QueryBuilder\QueryBuilder;
 
-
-class AddrObjParams extends QueryBuilder implements MigrateAble
+class AddrObjByAddrObjHierarchy extends QueryBuilder implements MigrateAble
 {
 	/**
 	 * @inheritDoc
@@ -21,7 +18,6 @@ class AddrObjParams extends QueryBuilder implements MigrateAble
 					->where('region')
 					->andWhere('objectid')
 					->limit(1),
-
 		];
 	}
 
@@ -39,14 +35,15 @@ class AddrObjParams extends QueryBuilder implements MigrateAble
 	{
 		return [
 			'fields' => [
-				'objectid_addr'     => 'BIGINT UNSIGNED NOT NULL',
-				'type'              => 'CHAR(5) NOT NULL',
-				'value'             => 'CHAR(31) NOT NULL',
-				'region'            => 'TINYINT UNSIGNED NOT NULL',
+				'parentobjid_addr' => "BIGINT UNSIGNED NOT NULL",
+				'chiledobjid_addr' => "BIGINT UNSIGNED NOT NULL",
+				'region'        => 'TINYINT UNSIGNED NOT NULL',
 			],
 			'foreign' => [
-				'objectid_addr'     => [AddrObj::class, 'objectid']
+				'parentobjid_addr'      => [AddrObj::class, 'objectid'],
+				'chiledobjid_addr'      => [AddrObj::class, 'objectid'],
 			]
 		];
 	}
+
 }

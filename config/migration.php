@@ -7,5 +7,6 @@ return [
 	\DB\Models\AddrObj::class,
 	\DB\Models\AddrObjParams::class,
 	\DB\Models\Houses::class,
-	\DB\Models\MunHierarchy::class
+	\DB\Models\AddrObjByAddrObjHierarchy::class,
+	\DB\Models\HousesByAddrObjHierarchy::class,
 ];
