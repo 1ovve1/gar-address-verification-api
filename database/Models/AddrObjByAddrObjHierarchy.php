@@ -13,19 +13,45 @@ class AddrObjByAddrObjHierarchy extends QueryBuilder implements MigrateAble
 	protected function prepareStates(): array
 	{
 		return [
-			'checkIfAddrObjExists' =>
+			'checkIfAddrObjExist' =>
 				AddrObj::select('region')
 					->where('region')
 					->andWhere('objectid')
 					->limit(1),
+			'checkIfMapNotExist' =>
+				AddrObjByAddrObjHierarchy::select('region')
+					->where('region')
+					->andWhere(fn($builder) => $builder
+						->where('parentobjid_addr')
+						->orWhere('chiledobjid_addr')
+					)->limit(1),
+			'checkIfChiledNotExist' =>
+				AddrObjByAddrObjHierarchy::select('region')
+					->where('region')
+					->andWhere('chiledobjid_addr')
+					->limit(1),
 		];
 	}
 
-	function checkIfAddrObjExists(int $region, int $addrObjId): bool
+	function checkIfAddrObjExist(int $region, int $addrObjId): bool
 	{
-		return $this->userStates['checkIfAddrObjExists']
+		return $this->userStates['checkIfAddrObjExist']
 			->execute([$region, $addrObjId])
 			->isNotEmpty();
+	}
+
+	function checkIfMapNotExist(int $region, int $parent, int $chiled): bool
+	{
+		return $this->userStates['checkIfMapNotExist']
+			->execute([$region, $parent, $chiled])
+			->isEmpty();
+	}
+
+	function checkIfChiledNotExist(int $region, int $chiled): bool
+	{
+		return $this->userStates['checkIfChiledNotExist']
+			->execute([$region, $chiled])
+			->isEmpty();
 	}
 
 	/**

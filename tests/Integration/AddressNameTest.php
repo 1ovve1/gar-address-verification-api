@@ -80,14 +80,14 @@ class AddressNameTest extends BaseTestSetup
 
 	public function testDoubleWordAddressWithSingleAddressAndVariant() : void
 	{
-		$param = 'калм,я';
+		$param = 'респ калм,я';
 		$paramWithProp = 'address=' . $param;
 		$response = $this->runApp('GET', '/address', $paramWithProp);
 
 		$this->assertResponse(
 			response: $response,
 			code: ResponseCodes::OK_200,
-			contains: ['"калм"', 'variants'],
+			contains: ['"респ калм"', 'variants'],
 			notContains: ['"я"', 'parent', 'houses'],
 		);
 	}
@@ -108,14 +108,14 @@ class AddressNameTest extends BaseTestSetup
 
 	public function testDoubleWordAddressWithTwoSingleAddresses() : void
 	{
-		$param = 'калм,яшкульск';
+		$param = 'респ калм,яшкульск';
 		$paramWithProp = 'address=' . $param;
 		$response = $this->runApp('GET', '/address', $paramWithProp);
 
 		$this->assertResponse(
 			response: $response,
 			code: ResponseCodes::OK_200,
-			contains: ['"калм"', '"яшкульск"'],
+			contains: ['"респ калм"', '"яшкульск"'],
 			notContains: ['parent', 'houses', 'variant'],
 		);
 	}

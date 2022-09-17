@@ -18,6 +18,18 @@ class HousesByAddrObjHierarchy extends QueryBuilder implements MigrateAble
 					->where('region')
 					->andWhere('objectid')
 					->limit(1),
+			'checkIfMapNotExist' =>
+				HousesByAddrObjHierarchy::select('region')
+					->where('region')
+					->andWhere(fn($builder) => $builder
+							->where('parentobjid_addr')
+							->andWhere('chiledobjid_houses')
+					)->limit(1),
+			'checkIfChiledNotExist' =>
+				HousesByAddrObjHierarchy::select('region')
+					->where('region')
+					->andWhere('chiledobjid_houses')
+					->limit(1),
 		];
 	}
 
@@ -26,6 +38,20 @@ class HousesByAddrObjHierarchy extends QueryBuilder implements MigrateAble
 		return $this->userStates['checkIfHousesObjExists']
 			->execute([$region, $addrObjId])
 			->isNotEmpty();
+	}
+
+	function checkIfMapNotExist(int $region, int $parent, int $chiled): bool
+	{
+		return $this->userStates['checkIfMapNotExist']
+			->execute([$region, $parent, $chiled])
+			->isEmpty();
+	}
+
+	function checkIfChiledNotExist(int $region, int $chiled): bool
+	{
+		return $this->userStates['checkIfChiledNotExist']
+			->execute([$region, $chiled])
+			->isEmpty();
 	}
 
 	/**
