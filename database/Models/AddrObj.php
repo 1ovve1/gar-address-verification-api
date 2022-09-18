@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DB\Models;
 
+use DB\ORM\DBAdapter\InsertBuffer;
 use DB\ORM\Migration\MigrateAble;
 use DB\ORM\QueryBuilder\QueryBuilder;
 
@@ -28,6 +29,11 @@ class AddrObj extends QueryBuilder implements MigrateAble
 
 	function checkIfAddrObjNotExists(int $region, int $addrObjId): bool
 	{
+		if ($this->forceInsertTemplate instanceof InsertBuffer) {
+			if ($this->forceInsertTemplate->checkValueInBufferExist($addrObjId, 'objectid')) {
+				return false;
+			}
+		}
 		return $this->userStates['checkIfAddrObjExists']
 			->execute([$region, $addrObjId])
 			->isEmpty();

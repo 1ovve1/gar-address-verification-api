@@ -75,13 +75,15 @@ class AS_MUN_HIERARCHY extends XMLFile
         if (isset($values['PARENTOBJID']) && $addrObjMap->checkIfAddrObjExist($region, $values['PARENTOBJID'])) {
 			// check if chiled objectid are instance of address obj
 	        // else check if chiled objectid are instance of houses and etc
-            if ($addrObjMap->checkIfAddrObjExist($region, $values['OBJECTID'])) {
+            if ($addrObjMap->checkIfAddrObjExist($region, $values['OBJECTID']) &&
+	            $addrObjMap->checkIfChiledNotExist($region, $values['OBJECTID'])) {
 		        $addrObjMap->forceInsert([
 			        $values['PARENTOBJID'],
 			        $values['OBJECTID'],
 			        $region,
 		        ]);
-	        } elseif ($housesMap->checkIfHousesObjExists($region, (int)$values['OBJECTID'])) {
+	        } elseif ($housesMap->checkIfHousesObjExists($region, (int)$values['OBJECTID']) &&
+	            $housesMap->checkIfChiledNotExist($region, $values['OBJECTID'])) {
                 $housesMap->forceInsert([
                     $values['PARENTOBJID'],
                     $values['OBJECTID'],

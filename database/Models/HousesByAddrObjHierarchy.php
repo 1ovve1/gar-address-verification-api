@@ -2,6 +2,7 @@
 
 namespace DB\Models;
 
+use DB\ORM\DBAdapter\InsertBuffer;
 use DB\ORM\Migration\MigrateAble;
 use DB\ORM\QueryBuilder\QueryBuilder;
 
@@ -42,6 +43,12 @@ class HousesByAddrObjHierarchy extends QueryBuilder implements MigrateAble
 
 	function checkIfMapNotExist(int $region, int $parent, int $chiled): bool
 	{
+		if ($this->forceInsertTemplate instanceof InsertBuffer) {
+			if ($this->forceInsertTemplate->checkIfRecordInBufferExist([$parent, $chiled, $region])) {
+				return false;
+			}
+		}
+
 		return $this->userStates['checkIfMapNotExist']
 			->execute([$region, $parent, $chiled])
 			->isEmpty();
@@ -49,6 +56,12 @@ class HousesByAddrObjHierarchy extends QueryBuilder implements MigrateAble
 
 	function checkIfChiledNotExist(int $region, int $chiled): bool
 	{
+		if ($this->forceInsertTemplate instanceof InsertBuffer) {
+			if ($this->forceInsertTemplate->checkValueInBufferExist($chiled, 'chiledobjid_houses')) {
+				return false;
+			}
+		}
+
 		return $this->userStates['checkIfChiledNotExist']
 			->execute([$region, $chiled])
 			->isEmpty();
@@ -62,7 +75,7 @@ class HousesByAddrObjHierarchy extends QueryBuilder implements MigrateAble
 		return [
 			'fields' => [
 				'parentobjid_addr' => "BIGINT UNSIGNED NOT NULL",
-				'chiledobjid_houses' => "BIGINT UNSIGNED NOT NULL",
+				'chiledobjid_houses' => "BIGINT UNSIGNED NOT NULL PRIMARY KEY",
 				'region'        => 'TINYINT UNSIGNED NOT NULL',
 			],
 			'foreign' => [

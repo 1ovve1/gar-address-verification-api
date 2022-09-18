@@ -18,6 +18,9 @@ class BadQueryResultException extends RuntimeException
 	 */
 	public function __construct(string $rawSql, Throwable|null $previous = null)
 	{
+		if (strlen($rawSql) > 2000) {
+			$rawSql = "too large";
+		}
 		$message = sprintf(self::MESSAGE_FORMAT, $rawSql, $previous?->getMessage() ?? 'PDO return false');
 
 		parent::__construct(

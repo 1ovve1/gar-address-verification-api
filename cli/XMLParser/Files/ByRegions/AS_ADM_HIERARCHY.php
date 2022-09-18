@@ -28,14 +28,16 @@ class AS_ADM_HIERARCHY extends AS_MUN_HIERARCHY
 			// check if chiled objectid are instance of address obj
 			// else check if chiled objectid are instance of houses and etc
 			if ($addrObjMap->checkIfAddrObjExist($region, $values['OBJECTID']) &&
-				$addrObjMap->checkIfMapNotExist($region, $values['PARENTOBJID'], $values['OBJECTID'])) {
+				$addrObjMap->checkIfMapNotExist($region, $values['PARENTOBJID'], $values['OBJECTID']) &&
+				$addrObjMap->checkIfChiledNotExist($region, $values['OBJECTID'])) {
 				$addrObjMap->forceInsert([
 					$values['PARENTOBJID'],
 					$values['OBJECTID'],
 					$region,
 				]);
 			} elseif ($housesMap->checkIfHousesObjExists($region, (int)$values['OBJECTID']) &&
-				$housesMap->checkIfMapNotExist($region, $values['PARENTOBJID'], $values['OBJECTID'])) {
+				$housesMap->checkIfMapNotExist($region, $values['PARENTOBJID'], $values['OBJECTID']) &&
+				$housesMap->checkIfChiledNotExist($region, $values['OBJECTID'])) {
 				$housesMap->forceInsert([
 					$values['PARENTOBJID'],
 					$values['OBJECTID'],
