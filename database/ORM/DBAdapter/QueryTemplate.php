@@ -12,10 +12,10 @@ interface QueryTemplate
 	/**
 	 * Execute statement
 	 *
-	 * @param array<int|string, DatabaseContract> $values - values to execute
+	 * @param ?array<int|string, DatabaseContract> $values - values to execute
 	 * @return QueryResult
 	 */
-    public function exec(array $values = []): QueryResult;
+    public function exec(?array $values = null): QueryResult;
 
     /**
      * Accept changes in template (use for lazy insert)

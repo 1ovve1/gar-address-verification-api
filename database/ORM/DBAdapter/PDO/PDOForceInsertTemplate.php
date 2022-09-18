@@ -3,7 +3,9 @@
 namespace DB\ORM\DBAdapter\PDO;
 
 
+use DB\Exceptions\Checked\NullableQueryResultException;
 use DB\Exceptions\Checked\QueryTemplateNotFoundException;
+use DB\Exceptions\Unchecked\BadQueryResultException;
 use DB\ORM\DBAdapter\{DBAdapter, InsertBuffer, QueryResult, QueryTemplate};
 
 /**
@@ -54,7 +56,7 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 	        'INSERT INTO %s (%s) VALUES %s',
 	        $this->getTableName(),
 	        implode(', ', $this->getTableFields()),
-	        $this->genVarsFromCurrentGroupNumber(),
+	        $this->genVarsFromCurrentBufferCursor(),
 	    );
     }
 
@@ -62,12 +64,12 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 	/**
 	 * {@inheritDoc}
 	 */
-    public function exec(array $values = []): QueryResult
+    public function exec(?array $values = null): QueryResult
     {
 		$this->setBuffer($values);
 
         if ($this->isBufferFull()) {
-            $queryResult = $this->save();
+            $queryResult = $this->makeExec();
         }
         return $queryResult ?? new PDOQueryResult(null);
     }
@@ -78,36 +80,39 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
     public function save(): QueryResult
     {
         if ($this->isBufferNotEmpty()) {
-			try {
-				$tryGetState = $this->getState();
-			} catch (QueryTemplateNotFoundException) {
-				$tryGetState = $this->createNewStateWithCurrentGroupNumber();
-			}
-
-	        $queryResult = match($this->isBufferFull()) {
-				true => $tryGetState->exec($this->getBuffer()),
-		        false => $tryGetState->exec($this->getBufferSlice())
-	        };
-
-            $this->resetBufferCursor();
+			$queryResult = $this->makeExec();
         }
 
         return $queryResult ?? new PDOQueryResult(null);
     }
 
+	private function makeExec(): QueryResult
+	{
+		try {
+			$tryGetState = $this->getState();
+		} catch (QueryTemplateNotFoundException) {
+			$tryGetState = $this->createNewStateWithCurrentGroupNumber();
+		}
+
+		$queryResult = $tryGetState->exec();
+
+		$this->resetBufferCursor();
+
+		return $queryResult;
+	}
 
 	/**
 	 * Return state using cursor value
-	 * @return QueryTemplate|null
+	 * @return QueryTemplate
 	 * @throws QueryTemplateNotFoundException
 	 */
-    public function getState(): QueryTemplate|null
+    public function getState(): QueryTemplate
     {
-        $currentGroupNumber = $this->getCurrentNumberOfGroups();
-        if (!array_key_exists($currentGroupNumber, $this->states)) {
+        $currentBufferCursor = $this->getCurrentBufferCursor();
+        if (!array_key_exists($currentBufferCursor, $this->states)) {
           throw new QueryTemplateNotFoundException();
         }
-        return $this->states[$currentGroupNumber];
+        return $this->states[$currentBufferCursor];
     }
 
     /**
@@ -126,7 +131,31 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
     private function setState(string $newTemplate): QueryTemplate
     {
       $newTemplate = $this->db->prepare($newTemplate);
-      $this->states[$this->getCurrentNumberOfGroups()] = $newTemplate;
+	  // danger things here...
+	  if (is_a($newTemplate, PDOTemplate::class)) {
+
+		  $bufferColumnFlip = array_flip($this->getTableFields());
+		  $currentCursor = $this->getCurrentBufferCursor();
+		  $offset = $this->getTableFieldsCount();
+		  foreach ($this->buffer as $columnName => &$columnValue) {
+			  $columnIndex = $bufferColumnFlip[$columnName];
+			  foreach ($columnValue as $rowIndex => &$rowValue) {
+				  if ($rowIndex >= $currentCursor) {
+					  break;
+				  }
+
+				  $bindRes = $newTemplate->template->bindParam($columnIndex + ($rowIndex * $offset) + 1, $rowValue);
+				  if (false === $bindRes) {
+					  throw new BadQueryResultException("bad try to allocate param by buffer[{$columnIndex}][{$rowIndex}] reference");
+				  }
+			  }
+		  }
+
+	  } else {
+		  throw new BadQueryResultException("incompatible type: PDOForceInsert implements should be used with PDOTemplate implement");
+	  }
+
+	  $this->states[$this->getCurrentBufferCursor()] = $newTemplate;
 
       return $newTemplate;
     }

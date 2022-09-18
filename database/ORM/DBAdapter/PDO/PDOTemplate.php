@@ -17,7 +17,7 @@ class PDOTemplate implements QueryTemplate
     /**
      * @var PDOStatement - prepared stage object
      */
-    protected readonly PDOStatement $template;
+    public readonly PDOStatement $template;
 
     /**
      * @param PDOStatement $template - prepared statement
@@ -30,7 +30,7 @@ class PDOTemplate implements QueryTemplate
 	/**
 	 * {@inheritDoc}
 	 */
-    public function exec(array $values = []): QueryResult
+    public function exec(?array $values = null): QueryResult
     {
         try {
             $res = $this->template->execute($values);
