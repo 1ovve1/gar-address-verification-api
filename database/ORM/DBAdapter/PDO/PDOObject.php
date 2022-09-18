@@ -56,8 +56,9 @@ class PDOObject implements DBAdapter
 	protected static function getDsn(string $dbType, string $dbHost,
 	                                 string $dbName, string $dbPort) : string
 	{
+		$charsetOption = ($dbType === 'mysql') ? ';charset=utf8': '';
 		return sprintf(
-			'%s:host=%s;dbname=%s;port=%s;charset=utf8',
+			'%s:host=%s;dbname=%s;port=%s' . $charsetOption,
 			$dbType, $dbHost, $dbName, $dbPort,
 		);
 	}

@@ -12,6 +12,7 @@ enum Conditions: string
 	case HIGH = '>';
 	case HIGH_EQ = '>=';
 	case LIKE = 'LIKE';
+	case LIKE_PGSQL = 'ILIKE';
 	case IN = 'IN';
 
 	/**
@@ -22,6 +23,12 @@ enum Conditions: string
 	{
 		if (is_string($operation)) {
 			$condition = self::tryFrom(trim($operation));
+		}
+
+		if (isset($condition) && $_ENV['DB_TYPE'] === 'pgsql') {
+			if ($condition == self::LIKE) {
+				$condition = self::LIKE_PGSQL;
+			}
 		}
 
 		return $condition?->value ?? throw new OperationNotFoundException($operation);

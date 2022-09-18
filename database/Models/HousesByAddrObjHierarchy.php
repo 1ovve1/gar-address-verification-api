@@ -43,28 +43,30 @@ class HousesByAddrObjHierarchy extends QueryBuilder implements MigrateAble
 
 	function checkIfMapNotExist(int $region, int $parent, int $chiled): bool
 	{
+		if ($this->userStates['checkIfMapNotExist']->execute([$region, $parent, $chiled])->isNotEmpty()) {
+			return false;
+		}
 		if ($this->forceInsertTemplate instanceof InsertBuffer) {
 			if ($this->forceInsertTemplate->checkIfRecordInBufferExist([$parent, $chiled, $region])) {
 				return false;
 			}
 		}
 
-		return $this->userStates['checkIfMapNotExist']
-			->execute([$region, $parent, $chiled])
-			->isEmpty();
+		return true;
 	}
 
 	function checkIfChiledNotExist(int $region, int $chiled): bool
 	{
+		if ($this->userStates['checkIfChiledNotExist']->execute([$region, $chiled])->isNotEmpty()) {
+			return false;
+		}
 		if ($this->forceInsertTemplate instanceof InsertBuffer) {
 			if ($this->forceInsertTemplate->checkValueInBufferExist($chiled, 'chiledobjid_houses')) {
 				return false;
 			}
 		}
 
-		return $this->userStates['checkIfChiledNotExist']
-			->execute([$region, $chiled])
-			->isEmpty();
+		return true;
 	}
 
 	/**

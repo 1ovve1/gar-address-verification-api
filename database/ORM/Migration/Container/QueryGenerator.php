@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DB\ORM\Migration\Container;
 
+use DB\Exceptions\Unchecked\BadQueryResultException;
 use DB\ORM\QueryBuilder\QueryBuilder;
 
 /**
@@ -56,10 +57,15 @@ class QueryGenerator implements QueryFactory
      */
     public static function genShowTableQuery(): Query
     {
+		$query = match ($_ENV['DB_TYPE']) {
+			'mysql' => 'SHOW TABLES',
+			'pgsql' => "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;",
+			default => throw new BadQueryResultException("Unknown db type '{$_ENV['DB_TYPE']}'")
+		};
         return (new QueryObject())
-      ->setType(QueryTypes::META)
-      ->setRawSql('SHOW TABLES')
-      ->validate(fn () => true);
+	      ->setType(QueryTypes::META)
+	      ->setRawSql($query)
+	      ->validate(fn () => true);
     }
 
 	/**
@@ -137,6 +143,15 @@ class QueryGenerator implements QueryFactory
 		$result = '';
 
 		foreach ($params as $index => $param) {
+			switch ($_ENV['DB_TYPE']) {
+				case 'mysql':
+					$param = str_replace('SMALLINT', 'TINYINT', $param);
+					break;
+				case 'pgsql':
+					$param = str_replace('TINYINT', 'SMALLINT', $param);
+					$param = str_replace('UNSIGNED', '', $param);
+					break;
+			}
 			$result .= sprintf(
 				'%s %s, ',
 				$index,

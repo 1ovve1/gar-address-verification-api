@@ -357,6 +357,7 @@ class Database extends QueryBuilder
 			$objectId
 		)->andWhere(
 			['params' => 'type'],
+			'LIKE',
 			$type
 		)->limit(1)->save();
 

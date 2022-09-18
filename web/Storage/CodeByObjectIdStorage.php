@@ -52,7 +52,7 @@ class CodeByObjectIdStorage extends BaseStorage
 		$data = $this->db->findAddrObjParamByObjectIdAndType($objectId, $type);
 		$result = [];
 
-		if ($data->isNotEmpty()) {
+	    if ($data->isNotEmpty()) {
 			$fetchData = $data->fetchAllAssoc();
 
 			foreach ($fetchData as $dataElem) {
