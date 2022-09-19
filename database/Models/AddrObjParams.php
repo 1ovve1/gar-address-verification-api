@@ -39,7 +39,7 @@ class AddrObjParams extends QueryBuilder implements MigrateAble
 	{
 		return [
 			'fields' => [
-				'objectid_addr'     => 'BIGINT UNSIGNED NOT NULL',
+				'objectid_addr'     => 'INT UNSIGNED NOT NULL',
 				'type'              => 'CHAR(5) NOT NULL',
 				'value'             => 'CHAR(31) NOT NULL',
 				'region'            => 'TINYINT UNSIGNED NOT NULL',

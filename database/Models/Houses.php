@@ -45,7 +45,7 @@ class Houses extends QueryBuilder implements MigrateAble
 		return [
 			'fields' => [
 //				'id'            => 'INT UNSIGNED NOT NULL',
-				'objectid'      => 'BIGINT UNSIGNED NOT NULL PRIMARY KEY',
+				'objectid'      => 'INT UNSIGNED NOT NULL PRIMARY KEY',
 //				'objectguid'    => 'VARCHAR(36) NOT NULL',
 				'housenum'      => 'VARCHAR(50)',
 				'addnum1'       => 'VARCHAR(50)',

@@ -76,8 +76,8 @@ class HousesByAddrObjHierarchy extends QueryBuilder implements MigrateAble
 	{
 		return [
 			'fields' => [
-				'parentobjid_addr' => "BIGINT UNSIGNED NOT NULL",
-				'chiledobjid_houses' => "BIGINT UNSIGNED NOT NULL PRIMARY KEY",
+				'parentobjid_addr'      => "INT UNSIGNED NOT NULL",
+				'chiledobjid_houses'    => "INT UNSIGNED NOT NULL PRIMARY KEY",
 				'region'        => 'TINYINT UNSIGNED NOT NULL',
 			],
 			'foreign' => [

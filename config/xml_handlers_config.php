@@ -12,6 +12,6 @@ return [
 		\CLI\XMLParser\Files\ByRegions\AS_HOUSES::class,
 		\CLI\XMLParser\Files\ByRegions\AS_ADDR_OBJ_PARAMS::class,
 		\CLI\XMLParser\Files\ByRegions\AS_MUN_HIERARCHY::class,
-//		\CLI\XMLParser\Files\ByRegions\AS_ADM_HIERARCHY::class
+		\CLI\XMLParser\Files\ByRegions\AS_ADM_HIERARCHY::class
 	],
 ];

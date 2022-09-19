@@ -183,7 +183,7 @@ class AddressNameTest extends BaseTestSetup
 
     public function testAddressNotFound(): void
     {
-	    $param = 'Пушкино,Колотушкино';
+	    $param = 'Пушкиноыы,Колотушкино';
 	    $paramWithProp = 'address=' . $param;
 	    $response = $this->runApp('GET', '/address', $paramWithProp);
 
