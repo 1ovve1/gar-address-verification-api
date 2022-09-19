@@ -2,7 +2,6 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\NestedCondition;
 
-use DB\ORM\QueryBuilder\Templates\SQL;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
 class ImplNestedConditionAnd extends NestedContinueConditionQuery
@@ -20,7 +19,6 @@ class ImplNestedConditionAnd extends NestedContinueConditionQuery
 	{
 		parent::__construct(
 			$this::createQueryBox(
-				template: SQL::WHERE_AND,
 				clearArgs: [$field, $sign],
 				dryArgs: [$value],
 				parentBox: $parent->getQueryBox()

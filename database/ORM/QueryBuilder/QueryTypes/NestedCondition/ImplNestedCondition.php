@@ -2,7 +2,6 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\NestedCondition;
 
-use DB\ORM\QueryBuilder\Templates\SQL;
 
 class ImplNestedCondition extends NestedConditionQuery
 {
@@ -18,7 +17,6 @@ class ImplNestedCondition extends NestedConditionQuery
 	{
 		parent::__construct(
 			$this::createQueryBox(
-				template: SQL::CONDITION,
 				clearArgs: [$field, $sign],
 				dryArgs: [$value],
 			)

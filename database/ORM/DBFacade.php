@@ -2,11 +2,10 @@
 
 namespace DB\ORM;
 
-use DB\Exceptions\Unchecked\OperationNotFoundException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\PDO\PDOObject;
-use DB\ORM\QueryBuilder\Templates\Conditions;
-use DB\ORM\QueryBuilder\Templates\SQL;
+use DB\ORM\QueryBuilder\Templates\DBResolver;
+use DB\ORM\QueryBuilder\Templates\MySQL\Conditions;
 use RuntimeException;
 
 /**
@@ -114,7 +113,7 @@ class DBFacade
 			if (is_array($fields)) {
 				if (is_string($pseudonym)) {
 					foreach ($fields as $f) {
-						$strBuffer .= $pseudonym . SQL::PSEUDONYMS_FIELDS->value . $f . ", ";
+						$strBuffer .= $pseudonym . DBResolver::fmtPseudoFields() . $f . ", ";
 					}
 					$strBuffer = substr($strBuffer, 0, -2);
 				} else {
@@ -125,7 +124,7 @@ class DBFacade
 
 			} else {
 				if (is_string($pseudonym)) {
-					$strBuffer = $pseudonym . SQL::PSEUDONYMS_FIELDS->value . $fields;
+					$strBuffer = $pseudonym . DBResolver::fmtPseudoFields() . $fields;
 				} else {
 					$strBuffer = $fields;
 				}
@@ -148,7 +147,7 @@ class DBFacade
 
 			if (is_string($tableName)) {
 				if (is_string($pseudonym)) {
-					$strBuffer .= $tableName . SQL::PSEUDONYMS_TABLES->value . $pseudonym . ", ";
+					$strBuffer .= $tableName . DBResolver::fmtPseudoTables() . $pseudonym . ", ";
 
 				} else {
 					$strBuffer .= $tableName . ", ";
@@ -179,7 +178,7 @@ class DBFacade
 			if (count($field) === 1) {
 				$field = DBFacade::fieldsWithPseudonymsToString($field);
 			} else {
-				DBFacade::dumpException(null, 'Count of elements in where statement should be 1', func_get_args());
+				throw new RuntimeException('You can use WHERE state only with single field element');
 			}
 		}
 
@@ -189,11 +188,11 @@ class DBFacade
 				$sign = $sign_or_value;
 				$value = null;
 			} else {
-				$sign = Conditions::EQ->value;
+				$sign = DBResolver::cond('=');
 				$value = $sign_or_value;
 			}
 		} else {
-			$sign = Conditions::tryFind($sign_or_value);
+			$sign = DBResolver::cond((string)$sign_or_value);
 		}
 
 		return ['field' => $field, 'sign' => $sign, 'value' => $value];
@@ -216,7 +215,7 @@ class DBFacade
 	public static function joinArgsHandler(array|string $tableName, array $condition): array
 	{
 		if (is_array($tableName)) {
-			$tableName = current($tableName) . SQL::PSEUDONYMS_TABLES->value . key($tableName);
+			$tableName = current($tableName) . DBResolver::fmtPseudoTables() . key($tableName);
 		}
 		$condition = match (count($condition)) {
 			1 => [key($condition), current($condition)],
@@ -242,7 +241,7 @@ class DBFacade
 		foreach ($conditionWithPseudonym as $pseudonym => $field) {
 
 			if (is_string($pseudonym)) {
-				$converted[] = $pseudonym . SQL::PSEUDONYMS_FIELDS->value . $field;
+				$converted[] = $pseudonym . DBResolver::fmtPseudoFields() . $field;
 			} else {
 				$converted[] = $field;
 			}

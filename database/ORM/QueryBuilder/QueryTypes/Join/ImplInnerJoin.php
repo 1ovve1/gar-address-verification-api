@@ -2,7 +2,6 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Join;
 
-use DB\ORM\QueryBuilder\Templates\SQL;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
 class ImplInnerJoin extends JoinQuery
@@ -14,7 +13,6 @@ class ImplInnerJoin extends JoinQuery
 	{
 		parent::__construct(
 			$this::createQueryBox(
-				template: SQL::INNER_JOIN,
 				clearArgs: [$joinTable, $leftField, $rightField],
 				dryArgs: [], parentBox: $parent->getQueryBox()
 			)

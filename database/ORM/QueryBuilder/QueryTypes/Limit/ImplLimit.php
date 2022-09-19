@@ -2,7 +2,6 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Limit;
 
-use DB\ORM\QueryBuilder\Templates\SQL;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
 class ImplLimit extends LimitQuery
@@ -11,7 +10,6 @@ class ImplLimit extends LimitQuery
 	{
 		parent::__construct(
 			$this->createQueryBox(
-				template: SQL::LIMIT,
 				clearArgs: [$count],
 				parentBox: $parent->getQueryBox()
 			)

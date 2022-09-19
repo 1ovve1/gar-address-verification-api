@@ -2,7 +2,6 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Where;
 
-use DB\ORM\QueryBuilder\Templates\SQL;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
 class ImplWhere extends WhereQuery
@@ -20,7 +19,6 @@ class ImplWhere extends WhereQuery
 	{
 		parent::__construct(
 			$this::createQueryBox(
-				template: SQL::WHERE,
 				clearArgs: [$field, $sign],
 				dryArgs: [$value],
 				parentBox: $parent->getQueryBox()

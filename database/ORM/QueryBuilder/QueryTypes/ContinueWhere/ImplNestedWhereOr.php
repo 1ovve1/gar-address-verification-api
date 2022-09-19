@@ -2,10 +2,9 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\ContinueWhere;
 
-use DB\ORM\DBFacade;
+use DB\Exceptions\Unchecked\BadQueryBuilderCallbackReturnExcpetion;
 use DB\ORM\QueryBuilder\QueryTypes\NestedCondition\ClientNestedCondition;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
-use DB\ORM\QueryBuilder\Templates\SQL;
 
 class ImplNestedWhereOr extends ContinueWhereQuery
 {
@@ -13,13 +12,12 @@ class ImplNestedWhereOr extends ContinueWhereQuery
 	{
 		$record = $callback(new ClientNestedCondition());
 		if (!($record instanceof ActiveRecord)) {
-			DBFacade::dumpException($this, 'Callback should return ActiveRecord implement!', func_get_args());
+			throw new BadQueryBuilderCallbackReturnExcpetion($record);
 		}
 
 		$callbackQueryBox = $record->getQueryBox();
 		parent::__construct(
 			$this->createQueryBox(
-				template: SQL::WHERE_NESTED_OR,
 				clearArgs: [trim($callbackQueryBox->getQuerySnapshot())],
 				dryArgs: $callbackQueryBox->getDryArgs(),
 				parentBox: $parent->getQueryBox()

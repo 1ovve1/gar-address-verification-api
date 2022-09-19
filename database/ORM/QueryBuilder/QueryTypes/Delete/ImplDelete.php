@@ -2,7 +2,6 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Delete;
 
-use DB\ORM\QueryBuilder\Templates\SQL;
 
 class ImplDelete extends DeleteQuery
 {
@@ -10,7 +9,6 @@ class ImplDelete extends DeleteQuery
 	{
 		parent::__construct(
 			$this::createQueryBox(
-				template: SQL::DELETE,
 				clearArgs: [$tableName]
 			)
 		);

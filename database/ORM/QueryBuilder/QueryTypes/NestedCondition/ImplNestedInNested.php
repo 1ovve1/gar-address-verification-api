@@ -2,8 +2,7 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\NestedCondition;
 
-use DB\ORM\DBFacade;
-use DB\ORM\QueryBuilder\Templates\SQL;
+use DB\Exceptions\Unchecked\BadQueryBuilderCallbackReturnExcpetion;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
 class ImplNestedInNested extends NestedConditionQuery
@@ -12,13 +11,12 @@ class ImplNestedInNested extends NestedConditionQuery
 	{
 		$record = $callback(new ClientNestedCondition());
 		if (!($record instanceof ActiveRecord)) {
-			DBFacade::dumpException($this, 'Callback should return ActiveRecord implement!', func_get_args());
+			throw new BadQueryBuilderCallbackReturnExcpetion($record);
 		}
 
 		$callbackQueryBox = $record->getQueryBox();
 		parent::__construct(
 			$this->createQueryBox(
-				template: SQL::NESTED_CONDITION,
 				clearArgs: [trim($callbackQueryBox->getQuerySnapshot())],
 				dryArgs: $callbackQueryBox->getDryArgs()
 			)

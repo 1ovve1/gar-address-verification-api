@@ -5,7 +5,7 @@ namespace DB\ORM\QueryBuilder\ActiveRecord;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;
-use DB\ORM\QueryBuilder\Templates\SQL;
+use DB\ORM\QueryBuilder\Templates\DBResolver;
 
 abstract class ActiveRecordImpl implements ActiveRecord
 {
@@ -58,17 +58,17 @@ abstract class ActiveRecordImpl implements ActiveRecord
 	}
 
 	/**
-	 * @param SQL $template
 	 * @param array<string|int> $clearArgs
 	 * @param array<DatabaseContract> $dryArgs
 	 * @param QueryBox|null $parentBox
 	 * @return QueryBox
 	 */
-	protected static function createQueryBox(SQL       $template,
-	                                         array     $clearArgs = [],
+	protected static function createQueryBox(array     $clearArgs = [],
 	                                         array     $dryArgs = [],
 	                                         ?QueryBox $parentBox = null): QueryBox
 	{
+		$template = DBResolver::sql(static::class);
+
 		return new QueryBox($template, $clearArgs, $dryArgs, $parentBox);
 	}
 }

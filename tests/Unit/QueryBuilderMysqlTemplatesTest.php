@@ -3,15 +3,12 @@
 namespace Tests\Unit;
 
 use DB\ORM\QueryBuilder\QueryBuilder;
-use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\QueryTypes\NestedCondition\ClientNestedCondition;
-use DB\ORM\QueryBuilder\QueryTypes\NestedCondition\NestedConditionAble;
-use DB\ORM\QueryBuilder\Templates\SQL;
-use GAR\Database\Table\SQLClosureBuilder;
+use DB\ORM\QueryBuilder\Templates\DBResolver;
 use PHPUnit\Framework\TestCase;
 
 defined('SEPARATOR') ?:
-	define('SEPARATOR', SQL::SEPARATOR->value);
+	define('SEPARATOR', DBResolver::fmtSep());
 
 class AddrObj extends QueryBuilder {}
 

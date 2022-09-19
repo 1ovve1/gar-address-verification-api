@@ -2,7 +2,6 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Join;
 
-use DB\ORM\QueryBuilder\Templates\SQL;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
 class ImplRightJoin extends JoinQuery
@@ -14,7 +13,6 @@ class ImplRightJoin extends JoinQuery
 	{
 		parent::__construct(
 			$this::createQueryBox(
-				template: SQL::RIGHT_JOIN,
 				clearArgs: [$joinTable, $leftField, $rightField],
 				dryArgs: [], parentBox: $parent->getQueryBox()
 			)

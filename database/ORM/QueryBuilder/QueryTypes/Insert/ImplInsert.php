@@ -3,7 +3,6 @@
 namespace DB\ORM\QueryBuilder\QueryTypes\Insert;
 
 use DB\ORM\DBFacade;
-use DB\ORM\QueryBuilder\Templates\SQL;
 
 
 class ImplInsert extends InsertQuery
@@ -20,7 +19,7 @@ class ImplInsert extends InsertQuery
 
 		parent::__construct(
 			$this::createQueryBox(
-				template: SQL::INSERT, clearArgs: [$tableName, $fieldsStr, $varsTemplate],
+				clearArgs: [$tableName, $fieldsStr, $varsTemplate],
 				dryArgs: $values
 			)
 		);
