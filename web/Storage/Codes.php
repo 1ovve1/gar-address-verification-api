@@ -11,22 +11,22 @@ use GAR\Exceptions\Unchecked\CodeTypeNotFoundException;
  */
 enum Codes : string
 {
-    case OKATO = 'okato';
-    case OKTMO = 'oktmo';
-    case KLADR = 'kladr';
-    case ALL = 'all';
+    case OKATO = 'OKATO';
+    case OKTMO = 'OKTMO';
+    case KLADR = 'KLADR';
+    case ALL = 'ALL';
 
 	/**
 	 * @param string $type
-	 * @return string
+	 * @return  Codes
 	 * @throws CodeTypeNotFoundException - if code type not found
 	 */
-	static function tryFindWithException(string $type): string
+	static function tryFindWithException(string $type): self
 	{
-		$try = self::tryFrom($type);
+		$try = self::tryFrom(strtoupper($type));
 		if (null === $try) {
 			throw new CodeTypeNotFoundException($type, self::cases());
 		}
-		return $type;
+		return $try;
 	}
 }

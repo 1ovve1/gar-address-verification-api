@@ -16,27 +16,31 @@ class CodeMiddleware
 {
     public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
     {
-        $args = RouteContext::fromRequest($request)->getRoute()->getArguments();
-
-		try {
-			$type = Codes::tryFindWithException($args['type']);
-		} catch (CodeTypeNotFoundException $e) {
-			return RequestHelper::errorResponse($e->getMessage(), ResponseCodes::PRECONDITION_FAILED_412);
-		}
-
+        ['type' => $typeStr, 'region' => $region]
+	        = RouteContext::fromRequest($request)->getRoute()->getArguments();
         $params = $request->getQueryParams();
         $formattedAddress = null;
         $objectId = null;
 
+		// try find code from enum-contract
+	    try {
+		    $type = Codes::tryFindWithException($typeStr);
+	    } catch (CodeTypeNotFoundException $e) {
+		    return RequestHelper::errorResponse($e->getMessage(), ResponseCodes::PRECONDITION_FAILED_412);
+	    }
+
+		// check if params given
         if (!key_exists('address', $params)) {
             if (!key_exists('objectid', $params)) {
                 return RequestHelper::errorResponse("require 'address' or 'objectid' param", ResponseCodes::PRECONDITION_FAILED_412);
             }
         }
 
+		// if given objectid - we take it
         if (key_exists('objectid', $params)) {
             $objectId = (int)$params['objectid'];
         } else {
+			// if given address - we validate address
 	        try {
 		        $formattedAddress = Validation::validateUserAddress($params['address']);
 	        } catch (AddressValidationException $e) {
@@ -44,10 +48,13 @@ class CodeMiddleware
 	        }
         }
 
+		// given args to controller
 		$response = $handler->handle(
 			$request->withQueryParams([
 				'address' => $formattedAddress,
 				'objectid' => $objectId,
+				'type' => $type,
+				'region' => (int)$region
 			])
 		);
 

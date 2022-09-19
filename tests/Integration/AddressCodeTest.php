@@ -8,11 +8,13 @@ use GAR\Helpers\ResponseCodes;
 
 class AddressCodeTest extends BaseTestSetup
 {
+	const REGION = '8';
+	
     public function testAllCodesByName(): void
     {
 	    $param = 'калм,лаган,кр,кра,школьная';
 	    $paramWithProp = 'address=' . $param;
-	    $response = $this->runApp('GET', '/code/all', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/all', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
@@ -25,7 +27,7 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = '109874';
 	    $paramWithProp = 'objectid=' . $param;
-	    $response = $this->runApp('GET', '/code/all', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/all', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
@@ -38,7 +40,7 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = 'калм,лаган,кр,кра,школьная';
 	    $paramWithProp = 'address=' . $param;
-	    $response = $this->runApp('GET', '/code/okato', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/okato', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
@@ -52,7 +54,7 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = '109874';
 	    $paramWithProp = 'objectid=' . $param;
-	    $response = $this->runApp('GET', '/code/okato', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/okato', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
@@ -66,7 +68,7 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = 'калм,лаган,кр,кра,школьная';
 	    $paramWithProp = 'address=' . $param;
-	    $response = $this->runApp('GET', '/code/oktmo', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/oktmo', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
@@ -80,7 +82,7 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = '109874';
 	    $paramWithProp = 'objectid=' . $param;
-	    $response = $this->runApp('GET', '/code/oktmo', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/oktmo', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
@@ -94,7 +96,7 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = 'калм,лаган,кр,кра,школьная';
 	    $paramWithProp = 'address=' . $param;
-	    $response = $this->runApp('GET', '/code/kladr', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/kladr', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
@@ -108,7 +110,7 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = '109874';
 	    $paramWithProp = 'objectid=' . $param;
-	    $response = $this->runApp('GET', '/code/kladr', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/kladr', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
@@ -122,7 +124,7 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = 'Пушкино,Колотушкино';
 	    $paramWithProp = 'address=' . $param;
-	    $response = $this->runApp('GET', '/code/kladr', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/kladr', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
@@ -136,7 +138,7 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = '0';
 	    $paramWithProp = 'objectid=' . $param;
-	    $response = $this->runApp('GET', '/code/kladr', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/kladr', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
@@ -150,7 +152,7 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = 'asdas';
 	    $paramWithProp = 'sdsdsd=' . $param;
-	    $response = $this->runApp('GET', '/code/kladr', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/kladr', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
