@@ -37,10 +37,9 @@ abstract class InsertBuffer
 
 	    $this->bufferCursor = 0;
 	    $this->bufferSize = $groupInsertCount;
-		foreach ($tableFields as $field) {
-			for ($iter = 0; $iter < $groupInsertCount; ++$iter) {
-				$this->buffer[$field][$iter] = null;
-			}
+
+		foreach ($tableFields as $columnName) {
+			$this->buffer[$columnName] = [];
 		}
     }
 
@@ -121,6 +120,21 @@ abstract class InsertBuffer
     {
         return $this->bufferCursor !== 0;
     }
+
+	protected function bufferReshape(): void
+	{
+		$newBuffer = [];
+		$oldBuffer = $this->getBuffer();
+		$currCursorCount = $this->getCurrentBufferCursor();
+
+		for ($iter = 0; $iter < $currCursorCount; ++$iter) {
+			foreach ($oldBuffer as $column => $columnValues) {
+				$newBuffer[$column][$iter] = $columnValues[$iter];
+			}
+		}
+
+		$this->buffer = $newBuffer;
+	}
 
     /**
      * Return table fields in current template

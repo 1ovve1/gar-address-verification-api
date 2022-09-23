@@ -6,7 +6,7 @@ namespace DB\ORM\DBAdapter\PDO;
 
 use DB\Exceptions\Unchecked\BadQueryResultException;
 use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
-use DB\ORM\DBAdapter\{DBAdapter, QueryResult, QueryTemplate};
+use DB\ORM\DBAdapter\{DBAdapter, QueryResult, QueryTemplate, QueryTemplateBindAble};
 use DB\ORM\Migration\Container\Query;
 use PDO;
 use PDOException;
@@ -105,7 +105,7 @@ class PDOObject implements DBAdapter
 	/**
 	 * {@inheritDoc}
 	 */
-    public function prepare(string $template): QueryTemplate
+    public function prepare(string $template): QueryTemplateBindAble
     {
         $template = $this->instance->prepare($template);
 

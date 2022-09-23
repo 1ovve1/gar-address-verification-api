@@ -6,7 +6,8 @@ namespace DB\ORM\DBAdapter\PDO;
 use DB\Exceptions\Checked\NullableQueryResultException;
 use DB\Exceptions\Checked\QueryTemplateNotFoundException;
 use DB\Exceptions\Unchecked\BadQueryResultException;
-use DB\ORM\DBAdapter\{DBAdapter, InsertBuffer, QueryResult, QueryTemplate};
+use DB\Exceptions\Unchecked\IncorrectBufferInputException;
+use DB\ORM\DBAdapter\{DBAdapter, InsertBuffer, QueryResult, QueryTemplate, QueryTemplateBindAble};
 
 /**
  * Lazy Insert SQL object Using PDO
@@ -24,7 +25,7 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 {
     /** @var DBAdapter - curr database connection */
     private readonly DBAdapter $db;
-    /** @var array<QueryTemplate> $states - prepared insert statements */
+    /** @var array<QueryTemplateBindAble> $states - prepared insert statements */
     private array $states = [];
 
 	/**
@@ -66,6 +67,10 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 	 */
     public function exec(?array $values = null): QueryResult
     {
+		if (empty($values)) {
+			throw new IncorrectBufferInputException($this->getTableFieldsCount(), $values);
+		}
+
 		$this->setBuffer($values);
 
         if ($this->isBufferFull()) {
@@ -103,10 +108,10 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 
 	/**
 	 * Return state using cursor value
-	 * @return QueryTemplate
+	 * @return QueryTemplateBindAble
 	 * @throws QueryTemplateNotFoundException
 	 */
-    public function getState(): QueryTemplate
+    public function getState(): QueryTemplateBindAble
     {
         $currentBufferCursor = $this->getCurrentBufferCursor();
         if (!array_key_exists($currentBufferCursor, $this->states)) {
@@ -116,9 +121,9 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
     }
 
     /**
-     * @return QueryTemplate
+     * @return QueryTemplateBindAble
      */
-    public function createNewStateWithCurrentGroupNumber(): QueryTemplate
+    public function createNewStateWithCurrentGroupNumber(): QueryTemplateBindAble
     {
         $newStrTemplate = $this->genNewTemplate();
         return $this->setState($newStrTemplate);
@@ -126,37 +131,20 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 
     /**
      * @param string $newTemplate
-     * @return QueryTemplate - new template that was created
+     * @return QueryTemplateBindAble - new template that was created
      */
-    private function setState(string $newTemplate): QueryTemplate
+    private function setState(string $newTemplate): QueryTemplateBindAble
     {
       $newTemplate = $this->db->prepare($newTemplate);
-	  // danger things here...
-	  if (is_a($newTemplate, PDOTemplate::class)) {
 
-		  $bufferColumnFlip = array_flip($this->getTableFields());
-		  $currentCursor = $this->getCurrentBufferCursor();
-		  $offset = $this->getTableFieldsCount();
-		  foreach ($this->buffer as $columnName => &$columnValue) {
-			  $columnIndex = $bufferColumnFlip[$columnName];
-			  foreach ($columnValue as $rowIndex => &$rowValue) {
-				  if ($rowIndex >= $currentCursor) {
-					  break;
-				  }
-
-				  $bindRes = $newTemplate->template->bindParam($columnIndex + ($rowIndex * $offset) + 1, $rowValue);
-				  if (false === $bindRes) {
-					  throw new BadQueryResultException("bad try to allocate param by buffer[{$columnIndex}][{$rowIndex}] reference");
-				  }
-			  }
-		  }
-
-	  } else {
-		  throw new BadQueryResultException("incompatible type: PDOForceInsert implements should be used with PDOTemplate implement");
-	  }
+	  $this->bufferReshape();
+	  $newTemplate->bindParams(
+		  $this->buffer, true
+	  );
 
 	  $this->states[$this->getCurrentBufferCursor()] = $newTemplate;
 
       return $newTemplate;
     }
+
 }

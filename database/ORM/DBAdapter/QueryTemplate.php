@@ -1,12 +1,7 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace DB\ORM\DBAdapter;
 
-/**
- * Common query template interface for prepared statements
- */
 interface QueryTemplate
 {
 	/**
@@ -15,12 +10,12 @@ interface QueryTemplate
 	 * @param ?array<int|string, DatabaseContract> $values - values to execute
 	 * @return QueryResult
 	 */
-    public function exec(?array $values = null): QueryResult;
+	public function exec(?array $values = null): QueryResult;
 
-    /**
-     * Accept changes in template (use for lazy insert)
-     *
-     * @return QueryResult
-     */
-    public function save(): QueryResult;
+	/**
+	 * Accept changes in template (use for lazy insert)
+	 *
+	 * @return QueryResult
+	 */
+	public function save(): QueryResult;
 }

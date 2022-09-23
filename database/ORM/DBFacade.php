@@ -2,10 +2,10 @@
 
 namespace DB\ORM;
 
+use DB\Exceptions\Unchecked\DriverImplementationNotFoundException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\PDO\PDOObject;
 use DB\ORM\QueryBuilder\Templates\DBResolver;
-use DB\ORM\QueryBuilder\Templates\MySQL\Conditions;
 use RuntimeException;
 
 /**
@@ -184,10 +184,10 @@ class DBFacade
 
 		// now we try to make our 'where' by different params
 		if (null === $value) {
-			if (is_string($sign_or_value) && Conditions::tryFrom($sign_or_value)) {
-				$sign = $sign_or_value;
+			try {
+				$sign = DBResolver::cond($sign_or_value);
 				$value = null;
-			} else {
+			} catch (\Throwable) {
 				$sign = DBResolver::cond('=');
 				$value = $sign_or_value;
 			}

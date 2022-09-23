@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace DB\ORM\DBAdapter\PDO;
 
 use DB\Exceptions\Unchecked\BadQueryResultException;
-use DB\ORM\DBAdapter\{QueryResult, QueryTemplate};
+use DB\ORM\DBAdapter\{QueryResult, QueryTemplateBindAble};
 use PDOException;
 use PDOStatement;
 
 /**
  * Simple PDOTemplate container
  */
-class PDOTemplate implements QueryTemplate
+class PDOTemplate implements QueryTemplateBindAble
 {
     /**
      * @var PDOStatement - prepared stage object
@@ -50,4 +50,69 @@ class PDOTemplate implements QueryTemplate
     {
 		return $this->exec();
     }
+
+	/**
+	 * @inheritDoc
+	 */
+	public function bindParams(array &$params = [], bool $columnMod = false): QueryTemplateBindAble
+	{
+		if (false === $columnMod) {
+			$this->bindParamsManual($params);
+		} else {
+			$this->bindParamsByColumn($params);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @param array<DatabaseContract> $params
+	 * @return void
+	 */
+	private function bindParamsManual(array &$params): void
+	{
+		$keyFlip = array_flip(array_keys($params));
+
+		foreach ($params as $key => &$value) {
+			$index = $keyFlip[$key];
+
+			$this->template->bindParam($index + 1, $value);
+		}
+	}
+
+	/**
+	 * @param array<string, array<DatabaseContract>> $params
+	 * @return void
+	 */
+	private function bindParamsByColumn(array &$params): void
+	{
+		$columnsFlip = array_flip(array_keys($params));
+		$columnsCount = count($params);
+
+		foreach ($params as $column => &$columnValue) {
+			$columnIndex = $columnsFlip[$column];
+
+			foreach ($columnValue as $rowIndex => &$rowValue) {
+				$bindRes = $this->template->bindParam($columnIndex + ($rowIndex * $columnsCount) + 1, $rowValue);
+
+				if (false === $bindRes) {
+					throw new BadQueryResultException("bad try to allocate param by buffer[{$columnIndex}][{$rowIndex}] reference");
+				}
+			}
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function bindValues(array $values = []): QueryTemplateBindAble
+	{
+		foreach ($values as $index => $value) {
+			$this->template->bindValue($index + 1, $value);
+		}
+
+		return $this;
+	}
+
+
 }
