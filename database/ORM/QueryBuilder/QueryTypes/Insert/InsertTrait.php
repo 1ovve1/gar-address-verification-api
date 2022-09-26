@@ -2,8 +2,8 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Insert;
 
-use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\QueryBuilder;
+use RuntimeException;
 
 trait InsertTrait
 {
@@ -26,15 +26,12 @@ trait InsertTrait
 	 */
 	private static function prepareArgsIntoFieldsAndValues(array $fields_values) : array
 	{
-		$fields = [];
-		$values = [];
-
 		if (is_string(key($fields_values))) {
 			$fields = array_keys($fields_values);
 			$values = self::normalizeValues(array_values($fields_values));
 
 		} else {
-			DBFacade::dumpException(null, 'Incorrect contract', func_get_args());
+			throw new RuntimeException('field values should have a string keys');
 		}
 
 		return ['fields' => $fields, 'values' => $values];

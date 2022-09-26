@@ -4,6 +4,7 @@ namespace DB\Exceptions\Unchecked;
 
 use JetBrains\PhpStorm\Pure;
 use RuntimeException;
+use Throwable;
 
 class DriverImplementationNotFoundException extends RuntimeException
 {
@@ -12,12 +13,12 @@ class DriverImplementationNotFoundException extends RuntimeException
 	/**
 	 * @inheritDoc
 	 */
-	public function __construct(string $dbType, string $additional)
+	public function __construct(string $dbType, string $additional, ?Throwable $prev = null)
 	{
 		parent::__construct(sprintf(
 			self::MESSAGE_TEMPLATE,
 			$dbType, $additional
-		));
+		), previous: $prev);
 	}
 
 

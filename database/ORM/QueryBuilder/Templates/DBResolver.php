@@ -2,6 +2,7 @@
 
 namespace DB\ORM\QueryBuilder\Templates;
 
+use DB\Exceptions\Checked\ConditionNotFoundException;
 use DB\Exceptions\Unchecked\DriverImplementationNotFoundException;
 use DB\Exceptions\Unchecked\UnknownDBDriverException;
 
@@ -29,8 +30,8 @@ class DBResolver
 		$dbType = $_ENV["DB_TYPE"] ?? null;
 
 		$driver = match($dbType) {
-			'mysql' => require __DIR__ . '/MySQL/mysql_driver.php',
-			'pgsql' => require __DIR__ . '/PgSQL/pgsql_driver.php',
+			'mysql' => $_SERVER['config']('drivers/mysql_driver'),
+			'pgsql' => $_SERVER['config']('drivers/pgsql_driver'),
 			default => throw new UnknownDBDriverException($dbType)
 		};
 
@@ -86,12 +87,18 @@ class DBResolver
 			throw new DriverImplementationNotFoundException(self::$dbType, $implName);
 	}
 
+	/**
+	 * Check if condition exist in driver implementation
+	 * @param string $dryCond
+	 * @return string
+	 * @throws ConditionNotFoundException - if condition not exist
+	 */
 	public static function cond(string $dryCond): string
 	{
 		$cond = strtoupper(trim($dryCond));
 
 		return self::getDbConditions()[$cond] ??
-			throw new DriverImplementationNotFoundException(self::$dbType, $cond);
+			throw new ConditionNotFoundException(self::$dbType, $cond);
 	}
 
 	/**

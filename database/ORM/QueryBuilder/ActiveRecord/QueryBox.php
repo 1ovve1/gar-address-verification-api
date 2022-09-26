@@ -2,9 +2,7 @@
 
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
-use DB\ORM\DBFacade;
 use DB\ORM\QueryBuilder\Templates\DBResolver;
-use Throwable;
 
 /**
  * Query immutable box class
@@ -52,17 +50,10 @@ class QueryBox
 	private static function genPreparedQuery(string $template,
                                              array $clearArgs): string
 	{
-		$query = '';
-
-		try{
-			$query = vsprintf(
-				$template,
-				$clearArgs
-			);
-		}
-		catch(Throwable $error) {
-			DBFacade::dumpException($template, $error->getMessage(), $clearArgs);
-		}
+		$query = vsprintf(
+			$template,
+			$clearArgs
+		);
 
 		return $query . DBResolver::fmtSep();
 	}

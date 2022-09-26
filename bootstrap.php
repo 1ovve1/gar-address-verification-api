@@ -18,37 +18,32 @@ if (!defined('PHPUNIT_TEST_RUNTIME')) {
 	$basePath = __DIR__ . '/tests/';
 }
 
-// load env
-loadEnv($basePath, $envName);
-
-// check cli context
-if (!defined('SERVER_START')){
-	require_once __DIR__ . '/cli/cli_bootstrap.php';
+// prepare and read data from /.env file
+$dotenv = Dotenv::createImmutable($basePath, $envName);
+try{
+	$dotenv->load();
+} catch (\Dotenv\Exception\InvalidPathException $e) {
+	throw new RuntimeException("Name: '{$envName}'\nPath: '{$basePath}'\nMessage: '{$e->getMessage()}'", $e->getCode(), $e);
 }
 
-
-// some of func here
-
-/**
- * env load procedure
- * @param string $basePath - path to the env file
- * @param string $envName - name of env file ('.env' by default)
- * @return void
- */
-function loadEnv(string $basePath, string $envName = '.env'): void
-{
-	// prepare and read data from /.env file
-	$dotenv = Dotenv::createImmutable($basePath, $envName);
-	try{
-		$dotenv->load();
-	} catch (\Dotenv\Exception\InvalidPathException $e) {
-		throw new RuntimeException("Name: '{$envName}'\nPath: '{$basePath}'\nMessage: '{$e->getMessage()}'", $e->getCode(), $e);
-	}
-
-	// update some env values with __DIR__ prefix
-	foreach ($_ENV as $index => &$param) {
-		if (preg_match('/^.*_PATH$/', $index)) {
-			$param = __DIR__ . $param;
-		}
+// update some env values with __DIR__ prefix
+foreach ($_ENV as $index => &$param) {
+	if (preg_match('/^.*_PATH$/', $index)) {
+		$param = __DIR__ . $param;
 	}
 }
+
+// check config flooder existing
+if (!is_dir($_ENV['CONFIG_PATH'])) {
+	throw new \RuntimeException('Directory ' . $_ENV['CONFIG_PATH'] . ' was not found in the root of project' . PHP_EOL);
+}
+
+// and add flooder-loader to the server variable
+$_SERVER['config'] = function (string $filename) {
+	$path = $_ENV['CONFIG_PATH'] . "/{$filename}.php";
+	if (!file_exists($path)) {
+		throw new \RuntimeException('File ' . $path . ' was not found' . PHP_EOL);
+	}
+
+	return require($path);
+};

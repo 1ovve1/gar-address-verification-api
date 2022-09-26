@@ -54,7 +54,7 @@ class DBFacadeTest extends TestCase
     ];
 	const JOIN_ARGS_JUST_FIELDS = [ 'pseudonym1.field1', 'pseudonym2.field2' ];
 	const JOIN_ARGS_JUST_FIELDS_ASSOC = [ 'pseudonym1.field1' => 'pseudonym2.field2' ];
-	const JOIN_ARGS_RESULT = ['table as pseudonym1', self::JOIN_ARGS_JUST_FIELDS];
+	const JOIN_ARGS_RESULT = ['tableName' => 'table as pseudonym1', 'condition' => self::JOIN_ARGS_JUST_FIELDS];
 
 	function testJoinArgsHandler(): void
 	{

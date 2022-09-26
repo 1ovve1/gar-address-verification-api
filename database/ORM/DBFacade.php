@@ -2,6 +2,7 @@
 
 namespace DB\ORM;
 
+use DB\Exceptions\Checked\ConditionNotFoundException;
 use DB\Exceptions\Unchecked\DriverImplementationNotFoundException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\PDO\PDOObject;
@@ -153,11 +154,7 @@ class DBFacade
 					$strBuffer .= $tableName . ", ";
 				}
 			} else {
-				DBFacade::dumpException(
-					null,
-					'Incorrect tableName format (tableName should be a string - ' . gettype($tableName) . 'given',
-					func_get_args()
-				);
+				throw new RuntimeException('Incorrect tableName format (tableName should be a string - ' . gettype($tableName) . 'given');
 			}
 		}
 
@@ -182,17 +179,15 @@ class DBFacade
 			}
 		}
 
-		// now we try to make our 'where' by different params
-		if (null === $value) {
-			try {
-				$sign = DBResolver::cond($sign_or_value);
-				$value = null;
-			} catch (\Throwable) {
-				$sign = DBResolver::cond('=');
-				$value = $sign_or_value;
-			}
-		} else {
+		try {
 			$sign = DBResolver::cond((string)$sign_or_value);
+		} catch (ConditionNotFoundException) {
+			try {
+				$sign = DBResolver::cond('=');
+			} catch (ConditionNotFoundException $e) {
+				throw new DriverImplementationNotFoundException($e->dbType, $e->getMessage(), $e);
+			}
+			$value = $sign_or_value;
 		}
 
 		return ['field' => $field, 'sign' => $sign, 'value' => $value];
@@ -210,7 +205,7 @@ class DBFacade
 	 *      [ 'field1', 'field2' ]
 	 * 3. Just-fields notation with assoc
 	 *      [ 'field1' => 'field2' ]
-	 * @return array<int, string|array<int,string>> - pattern: ['tableMame', ['field1_with_or_without_pseudonym', 'field2_with_or_without_pseudonym']
+	 * @return array{tableName: string, condition: array<int, string>} - pattern: ['tableMame', ['field1_with_or_without_pseudonym', 'field2_with_or_without_pseudonym']
 	 */
 	public static function joinArgsHandler(array|string $tableName, array $condition): array
 	{
@@ -218,16 +213,16 @@ class DBFacade
 			$tableName = current($tableName) . DBResolver::fmtPseudoTables() . key($tableName);
 		}
 		$condition = match (count($condition)) {
-			1 => [key($condition), current($condition)],
+			1 => (is_string(key($condition)))
+				? [key($condition), current($condition)]
+				: throw new RuntimeException('Condition count are incorrect (use [field1 => field2] or [field1, field2] notation]'),
+
 			2 => self::convertFieldsWithPseudonym($condition),
-			default => DBFacade::dumpException(
-				null,
-				'Condition count are incorrect (use [field1 => field2] or [field1, field2] notation]',
-				func_get_args()
-			)
+
+			default => throw new RuntimeException('Condition count are incorrect (use [field1 => field2] or [field1, field2] notation]')
 		};
 
-		return [$tableName, $condition];
+		return ['tableName' => $tableName, 'condition' => $condition];
 	}
 
 	/**
@@ -248,26 +243,5 @@ class DBFacade
 		}
 
 		return $converted;
-	}
-
-	/**
-	 * Dump exception
-	 * @param mixed $item
-	 * @param string $message
-	 * @param array<int, mixed> $params
-	 * @return void
-	 */
-	public static function dumpException(mixed $item, string $message, array $params): void
-	{
-		if (!defined('SERVER_START')) {
-			echo 'Dump of current item...' . PHP_EOL;
-			echo '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<' . PHP_EOL;
-			var_dump($item);
-			echo 'Params:' . PHP_EOL;
-			var_dump($params);
-			echo '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' . PHP_EOL;
-		}
-
-		throw new RuntimeException($message);
 	}
 }
