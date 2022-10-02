@@ -12,9 +12,12 @@ use DB\Models\Database;
 class BaseStorage
 {
 	protected readonly Database $db;
+	protected int $regionContext;
+
 
     public function __construct()
     {
+		$this->regionContext = 1;
 		$this->db = Database::getInstance();
     }
 
@@ -26,4 +29,20 @@ class BaseStorage
     {
 		return $this->db;
     }
+
+	/**
+	 * @param int $region
+	 */
+	public function setRegionContext(int $region): void
+	{
+		$this->regionContext = $region;
+	}
+
+	/**
+	 * @return int $region
+	 */
+	public function getRegionContext(): int
+	{
+		return $this->regionContext;
+	}
 }

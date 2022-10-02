@@ -6,12 +6,12 @@ namespace CLI\XMLParser\Files\ByRegions;
 
 use DB\Models\Houses;
 use CLI\XMLParser\Files\XMLFile;
-use DB\ORM\QueryBuilder\QueryBuilder;
 
 class AS_HOUSES extends XMLFile
 {
 	/**
 	 * {@inheritDoc}
+	 * @return Houses
 	 */
 	public static function getTable(): Houses
 	{
@@ -20,8 +20,9 @@ class AS_HOUSES extends XMLFile
 
 	/**
 	 * @inheritDoc
+	 * @param Houses $table
 	 */
-	public static function callbackOperationWithTable(QueryBuilder $table): void
+	public static function callbackOperationWithTable(mixed $table): void
 	{
 		$table->saveForceInsert();
 	}
@@ -56,21 +57,26 @@ class AS_HOUSES extends XMLFile
 
 	/**
 	 * {@inheritDoc}
+	 * @param array{
+	 *     ISACTUAL: bool, ISACTIVE: bool,
+	 *     OBJECTID: int, HOUSENUM?: string,
+	 *     ADDNUM1?: string, ADDNUM2?: string,
+	 *     HOUSETYPE?: int, ADDTYPE1?: int,
+	 *     ADDTYPE2?: int} $values
+	 * @param Houses $table
 	 */
-    public function execDoWork(array &$values, mixed &$table): void
+    public function execDoWork(array $values, mixed $table): void
     {
         $region = $this->getIntRegion();
 
-        if ($table->getFirstObjectId($values['OBJECTID'], $region)->isEmpty()) {
+        if ($table->checkIfHousesObjNotExists($region, $values['OBJECTID'])) {
 
-            foreach ($this::getAttributes() as $attr => $ignore) {
-                $values[$attr] ?? $values[$attr] = null;
-            }
-            unset($values['ISACTUAL']); unset($values['ISACTIVE']);
-
-            $values['REGION'] = $region;
-
-            $table->forceInsert($values);
+            $table->forceInsert([
+				$values['OBJECTID'], $values['HOUSENUM'] ?? null,
+	            $values['ADDNUM1'] ?? null, $values['ADDNUM2'] ?? null,
+	            $values['HOUSETYPE'] ?? null, $values['ADDTYPE1'] ?? null,
+	            $values['ADDTYPE2'] ?? null, $region
+            ]);
         }
     }
 }

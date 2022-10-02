@@ -5,7 +5,7 @@ namespace DB\ORM\Migration;
 interface MigrateAble
 {
 	/**
-	 * @return array{fields: array<string, string>, foreign?: array<string, array<int, string>>}
+	 * @return MigrationParams
 	 */
 	static function migrationParams(): array;
 }

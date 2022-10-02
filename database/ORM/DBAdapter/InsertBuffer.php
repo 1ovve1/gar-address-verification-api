@@ -16,12 +16,12 @@ abstract class InsertBuffer
     private readonly string $tableName;
     /** @var String[] $tableFields - template fields */
     private readonly array $tableFields;
-    /** @var int - size of buffer */
+    /** @var int $bufferSize - size of buffer */
     private readonly int $bufferSize;
-    /** @var int - cursor of the buffer index */
+    /** @var int $bufferCursor - cursor of the buffer index */
     private int $bufferCursor = 0;
-    /** @var SplFixedArray<DatabaseContract> - buffer of stage values */
-    private SplFixedArray $buffer;
+    /** @var array<string, array<DatabaseContract>> - buffer of stage values */
+    protected array $buffer;
 
     /**
      * @param string $tableName - name of table
@@ -35,9 +35,12 @@ abstract class InsertBuffer
         $this->tableName = $tableName;
         $this->tableFields = $tableFields;
 
-        $bufferSize = $groupInsertCount * count($tableFields);
-        $this->bufferSize = $bufferSize;
-        $this->buffer = new SplFixedArray($bufferSize);
+	    $this->bufferCursor = 0;
+	    $this->bufferSize = $groupInsertCount;
+
+		foreach ($tableFields as $columnName) {
+			$this->buffer[$columnName] = [];
+		}
     }
 
 
@@ -66,10 +69,10 @@ abstract class InsertBuffer
         }
     }
 
-	public function genVarsFromCurrentGroupNumber(): string
+	public function genVarsFromCurrentBufferCursor(): string
 	{
 		return DBFacade::genInsertVars(
-			$this->getTableFieldsCount(), $this->getCurrentNumberOfGroups()
+			$this->getTableFieldsCount(), $this->getCurrentBufferCursor()
 		);
 	}
 
@@ -118,6 +121,21 @@ abstract class InsertBuffer
         return $this->bufferCursor !== 0;
     }
 
+	protected function bufferReshape(): void
+	{
+		$newBuffer = [];
+		$oldBuffer = $this->getBuffer();
+		$currCursorCount = $this->getCurrentBufferCursor();
+
+		for ($iter = 0; $iter < $currCursorCount; ++$iter) {
+			foreach ($oldBuffer as $column => $columnValues) {
+				$newBuffer[$column][$iter] = $columnValues[$iter];
+			}
+		}
+
+		$this->buffer = $newBuffer;
+	}
+
     /**
      * Return table fields in current template
      * @return String[]
@@ -137,36 +155,23 @@ abstract class InsertBuffer
     }
 
     /**
-     * Return current number of groups
+     * Return current buffer cursor value
      * @return int
      */
-    public function getCurrentNumberOfGroups(): int
+    public function getCurrentBufferCursor(): int
     {
-        return $this->bufferCursor / count($this->tableFields);
+        return $this->bufferCursor;
     }
 
     /**
-     * Return local SplFixedBuffer buffer in array
-     * @return DatabaseContract[]
+     * Return buffer in array 1d
+     * @return array<string, array<DatabaseContract>>
      */
     public function getBuffer(): array
     {
-        return $this->buffer->toArray();
+		return $this->buffer;
     }
 
-    /**
-     * Slice local buffer with current cursor value
-     * @return DatabaseContract[]
-     */
-    public function getBufferSlice(): array
-    {
-        $array = new SplFixedArray($this->bufferCursor);
-        for ($i = 0; $i < $this->bufferCursor; ++$i) {
-            $array[$i] = $this->buffer[$i];
-        }
-
-        return $array->toArray();
-    }
 
 	/**
 	 * Set stage buffer by $insertValues
@@ -179,10 +184,12 @@ abstract class InsertBuffer
             throw new IncorrectBufferInputException($this->getTableFieldsCount(), $insertValues);
         }
 
-        foreach ($insertValues as $value) {
-            $this->buffer[$this->bufferCursor] = $value;
-            $this->incBufferCursor();
-        }
+		$currCursor = $this->getCurrentBufferCursor();
+		foreach ($this->getTableFields() as $index => $field) {
+			$this->buffer[$field][$currCursor] = $insertValues[$index];
+		}
+
+		$this->incBufferCursor();
     }
 
     /**
@@ -193,4 +200,46 @@ abstract class InsertBuffer
     {
         $this->bufferCursor = 0;
     }
+
+	/**
+	 * check if value exists in current buffer
+	 * @param DatabaseContract $value
+	 * @param string $fieldName
+	 * @return bool - return record number (from 1) or false if value was not found
+	 */
+	public function checkValueInBufferExist(int|float|bool|string|null $value, string $fieldName): bool
+	{
+		if (!in_array($fieldName, $this->getTableFields())) {
+			throw new \RuntimeException("Unknown field '{$fieldName}' for table name {$this->tableName}");
+		}
+
+		return in_array($value, $this->buffer[$fieldName], true);
+	}
+
+	/**
+	 * @param array<DatabaseContract> $record
+	 * @return bool - return pos of record (from 1) of false if record was not found
+	 */
+	function checkIfRecordInBufferExist(array $record): bool
+	{
+		$columns = $this->getTableFields();
+		$currentBufferCursor = $this->getCurrentBufferCursor();
+
+		$decision = true;
+		for ($row = 0; $row < $currentBufferCursor; ++$row) {
+
+			foreach($columns as $index => $column) {
+				$decision = $this->buffer[$column][$row] === $record[$index];
+				if (false === $decision) {
+					break;
+				}
+			}
+
+			if (true === $decision) {
+				break;
+			}
+		}
+
+		return $decision;
+	}
 }

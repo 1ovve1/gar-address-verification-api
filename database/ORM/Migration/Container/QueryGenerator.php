@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DB\ORM\Migration\Container;
 
+use DB\Exceptions\Unchecked\BadQueryResultException;
 use DB\ORM\QueryBuilder\QueryBuilder;
 
 /**
@@ -56,10 +57,15 @@ class QueryGenerator implements QueryFactory
      */
     public static function genShowTableQuery(): Query
     {
+		$query = match ($_ENV['DB_TYPE']) {
+			'mysql' => 'SHOW TABLES',
+			'pgsql' => "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;",
+			default => throw new BadQueryResultException("Unknown db type '{$_ENV['DB_TYPE']}'")
+		};
         return (new QueryObject())
-      ->setType(QueryTypes::META)
-      ->setRawSql('SHOW TABLES')
-      ->validate(fn () => true);
+	      ->setType(QueryTypes::META)
+	      ->setRawSql($query)
+	      ->validate(fn () => true);
     }
 
 	/**
@@ -101,7 +107,7 @@ class QueryGenerator implements QueryFactory
     /**
      * Make create table if exists query string
      * @param string $tableName - name of table
-     * @param array<string, array<string, string|String[]>> $fieldsWithParams - fields with params
+     * @param MigrationParams $fieldsWithParams - fields with params
      * @return string - query string
      */
     public static function makeCreateTableQuery(string $tableName, array $fieldsWithParams): string
@@ -116,7 +122,6 @@ class QueryGenerator implements QueryFactory
             $formattedFields[$type] = match($type) {
 	            'fields' =>  self::parseFieldsParams($params),
 	            'foreign' => self::parseForeignParams($params),
-				default => ''
 			};
         }
 
@@ -137,6 +142,23 @@ class QueryGenerator implements QueryFactory
 		$result = '';
 
 		foreach ($params as $index => $param) {
+			$param = strtoupper($param);
+
+			switch ($_ENV['DB_TYPE']) {
+				case 'mysql':
+					$param = str_replace('SMALLINT', 'TINYINT', $param);
+					break;
+				case 'pgsql':
+					$param = str_replace('TINYINT', 'SMALLINT', $param);
+					$param = str_replace('UNSIGNED', '', $param);
+					if (str_contains($param, 'AUTO_INCREMENT')) {
+						$param = str_replace('AUTO_INCREMENT', '', $param);
+						$param = str_replace('SMALLINT', 'SERIAL', $param);
+						$param = str_replace('INT', 'SERIAL', $param);
+						$param = str_replace('BIGINT', 'SERIAL', $param);
+					}
+					break;
+			}
 			$result .= sprintf(
 				'%s %s, ',
 				$index,
@@ -178,11 +200,17 @@ class QueryGenerator implements QueryFactory
 	{
 		if(count($param) === 2 && is_a(current($param), QueryBuilder::class, true)) {
 			[$className, $field] = array_values($param);
+			$callable = $className . '::table';
 
-			return sprintf(
-				'%s (%s)',
-				call_user_func($className . '::table'), $field
-			);
+			if (is_callable($callable)) {
+				return sprintf(
+					'%s (%s)',
+					$callable(), $field
+				);
+			} else {
+				throw new \RuntimeException("Callable not found ('{$callable}')");
+			}
+
 		}
 
 		echo "incorrect syntax: you should use 'foreign' => ['field' => [ClassName::class, 'foreign_field']] template " .

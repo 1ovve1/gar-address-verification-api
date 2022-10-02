@@ -2,9 +2,7 @@
 
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
-use DB\ORM\DBFacade;
-use DB\ORM\QueryBuilder\Templates\SQL;
-use Throwable;
+use DB\ORM\Resolver\DBResolver;
 
 /**
  * Query immutable box class
@@ -21,12 +19,12 @@ class QueryBox
 	private array $dryArgs;
 
 	/**
-	 * @param SQL $template
+	 * @param string $template
 	 * @param array<string|int> $clearArgs
 	 * @param array<int, DatabaseContract> $dryArgs
 	 * @param QueryBox|null $parentBox
 	 */
-	public function __construct(SQL       $template,
+	public function __construct(string       $template,
 								array     $clearArgs = [],
 	                            array     $dryArgs = [],
 	                            ?QueryBox $parentBox = null)
@@ -45,26 +43,19 @@ class QueryBox
 
 
 	/**
-	 * @param SQL $template
+	 * @param string $template
 	 * @param array<string|int> $clearArgs
 	 * @return string
 	 */
-	private static function genPreparedQuery(SQL $template,
+	private static function genPreparedQuery(string $template,
                                              array $clearArgs): string
 	{
-		$query = '';
+		$query = vsprintf(
+			$template,
+			$clearArgs
+		);
 
-		try{
-			$query = vsprintf(
-				$template->value,
-				$clearArgs
-			);
-		}
-		catch(Throwable $error) {
-			DBFacade::dumpException($template, $error->getMessage(), $clearArgs);
-		}
-
-		return $query . SQL::SEPARATOR->value;
+		return $query . DBResolver::fmtSep();
 	}
 
 	/**

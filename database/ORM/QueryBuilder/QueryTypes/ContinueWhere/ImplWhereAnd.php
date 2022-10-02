@@ -1,8 +1,7 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace DB\ORM\QueryBuilder\QueryTypes\ContinueWhere;
 
-use DB\ORM\QueryBuilder\Templates\SQL;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
 class ImplWhereAnd extends ContinueWhereQuery
@@ -20,7 +19,6 @@ class ImplWhereAnd extends ContinueWhereQuery
 	{
 		parent::__construct(
 			$this::createQueryBox(
-				template: SQL::WHERE_AND,
 				clearArgs: [$field, $sign],
 				dryArgs: [$value],
 				parentBox: $parent->getQueryBox()

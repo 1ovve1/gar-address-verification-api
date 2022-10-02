@@ -6,26 +6,29 @@ namespace CLI\XMLParser\Files\ByRegions;
 
 use DB\Models\AddrObj;
 use CLI\XMLParser\Files\XMLFile;
-use DB\ORM\DBAdapter\QueryResult;
-use DB\ORM\DBFacade;
-use DB\ORM\QueryBuilder\QueryBuilder;
+use DB\Models\AddrObjTypename;
 
 class AS_ADDR_OBJ extends XMLFile
 {
 	/**
 	 * {@inheritDoc}
+	 * @return array{addrObj: AddrObj, addrObjTypename: AddrObjTypename}
 	 */
-	public static function getTable(): AddrObj
+	public static function getTable(): array
 	{
-		return new AddrObj();
+		return [
+			'addrObj' => new AddrObj(),
+			'addrObjTypename' => new AddrObjTypename()
+		];
 	}
 
 	/**
 	 * {@inheritDoc}
+	 * @param array{addrObj: AddrObj, addrObjTypename: AddrObjTypename} $table
 	 */
-	public static function callbackOperationWithTable(QueryBuilder $table): void
+	public static function callbackOperationWithTable(mixed $table): void
 	{
-		$table->saveForceInsert();
+		$table['addrObj']->saveForceInsert();
 	}
 
 	/**
@@ -55,18 +58,28 @@ class AS_ADDR_OBJ extends XMLFile
 
 	/**
 	 * {@inheritDoc}
+	 * @param array{addrObj: AddrObj, addrObjTypename: AddrObjTypename} $table
+	 * @param array{
+	 *     ISACTUAL: bool, ISACTIVE: bool,
+	 *     OBJECTID: int, LEVEL: int,
+	 *     NAME: string, TYPENAME: string
+	 * } $values
 	 */
-    public function execDoWork(array &$values, mixed &$table): void
+    public function execDoWork(array $values, mixed $table): void
     {
         $region = $this->getIntRegion();
+		['addrObj' => $addrObj, 'addrObjTypename' => $addrObjTypename] = $table;
 
-        if ($table->getFirstObjectId($region, $values['OBJECTID'])->isEmpty()) {
+        if ($addrObj->checkIfAddrObjNotExists($region, $values['OBJECTID'])) {
+			$typeNameId = $addrObjTypename->getTypenameOrCreate($values['TYPENAME']);
 
-            unset($values['ISACTUAL']); unset($values['ISACTIVE']);
-
-            $values['REGION'] = $region;
-
-            $table->forceInsert($values);
+            $addrObj->forceInsert([
+				$values['OBJECTID'],
+	            $values['LEVEL'],
+	            $values['NAME'],
+	            $typeNameId,
+	            $region
+            ]);
         }
     }
 }

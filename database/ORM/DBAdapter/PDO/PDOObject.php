@@ -6,7 +6,7 @@ namespace DB\ORM\DBAdapter\PDO;
 
 use DB\Exceptions\Unchecked\BadQueryResultException;
 use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
-use DB\ORM\DBAdapter\{DBAdapter, QueryResult, QueryTemplate};
+use DB\ORM\DBAdapter\{DBAdapter, QueryResult, QueryTemplate, QueryTemplateBindAble};
 use DB\ORM\Migration\Container\Query;
 use PDO;
 use PDOException;
@@ -56,8 +56,9 @@ class PDOObject implements DBAdapter
 	protected static function getDsn(string $dbType, string $dbHost,
 	                                 string $dbName, string $dbPort) : string
 	{
+		$charsetOption = ($dbType === 'mysql') ? ';charset=utf8': '';
 		return sprintf(
-			'%s:host=%s;dbname=%s;port=%s;charset=utf8',
+			'%s:host=%s;dbname=%s;port=%s' . $charsetOption,
 			$dbType, $dbHost, $dbName, $dbPort,
 		);
 	}
@@ -104,7 +105,7 @@ class PDOObject implements DBAdapter
 	/**
 	 * {@inheritDoc}
 	 */
-    public function prepare(string $template): QueryTemplate
+    public function prepare(string $template): QueryTemplateBindAble
     {
         $template = $this->instance->prepare($template);
 

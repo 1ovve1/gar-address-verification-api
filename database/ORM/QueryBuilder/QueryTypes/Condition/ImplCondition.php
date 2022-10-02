@@ -1,10 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace DB\ORM\QueryBuilder\QueryTypes\NestedCondition;
+namespace DB\ORM\QueryBuilder\QueryTypes\Condition;
 
-use DB\ORM\QueryBuilder\Templates\SQL;
 
-class ImplNestedCondition extends NestedConditionQuery
+class ImplCondition extends ConditionQuery
 {
 
 	/**
@@ -18,7 +17,6 @@ class ImplNestedCondition extends NestedConditionQuery
 	{
 		parent::__construct(
 			$this::createQueryBox(
-				template: SQL::CONDITION,
 				clearArgs: [$field, $sign],
 				dryArgs: [$value],
 			)

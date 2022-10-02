@@ -8,7 +8,7 @@ use DB\ORM\Migration\MigrateAble;
 use DB\ORM\QueryBuilder\QueryBuilder;
 
 
-class Housetype extends QueryBuilder implements MigrateAble
+class HousesType extends QueryBuilder implements MigrateAble
 {
 	/**
 	 * @inheritDoc

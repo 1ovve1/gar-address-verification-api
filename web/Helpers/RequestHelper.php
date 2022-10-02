@@ -2,6 +2,8 @@
 
 namespace GAR\Helpers;
 
+use GAR\Exceptions\Unchecked\ServerSideProblemException;
+use http\Exception\RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Response;
@@ -48,9 +50,8 @@ class RequestHelper
 	static function errorResponse(string $message, ResponseCodes $status, bool $jsonType = true): Response
 	{
 		$response = new Response();
-		$response->getBody()->write(json_encode([
-			'error' => $message,
-		]));
+		self::writeDataJson($response, ['error' => $message]);
+
 		$statusValue = $status->value;
 
 		return match($jsonType) {
@@ -67,6 +68,10 @@ class RequestHelper
 	 */
 	static function writeDataJson(ResponseInterface $response, array $data, int $flag = JSON_FORCE_OBJECT): void
 	{
-		$response->getBody()->write(json_encode($data, JSON_FORCE_OBJECT));
+		if ($data = json_encode($data, JSON_FORCE_OBJECT)) {
+			$response->getBody()->write($data);
+		} else {
+			throw new RuntimeException('Cannot convert data to JSON format');
+		}
 	}
 }

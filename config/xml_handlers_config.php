@@ -1,29 +1,19 @@
 <?php
 
 return [
-	//
 	'root' => [
-		'namespace' => [
-			'\\CLI\\XMLParser\\Files\\ByRoot\\',
-		],
-
-		'handlers' => [
-			'AS_HOUSE_TYPES',
-			'AS_ADDHOUSE_TYPES',
-			'AS_OBJECT_LEVELS',
-		],
+		\CLI\XMLParser\Files\ByRoot\AS_HOUSE_TYPES::class,
+		\CLI\XMLParser\Files\ByRoot\AS_ADDHOUSE_TYPES::class,
+		\CLI\XMLParser\Files\ByRoot\AS_OBJECT_LEVELS::class
 	],
 
 	'regions' => [
-		'namespace' =>[
-			'\\CLI\\XMLParser\\Files\\ByRegions\\',
-		],
+		\CLI\XMLParser\Files\ByRegions\AS_ADDR_OBJ::class,
+		\CLI\XMLParser\Files\ByRegions\AS_HOUSES::class,
+		\CLI\XMLParser\Files\ByRegions\AS_ADDR_OBJ_PARAMS::class,
+		\CLI\XMLParser\Files\ByRegions\AS_MUN_HIERARCHY::class,
 
-		'handlers' => [
-			'AS_ADDR_OBJ',
-			'AS_HOUSES',
-			'AS_ADDR_OBJ_PARAMS',
-			'AS_MUN_HIERARCHY',
-		],
+		// these can slowed uploader but its important if you need ALL addresses chains
+		\CLI\XMLParser\Files\ByRegions\AS_ADM_HIERARCHY::class
 	],
 ];

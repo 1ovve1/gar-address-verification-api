@@ -2,16 +2,13 @@
 
 namespace CLI\XMLParser\Files;
 
+use CLI\Exceptions\Unchecked\InvalidConfigParsingException;
 use RuntimeException;
 
 define('FILES_SPECIFICATION', [
 	'root' => [
-		'namespace',
-		'handlers'
 	],
 	'regions' => [
-		'namespace',
-		'handlers'
 	],
 ]);
 
@@ -19,72 +16,47 @@ define('CONFIG_NAME', 'xml_handlers_config');
 
 class HandlersConfigParser
 {
-	/** @var String[][][] */
+	/** @var String[][] */
 	private array $handlersConfig = [];
 
-	public function __construct()
+	/**
+	 * @param array{root: mixed, regions: mixed} $configPath
+	 */
+	public function __construct(?array $configPath = null)
 	{
-		$config = self::validateAndParse($_SERVER['config'](CONFIG_NAME));
-
-		if (!$config) {
-			throw new RuntimeException(
-				"Invalid config configuration in {$_ENV['CONFIG_PATH']}/" . CONFIG_NAME
-			);
-		}
-
-		$this->handlersConfig = $config;
+		$this->handlersConfig = self::validateAndParse($configPath ?? $_SERVER['config'](CONFIG_NAME));
 	}
 
 	/**
-	 * @param  mixed $config
-	 * @return bool|String[][][] - false if validate error, config if correct
+	 * @param  array{root: mixed, regions: mixed} $config
+	 * @return String[][] - config
 	 */
-	static function validateAndParse(mixed $config): bool|array
+	static function validateAndParse(mixed $config): array
 	{
-		$parsedConfig = [];
 
 		if (!is_array($config)) {
-			trigger_error(sprintf(
-				"Require return array in config/%s",
-				 CONFIG_NAME
-			));
-			return false;
+			throw new InvalidConfigParsingException(
+				"Config should have a array type"
+			);
 		}
-		foreach (FILES_SPECIFICATION as $handlerType => $handlerSpecification) {
+
+		foreach (FILES_SPECIFICATION as $handlerType => $handlers) {
 			if (!key_exists($handlerType, $config)) {
-				trigger_error(sprintf(
+				throw new InvalidConfigParsingException(sprintf(
 					"Require key %s in config/%s",
 					$handlerType, CONFIG_NAME
 				));
-				return false;
 			}
-			if (!is_array($handlerSpecification)) {
-				trigger_error(sprintf(
-					"Key %s should contain array in config/%s (%s given)",
-					$handlerType, CONFIG_NAME, gettype($handlerSpecification)
-				));
-				return false;
-			}
-			foreach ($handlerSpecification as $spec) {
-				if (!key_exists($spec, $config[$handlerType])) {
-					trigger_error(sprintf(
-						"Require key %s => %s in config/%s",
-						$handlerType, $spec, CONFIG_NAME
-					));
-					return false;
+			foreach ($config[$handlerType] as $handler) {
+				if (!is_string($handler)) {
+					throw new InvalidConfigParsingException(
+						"handler should be a string name of concrete class, ''" . gettype($handler) . "' given"
+					);
 				}
-				if (!is_array($config[$handlerType][$spec])) {
-					trigger_error(sprintf(
-							"Value by key %s => %s should be array type in config/%s (%s given)",
-							$handlerType, $spec, CONFIG_NAME, gettype($config[$handlerType][$spec])
-					));
-					return false;
-				}
-				$parsedConfig[$handlerType][$spec] = $config[$handlerType][$spec];
 			}
 		}
 
-		return $parsedConfig;
+		return $config;
 	}
 
 	/**
@@ -102,38 +74,30 @@ class HandlersConfigParser
 	function getHandlersClassesByRegions() : array
 	{
 		return self::getClasses($this->handlersConfig['regions']);
-
 	}
 
 	/**
-	 * @param String[][] $concreteHandlers
-	 * @return array<int, XMLFile>
+	 * @param String[] $classes
+	 * @return XMLFile[]
 	 */
-	private static function getClasses(array $concreteHandlers): array
+	static private function getClasses(array $classes): array
 	{
-		$result = [];
+		$collection = [];
 
-		foreach ($concreteHandlers['namespace'] as $namespace) {
-			foreach ($concreteHandlers['handlers'] as $handler) {
-				$classNamespace = $namespace . $handler;
-
-				if (class_exists($classNamespace)) {
-					$object = new $classNamespace($handler);
-					if ($object instanceof XMLFile) {
-						$result[] = $object;
-					} else {
-						trigger_error(
-							"Class {$classNamespace} not the instance of " . XMLFile::class
-						);
-					}
-				} else {
-					trigger_error(
-						"Undefined class {$classNamespace}"
-					);
-				}
+		foreach ($classes as $className) {
+			if (!class_exists($className)) {
+				throw new InvalidConfigParsingException(
+					"'{$className}' should have a string class name with namespace"
+				);
 			}
+			if (!is_a($className, XMLFile::class, true)) {
+				throw new InvalidConfigParsingException(
+					"'{$className}' should be an instance of " . XMLFile::class
+				);
+			}
+			$collection[] = new $className();
 		}
 
-		return $result;
+		return $collection;
 	}
 }

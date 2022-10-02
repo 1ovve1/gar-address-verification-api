@@ -35,9 +35,9 @@ interface DBAdapter
 	 * Prepare query by template. Use execute for execute statement or getTemplate to get QueryTemplate object
 	 *
 	 * @param string $template - template
-	 * @return QueryTemplate - self
+	 * @return QueryTemplateBindAble - prepared state
 	 */
-    public function prepare(string $template): QueryTemplate;
+    public function prepare(string $template): QueryTemplateBindAble;
 
 	/**
 	 * Prepare lazy insert template and

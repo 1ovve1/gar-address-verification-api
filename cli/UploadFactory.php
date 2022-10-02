@@ -11,13 +11,12 @@ class UploadFactory
 	/** @var ProcessManager */
 	private readonly ProcessManager $manager;
 
-	public function __construct()
+	public function __construct(int $processCount)
 	{
-		$processCount = $_SERVER['PROCESS_COUNT'];
-		if (!is_int($processCount) && !$processCount > 0) {
+		if ($processCount < 0) {
 			throw new RuntimeException("Invalid count of PROCESS_COUNT in .env file ('{$processCount}')");
 		}
-		$this->manager = new ProcessManager((int)$processCount);
+		$this->manager = new ProcessManager($processCount);
 	}
 
 	/**
@@ -44,9 +43,13 @@ class UploadFactory
 	{
 		echo 'Upload single indexes tables...' . PHP_EOL;
 
-		$this->manager->newTask(
-			fn() => self::parseRegion(null, ['--onlySingle'])
-		);
+		if ($this->manager->maxProcessCount == 0) {
+			self::parseRegion(null, ['--onlySingle']);
+		} else {
+			$this->manager->newTask(
+				fn() => self::parseRegion(null, ['--onlySingle'])
+			);
+		}
 		$this->manager->waitAll();
 
 		echo 'DONE!' . PHP_EOL;
@@ -62,10 +65,15 @@ class UploadFactory
 		echo 'Upload regions information...' . PHP_EOL;
 
 		foreach ($regions as $region) {
+			if ($this->manager->maxProcessCount == 0) {
+				self::parseRegion([$region], ['--onlyRegions']);
+			} else {
+				$this->manager->newTask(
+					fn() => self::parseRegion([$region], ['--onlyRegions'])
+				);
+			}
+
 			echo "{$region}..." . PHP_EOL;
-			$this->manager->newTask(
-				fn() => self::parseRegion([$region], ['--onlyRegions'])
-			);
 		}
 
 		$this->manager->waitAll();

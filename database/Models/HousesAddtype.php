@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace DB\Models;
 
@@ -8,7 +6,7 @@ use DB\ORM\Migration\MigrateAble;
 use DB\ORM\QueryBuilder\QueryBuilder;
 
 
-class ObjLevels extends QueryBuilder implements MigrateAble
+class HousesAddtype extends QueryBuilder implements MigrateAble
 {
 	/**
 	 * @inheritDoc
@@ -18,8 +16,10 @@ class ObjLevels extends QueryBuilder implements MigrateAble
 		return [
 			'fields' => [
 				'id'    => 'TINYINT UNSIGNED NOT NULL PRIMARY KEY',
-				'disc'  => 'CHAR(70)',
+	            'short' => 'CHAR(15)',
+	            'disc'  => 'CHAR(50)',
 			],
 		];
 	}
+
 }

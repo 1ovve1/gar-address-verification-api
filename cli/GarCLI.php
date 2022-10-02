@@ -7,10 +7,18 @@ use splitbrain\phpcli\{
 	Options
 };
 use DB\UserMigrations;
-use http\Client\Curl\User;
 
 class GarCLI extends CLI
 {
+	/**
+	 * Remove default handler connection
+	 * @param bool $autocatch
+	 */
+	public function __construct($autocatch = false)
+	{
+		parent::__construct($autocatch);
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -24,6 +32,7 @@ class GarCLI extends CLI
 		$options->registerOption('region', 'concrete region(s) for upload', 'r', 'region-list', 'upload');
 		$options->registerOption('only-regions', 'upload only regions information', null, false, 'upload');
 		$options->registerOption('only-single', 'upload only single indexes', null, false, 'upload');
+		$options->registerOption('thread', 'upload only single indexes', 't', true, 'upload');
 
 		$options->registerCommand('migrate', 'create actual database structure in your database');
 		$options->registerOption('drop', 'delete tables', 'd', false, 'migrate');
@@ -35,6 +44,7 @@ class GarCLI extends CLI
 	 */
 	protected function main(Options $options)
 	{
+		/** @var array<string> $params */
 		$params = $options->getOpt();
 
 		switch ($options->getCmd()) {
@@ -55,10 +65,15 @@ class GarCLI extends CLI
 	function uploadProcedure(array $params): void
 	{
 		$regions = null;
-		$uploader = new UploadFactory();
+
+		if (isset($params['thread'])) {
+			$uploader = new UploadFactory((int)$params['thread']);
+		} else {
+			$uploader = new UploadFactory((int)$_ENV['PROCESS_COUNT']);
+		}
 
 		if (isset($params['region'])) {
-			$regions = $this->convertInputRegionsToArray($params['region']);
+			$regions = $this->convertInputRegionsToArray((string)$params['region']);
 		}
 
 		if (isset($params['migrate-recreate'])) {

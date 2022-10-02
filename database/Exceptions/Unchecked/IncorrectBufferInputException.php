@@ -8,7 +8,7 @@ use RuntimeException;
 
 class IncorrectBufferInputException extends RuntimeException
 {
-	const MESSAGE_TEMPLATE = "Curr buffer configuration (require '%d' rows) are not compilable with actual given values (['%s'])";
+	const MESSAGE_TEMPLATE = "Curr buffer configuration (require '%d' rows) are not compilable with actual given values: \n%s";
 
 	/**
 	 * @param int $requireLengthOfInputArray
@@ -16,7 +16,7 @@ class IncorrectBufferInputException extends RuntimeException
 	 */
 	public function __construct(int $requireLengthOfInputArray, array $givenValues)
 	{
-		$message = sprintf(self::MESSAGE_TEMPLATE, $requireLengthOfInputArray, implode("', '", $givenValues));
+		$message = sprintf(self::MESSAGE_TEMPLATE, $requireLengthOfInputArray, print_r($givenValues, true));
 		parent::__construct(
 			$message,
 			ExceptionCodes::INCORRECT_BUFFER_INPUT_EXCEPTION_CODE

@@ -3,15 +3,12 @@
 namespace Tests\Unit;
 
 use DB\ORM\QueryBuilder\QueryBuilder;
-use DB\ORM\DBFacade;
-use DB\ORM\QueryBuilder\QueryTypes\NestedCondition\ClientNestedCondition;
-use DB\ORM\QueryBuilder\QueryTypes\NestedCondition\NestedConditionAble;
-use DB\ORM\QueryBuilder\Templates\SQL;
-use GAR\Database\Table\SQLClosureBuilder;
+use DB\ORM\QueryBuilder\QueryTypes\Condition\ClientCondition;
+use DB\ORM\Resolver\DBResolver;
 use PHPUnit\Framework\TestCase;
 
 defined('SEPARATOR') ?:
-	define('SEPARATOR', SQL::SEPARATOR->value);
+	define('SEPARATOR', DBResolver::fmtSep());
 
 class AddrObj extends QueryBuilder {}
 
@@ -46,13 +43,13 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 		$result = AddrObj::select(
 			['addr' => ['one', 'two'], 'rose', 'house' => 'free'],
 			['addr' => 'AddrObj', 'house' => 'Houses']
-		)->where(fn (ClientNestedCondition $builder) =>
+		)->where(fn (ClientCondition $builder) =>
 			$builder->where(['addr' => 'one'], self::WHERE_DRY_ARGS[0])
 				->orWhere('rose', '<', self::WHERE_DRY_ARGS[1])
-		)->andWhere(fn (ClientNestedCondition $builder) =>
+		)->andWhere(fn (ClientCondition $builder) =>
 			$builder->where(['house' => 'free'], '>', self::WHERE_DRY_ARGS[2])
 				->andWhere(['addr' => 'two'], '<=', self::WHERE_DRY_ARGS[3])
-		)->orWhere(fn (ClientNestedCondition $builder) =>
+		)->orWhere(fn (ClientCondition $builder) =>
 			$builder->where(['rose'], '>=', self::WHERE_DRY_ARGS[4])
 		)->queryBox;
 

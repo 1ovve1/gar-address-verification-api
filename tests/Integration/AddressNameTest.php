@@ -8,11 +8,13 @@ use GAR\Helpers\ResponseCodes;
 
 class AddressNameTest extends BaseTestSetup
 {
+	const REGION = '8';
+
 	public function testSingleWordAddressWithSingleResult() : void
 	{
 		$param = 'калмыкия';
 		$paramWithProp = 'address=' . $param;
-		$response = $this->runApp('GET', '/address', $paramWithProp);
+		$response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 		$this->assertResponse(
 			response: $response,
@@ -26,7 +28,7 @@ class AddressNameTest extends BaseTestSetup
 	{
 		$param = 'лаганский м';
 		$paramWithProp = 'address=' . $param;
-		$response = $this->runApp('GET', '/address', $paramWithProp);
+		$response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 		$this->assertResponse(
 			response: $response,
@@ -40,7 +42,7 @@ class AddressNameTest extends BaseTestSetup
 	{
 		$param = 'к';
 		$paramWithProp = 'address=' . $param;
-		$response = $this->runApp('GET', '/address', $paramWithProp);
+		$response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 		$this->assertResponse(
 			response: $response,
@@ -54,7 +56,7 @@ class AddressNameTest extends BaseTestSetup
 	{
 		$param = '';
 		$paramWithProp = 'address=' . $param;
-		$response = $this->runApp('GET', '/address', $paramWithProp);
+		$response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 		$this->assertResponse(
 			response: $response,
@@ -68,7 +70,7 @@ class AddressNameTest extends BaseTestSetup
 	{
 		$param = 'ка,к найти предка без родителя';
 		$paramWithProp = 'address=' . $param;
-		$response = $this->runApp('GET', '/address', $paramWithProp);
+		$response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 		$this->assertResponse(
 			response: $response,
@@ -80,14 +82,14 @@ class AddressNameTest extends BaseTestSetup
 
 	public function testDoubleWordAddressWithSingleAddressAndVariant() : void
 	{
-		$param = 'калм,я';
+		$param = 'респ калм,я';
 		$paramWithProp = 'address=' . $param;
-		$response = $this->runApp('GET', '/address', $paramWithProp);
+		$response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 		$this->assertResponse(
 			response: $response,
 			code: ResponseCodes::OK_200,
-			contains: ['"калм"', 'variants'],
+			contains: ['"респ калм"', 'variants'],
 			notContains: ['"я"', 'parent', 'houses'],
 		);
 	}
@@ -96,7 +98,7 @@ class AddressNameTest extends BaseTestSetup
 	{
 		$param = 'лаганский м,с';
 		$paramWithProp = 'address=' . $param;
-		$response = $this->runApp('GET', '/address', $paramWithProp);
+		$response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 		$this->assertResponse(
 			response: $response,
@@ -108,14 +110,14 @@ class AddressNameTest extends BaseTestSetup
 
 	public function testDoubleWordAddressWithTwoSingleAddresses() : void
 	{
-		$param = 'калм,яшкульск';
+		$param = 'респ калм,яшкульск';
 		$paramWithProp = 'address=' . $param;
-		$response = $this->runApp('GET', '/address', $paramWithProp);
+		$response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 		$this->assertResponse(
 			response: $response,
 			code: ResponseCodes::OK_200,
-			contains: ['"калм"', '"яшкульск"'],
+			contains: ['"респ калм"', '"яшкульск"'],
 			notContains: ['parent', 'houses', 'variant'],
 		);
 	}
@@ -124,7 +126,7 @@ class AddressNameTest extends BaseTestSetup
 	{
 		$param = 'лаганский м,север';
 		$paramWithProp = 'address=' . $param;
-		$response = $this->runApp('GET', '/address', $paramWithProp);
+		$response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 		$this->assertResponse(
 			response: $response,
@@ -138,7 +140,7 @@ class AddressNameTest extends BaseTestSetup
 	{
 		$param = 'калм,лаган,кр,кра,школьная';
 		$paramWithProp = 'address=' . $param;
-		$response = $this->runApp('GET', '/address', $paramWithProp);
+		$response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 		$this->assertResponse(
 			$response,
@@ -153,7 +155,7 @@ class AddressNameTest extends BaseTestSetup
     {
 	    $param = 'калм,лаган,кр,кра,школьная,';
 	    $paramWithProp = 'address=' . $param;
-	    $response = $this->runApp('GET', '/address', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 	    $this->assertResponse(
 		    $response,
@@ -168,7 +170,7 @@ class AddressNameTest extends BaseTestSetup
 	{
 		$param = 'калм,лаган,кр,кра,';
 		$paramWithProp = 'address=' . $param;
-		$response = $this->runApp('GET', '/address', $paramWithProp);
+		$response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 		$this->assertResponse(
 			response: $response,
@@ -183,9 +185,9 @@ class AddressNameTest extends BaseTestSetup
 
     public function testAddressNotFound(): void
     {
-	    $param = 'Пушкино,Колотушкино';
+	    $param = 'Пушкиноыы,Колотушкино';
 	    $paramWithProp = 'address=' . $param;
-	    $response = $this->runApp('GET', '/address', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
@@ -199,7 +201,7 @@ class AddressNameTest extends BaseTestSetup
     {
 	    $param = str_repeat('Москва', 1000);
 	    $paramWithProp = 'address=' . $param;
-	    $response = $this->runApp('GET', '/address', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
@@ -213,7 +215,7 @@ class AddressNameTest extends BaseTestSetup
     {
 	    $param = 'Great Brittan, London';
 	    $paramWithProp = 'address=' . $param;
-	    $response = $this->runApp('GET', '/address', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/address', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,

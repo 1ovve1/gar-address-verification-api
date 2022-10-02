@@ -14,8 +14,8 @@ trait WhereTrait
 	                      float|int|bool|string|null $value = null): WhereQuery
 	{
 		// if it first arg are callback then we use nested where
-		if (is_callable($callback = $field_or_nested_clbk)) {
-			return new ImplNestedWhere($this, $callback);
+		if (is_callable($field_or_nested_clbk)) {
+			return new ImplNestedWhere($this, $field_or_nested_clbk);
 		}
 
 		['field' => $field, 'sign' => $sign, 'value' => $value] = DBFacade::whereArgsHandler($field_or_nested_clbk, $sign_or_value, $value);

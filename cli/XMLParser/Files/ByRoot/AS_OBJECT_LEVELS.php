@@ -4,24 +4,25 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files\ByRoot;
 
-use DB\Models\ObjLevels;
+use DB\Models\AddrObjLevels;
 use CLI\XMLParser\Files\XMLFile;
-use DB\ORM\QueryBuilder\QueryBuilder;
 
 class AS_OBJECT_LEVELS extends XMLFile
 {
 	/**
 	 * @inheritDoc
+	 * @return AddrObjLevels
 	 */
-	public static function getTable(): QueryBuilder
+	public static function getTable(): AddrObjLevels
 	{
-		return new ObjLevels();
+		return new AddrObjLevels();
 	}
 
 	/**
 	 * @inheritDoc
+	 * @param AddrObjLevels $table
 	 */
-	public static function callbackOperationWithTable(QueryBuilder $table): void
+	public static function callbackOperationWithTable(mixed $table): void
 	{
 		$table->saveForceInsert();
 	}
@@ -47,13 +48,20 @@ class AS_OBJECT_LEVELS extends XMLFile
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function execDoWork(array &$values, mixed &$table): void
+	/**
+	 * @inheritDoc
+	 * @param array{
+	 *     LEVEL: int,
+	 *     NAME: string,
+	 *     ISACTIVE: string
+	 * } $values
+	 * @param AddrObjLevels $table
+	 */
+    public function execDoWork(array $values, mixed $table): void
     {
-        unset($values['ISACTIVE']);
-
-        $table->forceInsert($values);
+        $table->forceInsert([
+			$values['LEVEL'],
+	        $values['NAME']
+        ]);
     }
 }

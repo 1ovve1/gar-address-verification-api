@@ -173,7 +173,7 @@ class AddressBuilderDirector
 
 	/**
 	 * Return complete address structure
-	 * @return array<int, array<string, array<int, array<string, string|int>>>>
+	 * @return array<int, array<string, AddressElementContract>>
 	 */
 	function getAddress(): array
 	{
@@ -231,7 +231,7 @@ class AddressBuilderDirector
 	 */
 	function findParamFromIdentifier(string $param, string $identifier): mixed
 	{
-		$data = $this->getAddress();
+		$data = array_reverse($this->getAddress());
 		$backLog = null;
 
 		foreach ($data as $identifierElement) {

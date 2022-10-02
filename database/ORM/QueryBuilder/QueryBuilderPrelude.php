@@ -28,7 +28,7 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 	/** @var ActiveRecord[] */
 	protected readonly array $userStates;
 	/** @var QueryTemplate - force insert template */
-	private readonly QueryTemplate $forceInsertTemplate;
+	protected readonly QueryTemplate $forceInsertTemplate;
 
 	/**
 	 * @param array<string> $fields

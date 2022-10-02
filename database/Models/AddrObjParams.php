@@ -16,12 +16,20 @@ class AddrObjParams extends QueryBuilder implements MigrateAble
 	protected function prepareStates(): array
 	{
 		return [
-			'getFirstObjectIdAddrObj' =>
-				AddrObj::select('objectid')
-				->where('region')
-				->andWhere('objectid')
-				->limit(1),
+			'checkIfAddrObjExists' =>
+				AddrObj::select('region')
+					->where('region')
+					->andWhere('objectid')
+					->limit(1),
+
 		];
+	}
+
+	function checkIfAddrObjExists(int $region, int $addrObjId): bool
+	{
+		return $this->userStates['checkIfAddrObjExists']
+			->execute([$region, $addrObjId])
+			->isNotEmpty();
 	}
 
 	/**
@@ -31,7 +39,7 @@ class AddrObjParams extends QueryBuilder implements MigrateAble
 	{
 		return [
 			'fields' => [
-				'objectid_addr'     => 'BIGINT UNSIGNED NOT NULL',
+				'objectid_addr'     => 'INT UNSIGNED NOT NULL',
 				'type'              => 'CHAR(5) NOT NULL',
 				'value'             => 'CHAR(31) NOT NULL',
 				'region'            => 'TINYINT UNSIGNED NOT NULL',

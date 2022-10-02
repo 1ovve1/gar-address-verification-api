@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace GAR\Storage;
 
-use DB\Exceptions\Unchecked\BadQueryResultException;
-use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
 use GAR\Exceptions\Checked\AddressNotFoundException;
 use GAR\Exceptions\Checked\ChainNotFoundException;
 use GAR\Exceptions\Checked\ParamNotFoundException;
-use GAR\Exceptions\Unchecked\ServerSideProblemException;
 use GAR\Storage\Builders\AddressBuilder;
 use GAR\Storage\Builders\AddressBuilderDirector;
 use GAR\Storage\Elements\ChainPoint;
@@ -36,12 +33,13 @@ class AddressByNameStorage extends BaseStorage
 
 	/**
 	 * @param array<string> $userAddress
+	 * @param int $region
 	 * @return int
-	 * @throws AddressNotFoundException|ParamNotFoundException
+	 * @throws AddressNotFoundException
 	 */
-	function getChiledObjectIdFromAddress(array $userAddress): int
+	function getChiledObjectIdFromAddress(array $userAddress, int $region): int
 	{
-		$this->getFullAddress($userAddress);
+		$this->getFullAddress($userAddress, $region);
 
 		try {
 			return $this->addressBuilderDirector->findChiledObjectId();
@@ -53,11 +51,13 @@ class AddressByNameStorage extends BaseStorage
 	/**
 	 * Return full address by fragment of $halfAddress
 	 * @param array<string> $userAddress - exploded input address fragment
-	 * @return array<int, array<string, array<int, array<string, string|int>>>> - full address
+	 * @param int $region - region context
+	 * @return array<int, array<string, AddressElementContract>> - full address
 	 * @throws AddressNotFoundException - address was not found
 	 */
-    function getFullAddress(array $userAddress): array
+    function getFullAddress(array $userAddress, int $region): array
     {
+		$this->setRegionContext($region);
 		$this->addressBuilderDirector = new AddressBuilderDirector($this->addressBuilder, $userAddress);
 
 		switch(count($userAddress)) {
@@ -111,7 +111,7 @@ class AddressByNameStorage extends BaseStorage
 
 		$currChiledName = $this->addressBuilderDirector->getCurrentChiledName();
 
-		$chiledLikeAddress = $this->db->getChiledAddressByParentObjectIdAndChiledName($parentObjectId, $currChiledName);
+		$chiledLikeAddress = $this->db->getChiledAddressByParentObjectIdAndChiledAddressName($parentObjectId, $currChiledName, $this->getRegionContext());
 
 		if ($chiledLikeAddress->hasOnlyOneRow()) {
 			$this->addressBuilderDirector->addChiledAddr($chiledLikeAddress);
@@ -153,7 +153,7 @@ class AddressByNameStorage extends BaseStorage
 			$parentNameCurrChain = $userAddress[$parent];
 			$chiledNameCurrChain = $userAddress[$chiled];
 
-			$chainObjectId = $this->db->findChainByParentAndChiledAddressName($parentNameCurrChain, $chiledNameCurrChain);
+			$chainObjectId = $this->db->findChainByParentAndChiledAddressName($parentNameCurrChain, $chiledNameCurrChain, $this->getRegionContext());
 
 			// check if chain is single value
 			if ($chainObjectId->hasOnlyOneRow()) {
@@ -173,8 +173,8 @@ class AddressByNameStorage extends BaseStorage
     protected function completeAddressChainBackward(int|string $currObjectIdOrName): void
     {
 	    $parentAddress = match(is_string($currObjectIdOrName)) {
-			true => $this->db->getLikeAddress($currObjectIdOrName),
-			false => $this->db->getAddressByObjectId($currObjectIdOrName),
+			true => $this->db->getLikeAddress($currObjectIdOrName, $this->getRegionContext()),
+			false => $this->db->getAddressByObjectId($currObjectIdOrName, $this->getRegionContext()),
         };
 
 	    while ($parentAddress->hasOnlyOneRow()) {
@@ -186,7 +186,7 @@ class AddressByNameStorage extends BaseStorage
 				break;
 		    }
 
-		    $parentAddress = $this->db->getParentAddressByObjectId($parentObjectId);
+		    $parentAddress = $this->db->getParentAddressByChiledObjectId($parentObjectId, $this->getRegionContext());
 		}
 
 		if ($parentAddress->hasManyRows()) {
@@ -200,8 +200,8 @@ class AddressByNameStorage extends BaseStorage
     protected function completeAddressChainForward(int|string $currObjectIdOrName): void
     {
 		$chiledAddress = match(is_string($currObjectIdOrName)) {
-			true => $this->db->getLikeAddress($currObjectIdOrName),
-			false => $this->db->getAddressByObjectId($currObjectIdOrName)
+			true => $this->db->getLikeAddress($currObjectIdOrName, $this->getRegionContext()),
+			false => $this->db->getAddressByObjectId($currObjectIdOrName, $this->getRegionContext())
 		};
 
         while ($chiledAddress->hasOnlyOneRow())
@@ -214,21 +214,22 @@ class AddressByNameStorage extends BaseStorage
 				// because we move forward actual chiled address use like a parent
 				$parentObjectId = $this->addressBuilderDirector->findChiledObjectId();
 			} catch (RuntimeException|ParamNotFoundException) {
-
 				break;
 			}
 
-	        $chiledAddress = $this->db->getChiledAddressByParentObjectIdAndChiledName($parentObjectId, $nextChiledName);
+	        $chiledAddress = $this->db->getChiledAddressByParentObjectIdAndChiledAddressName($parentObjectId, $nextChiledName, $this->getRegionContext());
         }
 
 		if ($chiledAddress->hasManyRows()) {
 			$this->addressBuilderDirector->addChiledVariant($chiledAddress);
 		} elseif(isset($parentObjectId)) {
-			$houseAddress = $this->db->getHousesByParentObjectId($parentObjectId);
+			$houseAddress = $this->db->getHousesByParentObjectId($parentObjectId, $this->getRegionContext());
 
 			if ($houseAddress->isNotEmpty()) {
 				$this->addressBuilderDirector->addChiledHouses($houseAddress);
 			}
 		}
     }
+
+
 }

@@ -50,10 +50,6 @@ abstract class BaseOptionFacade
 		$tableList = $db->rawQuery($container)->fetchAll(QueryResult::PDO_F_COL);
 
 
-		if (!is_array($tableList)) {
-			throw new RuntimeException('MetaTable error: $tableList should return array, ' . gettype($tableList) . " given");
-		}
-
 		return in_array($tableName, $tableList, true);
 	}
 

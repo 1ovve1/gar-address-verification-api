@@ -5,72 +5,59 @@ namespace Tests\Unit;
 defined('TEST_ENV') ?: define('TEST_ENV', __DIR__ . '/../.env.test');
 require_once __DIR__ . '/../../bootstrap.php';
 
+use CLI\Exceptions\Unchecked\InvalidConfigParsingException;
 use CLI\XMLParser\Files\HandlersConfigParser;
 use CLI\XMLParser\Files\XMLFile;
 use PHPUnit\Framework\TestCase;
+use Tests\Mock\FakeXMLFile;
+
 
 class HandlersConfigParserTest extends TestCase
 {
-	const TEST_CONFIG_CORRECT = [
+	const CONFIG_CORRECT = [
 		'root' => [
-			'namespace' => [],
-			'handlers' => [],
+			FakeXMLFile::class
 		],
 
 		'regions' => [
-			'namespace' => [],
-			'handlers' => [],
+			FakeXMLFile::class
 		],
 	];
 
-	const TEST_CONFIG_DRY = [
-		'boot',
+	const CONFIG_WITH_UNKNOWN_FIELDS = [
+		'boot' => [
+			FakeXMLFile::class
+		],
+		'hahahah' => [
+			FakeXMLFile::class
+		],
+	];
+
+	const CONFIG_WITH_UNKNOWN_TYPES = [
 		'root' => [
-			'namespace' => [],
-			'handlers' => [],
-			'something else'
+			FakeXMLFile::class
 		],
 
-		'hahahah',
 		'regions' => [
-			'namespace' => [],
-			'handlers' => [],
-			'something else' => '',
+			2132
 		],
 	];
 
-	function testParserValidation(): void
+	function testCorrect(): void
 	{
-		$result = HandlersConfigParser::validateAndParse(self::TEST_CONFIG_DRY);
-
-		$this->assertIsNotBool($result);
-		$this->assertEquals(self::TEST_CONFIG_CORRECT, $result);
+		$config = HandlersConfigParser::validateAndParse(self::CONFIG_CORRECT);
+		$this->assertEquals(self::CONFIG_CORRECT, $config);
 	}
 
-	function testBadParserValidation(): void
+	function testUnknownFields(): void
 	{
-		$config = self::TEST_CONFIG_DRY;
-		unset($config['root']);
-
-		$this->expectNotice();
-
-		$result = HandlersConfigParser::validateAndParse($config);
-
-		$this->assertIsBool($result);
+		$this->expectException(InvalidConfigParsingException::class);
+		HandlersConfigParser::validateAndParse(self::CONFIG_WITH_UNKNOWN_TYPES);
 	}
 
-	function testBasicConfigRead(): void
+	function testUnknownTypes(): void
 	{
-		$handlersConfigParser = new HandlersConfigParser();
-
-		$regions = $handlersConfigParser->getHandlersClassesByRegions();
-
-		$roots = $handlersConfigParser->getHandlersClassesByRoot();
-
-		$this->assertNotEmpty($regions);
-		$this->assertNotEmpty($roots);
-
-		$this->assertContainsOnlyInstancesOf(XMLFile::class, $regions);
-		$this->assertContainsOnlyInstancesOf(XMLFile::class, $roots);
+		$this->expectException(InvalidConfigParsingException::class);
+		HandlersConfigParser::validateAndParse(self::CONFIG_WITH_UNKNOWN_FIELDS);
 	}
 }

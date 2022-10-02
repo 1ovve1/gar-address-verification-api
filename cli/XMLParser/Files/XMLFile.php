@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files;
 
-use DB\ORM\QueryBuilder\QueryBuilder;
 
 abstract class XMLFile
 {
@@ -16,9 +15,13 @@ abstract class XMLFile
      * @param string $fileName
      * @param string|null $region
      */
-    public function __construct(string $fileName, ?string $region = null)
+    public function __construct(string $fileName = '', ?string $region = null)
     {
-        $this->fileName = $fileName;
+		if (empty($fileName)) {
+			$classPath = explode('\\', static::class);
+
+			$this->fileName = end($classPath);
+		}
         if (null !== $region) {
             $this->region = $region;
             $this->intRegion = (int) $region;
@@ -96,24 +99,24 @@ abstract class XMLFile
 	/**
 	 * Here you declare table model that you want to use in your parser model
 	 *
-	 * @return QueryBuilder - db table accessor
+	 * @return mixed - db table accessor
 	 */
-	abstract public static function getTable(): QueryBuilder;
+	abstract public static function getTable(): mixed;
 
 	/**
 	 * Contains callback procedure that will be executed when file parse is done (using getTable() as argument)
 	 * Default do nothing
-	 * @param QueryBuilder $table - db table accessor from getTable()
+	 * @param mixed $table - db table accessor from getTable()
 	 * @return void
 	 */
-	public static function callbackOperationWithTable(QueryBuilder $table): void
+	public static function callbackOperationWithTable(mixed $table): void
 	{}
 
 	/**
 	 * procedure that contains main operations from exec method
-	 * @param array<DatabaseContract> &$values - current parse element
+	 * @param array<DatabaseContract> $values - current parse element
 	 * @param mixed $table - table that you return int getTable() method
 	 * @return void
 	 */
-    abstract public function execDoWork(array &$values, mixed &$table): void;
+    abstract public function execDoWork(array $values, mixed $table): void;
 }

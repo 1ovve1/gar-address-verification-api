@@ -12,12 +12,12 @@ interface Migrate
 	 *
 	 * @param DBAdapter $db
 	 * @param string $tableName
-	 * @param array<string, array<string, string>> $paramsToCreate
+	 * @param MigrationParams $paramsToCreate
 	 * @return void
 	 */
 	static function migrate(DBAdapter $db,
 	                        string $tableName,
-	                        array $paramsToCreate = []): void;
+	                        array $paramsToCreate): void;
 
 	/**
 	 * Do migrate using db connection and class that implement MigrateAble interface

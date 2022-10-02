@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace GAR\Storage;
 
-use DB\Exceptions\Unchecked\BadQueryResultException;
-use DB\Exceptions\Unchecked\FailedDBConnectionWithDBException;
 use GAR\Exceptions\Checked\CodeNotFoundException;
-use GAR\Exceptions\Unchecked\ServerSideProblemException;
+use GAR\Exceptions\Checked\ParamNotFoundException;
 
 /**
  * Repository for getting code by concrete objectid
@@ -17,26 +15,22 @@ class CodeByObjectIdStorage extends BaseStorage
 	/**
 	 * Return code by specific $type and objectid
 	 * @param int $objectId - concrete objectid address
-	 * @param string $type - type of code
+	 * @param Codes $type - type of code
+	 * @param int $region
 	 * @return array<int, array<string, string>>
-	 * @throws CodeNotFoundException - if codes was not found
+	 * @throws CodeNotFoundException|ParamNotFoundException - if codes was not found
 	 */
-    public function getCode(int $objectId, string $type): ?array
+    public function getCode(int $objectId, Codes $type, int $region): ?array
     {
-		$code = [];
+		$this->setRegionContext($region);
 
-		if (Codes::tryFrom($type)) {
-			if (Codes::from($type) === Codes::ALL) {
-				$code = $this->getAllCodesByObjectId($objectId);
-			} else {
-				$code = $this->getCodeByObjectId($objectId, $type);
-				if (!empty($code)) {
-					$code = [$code];
-				}
-			}
+		if ($type === Codes::ALL) {
+			$code = $this->getAllCodesByObjectId($objectId);
+		} else {
+			$code = [$this->getCodeByObjectId($objectId, $type)];
 		}
 
-		if (empty($code)) {
+		if (empty(current($code))) {
 			throw new CodeNotFoundException($objectId);
 		}
 
@@ -46,37 +40,40 @@ class CodeByObjectIdStorage extends BaseStorage
 	/**
 	 * Return code by $type using specific objectid address
 	 * @param int $objectId - objectid address
-	 * @param string $type - type of code
+	 * @param Codes $type - type of code
 	 * @return array<string, string>
+	 * @throws ParamNotFoundException
 	 */
-    public function getCodeByObjectId(int $objectId, string $type): array
+    public function getCodeByObjectId(int $objectId, Codes $type): array
     {
-		$data = $this->db->findAddrObjParamByObjectIdAndType($objectId, $type);
+		$data = $this->db->findAddrObjParamByObjectIdAndType($objectId, $type->value, $this->getRegionContext());
+		$result = [];
 
-		if ($data->isNotEmpty()) {
-			$data = [strtoupper($type) => current($data->fetchAllAssoc())['value']];
-		} else {
-			$data = [];
+	    if ($data->isNotEmpty()) {
+			$fetchData = $data->fetchAllAssoc();
+
+			foreach ($fetchData as $dataElem) {
+				$code = $dataElem['value'] ??
+					throw new ParamNotFoundException("value from addrObjParams was not found", "objectid = {$objectId}, type = {$type->value}");
+
+				$result = [$type->value => $code];
+			}
+
 		}
 
-		return $data;
+		return $result;
     }
 
 	/**
 	 * Return all codes using concrete objectid address
 	 * @param int $objectId - concrete objectid address
 	 * @return array<int, array<string, string>>
+	 * @throws ParamNotFoundException
 	 */
     public function getAllCodesByObjectId(int $objectId): array
     {
-        $types = [
-            Codes::OKATO->value,
-            Codes::OKTMO->value,
-            Codes::KLADR->value,
-        ];
-
 		$resultData = [];
-		foreach ($types as $type) {
+		foreach (Codes::cases() as $type) {
 			$data = $this->getCodeByObjectId($objectId, $type);
 
 			if (empty($data)) {

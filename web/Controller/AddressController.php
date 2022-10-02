@@ -37,10 +37,10 @@ class AddressController
 	 */
     public function getAddressByName(Request $request, Response $response): Response
     {
-        $address = $request->getQueryParams()['address'];
+        ['address' => $address, 'region' => $region] = $request->getQueryParams();
 
 	    try {
-		    $likeAddress = $this->addressByNameRepo->getFullAddress($address);
+		    $likeAddress = $this->addressByNameRepo->getFullAddress($address, $region);
 		    RequestHelper::writeDataJson($response, $likeAddress);
 	    } catch (AddressNotFoundException $e) {
 			$response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::NOT_FOUND_404);
@@ -52,19 +52,23 @@ class AddressController
 	/**
 	 * @param Request $request
 	 * @param Response $response
-	 * @param array<string> $args
 	 * @return Response
 	 */
-    public function getCodeByType(Request $request, Response $response, array $args): Response
+    public function getCodeByType(Request $request, Response $response): Response
     {
-        $params = $request->getQueryParams();
+	    [
+		    'address' => $formattedAddress,
+		    'objectid' => $objectId,
+		    'type' => $type,
+		    'region' => $region
+	    ] = $request->getQueryParams();
 
 	    try {
-		    if (null === $params['objectid']) {
-			    $params['objectid'] = $this->addressByNameRepo->getChiledObjectIdFromAddress($params['address']);
+		    if (null === $objectId) {
+			    $objectId = $this->addressByNameRepo->getChiledObjectIdFromAddress($formattedAddress, $region);
 		    }
 
-		    $data = $this->addressByCodeRepo->getCode($params['objectid'], $args['type']);
+		    $data = $this->addressByCodeRepo->getCode($objectId, $type, $region);
 			RequestHelper::writeDataJson($response, $data);
 	    } catch (AddressNotFoundException|CodeNotFoundException $e) {
 		    $response = RequestHelper::errorResponse($e->getMessage(), ResponseCodes::NOT_FOUND_404);

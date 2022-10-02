@@ -15,25 +15,10 @@ class UserMigrations
 		$classList = $_SERVER['config']('migration');
 		$migrateTool = MetaTable::createImmutable(DBFacade::getImmutableDBConnection());
 
-		foreach ($classList as $tableName => $params) {
+		foreach ($classList as $params) {
 			if (is_string($params) && is_a($params, MigrateAble::class, true)) {
 				$migrateTool->doMigrateFromMigrateAble($params);
-			} else if (is_array($params)) {
-				if (is_string($tableName)) {
-					if (key_exists('fields', $params)) {
-						$migrateTool->doMigrate($tableName, $params);
-						continue;
-					}
-					var_dump($params);
-					throw new RuntimeException("Params of migration should contains at least 'fields' param");
-				}
-				var_dump($params);
-				throw new RuntimeException("Params of migration should contains string class name of MigrateAble implements or array definition");
-			} else {
-				var_dump($params);
-				throw new RuntimeException("Invalid migrate configuration: {$tableName}");
 			}
-
 		}
 	}
 

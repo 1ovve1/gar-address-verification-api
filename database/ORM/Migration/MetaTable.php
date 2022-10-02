@@ -35,7 +35,7 @@ class MetaTable implements Migrate, MigrateImmutable, Rollback, RollbackImmutabl
 	/**
 	 * @inheritDoc
 	 */
-	static function migrate(DBAdapter $db, string $tableName, array $paramsToCreate = []): void
+	static function migrate(DBAdapter $db, string $tableName, array $paramsToCreate): void
 	{
 		MigrateImpl::migrate($db, $tableName, $paramsToCreate);
 	}
@@ -51,7 +51,7 @@ class MetaTable implements Migrate, MigrateImmutable, Rollback, RollbackImmutabl
 	/**
 	 * @inheritDoc
 	 */
-	function doMigrate(string $tableName, array $paramsToCreate = []): void
+	function doMigrate(string $tableName, array $paramsToCreate): void
 	{
 		self::migrate($this->db, $tableName, $paramsToCreate);
 	}

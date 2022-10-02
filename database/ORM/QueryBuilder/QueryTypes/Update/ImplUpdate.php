@@ -2,7 +2,6 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Update;
 
-use DB\ORM\QueryBuilder\Templates\SQL;
 
 class ImplUpdate extends UpdateQuery
 {
@@ -12,7 +11,6 @@ class ImplUpdate extends UpdateQuery
 	{
 		parent::__construct(
 			$this::createQueryBox(
-				template: SQL::UPDATE,
 				clearArgs: [$tableName, $field],
 				dryArgs: [$value],
 			)

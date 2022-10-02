@@ -3,8 +3,11 @@
 namespace DB\ORM\DBAdapter\PDO;
 
 
+use DB\Exceptions\Checked\NullableQueryResultException;
 use DB\Exceptions\Checked\QueryTemplateNotFoundException;
-use DB\ORM\DBAdapter\{DBAdapter, InsertBuffer, QueryResult, QueryTemplate};
+use DB\Exceptions\Unchecked\BadQueryResultException;
+use DB\Exceptions\Unchecked\IncorrectBufferInputException;
+use DB\ORM\DBAdapter\{DBAdapter, InsertBuffer, QueryResult, QueryTemplate, QueryTemplateBindAble};
 
 /**
  * Lazy Insert SQL object Using PDO
@@ -22,7 +25,7 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 {
     /** @var DBAdapter - curr database connection */
     private readonly DBAdapter $db;
-    /** @var array<QueryTemplate> $states - prepared insert statements */
+    /** @var array<QueryTemplateBindAble> $states - prepared insert statements */
     private array $states = [];
 
 	/**
@@ -54,7 +57,7 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 	        'INSERT INTO %s (%s) VALUES %s',
 	        $this->getTableName(),
 	        implode(', ', $this->getTableFields()),
-	        $this->genVarsFromCurrentGroupNumber(),
+	        $this->genVarsFromCurrentBufferCursor(),
 	    );
     }
 
@@ -62,12 +65,16 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 	/**
 	 * {@inheritDoc}
 	 */
-    public function exec(array $values = []): QueryResult
+    public function exec(?array $values = null): QueryResult
     {
+		if (empty($values)) {
+			throw new IncorrectBufferInputException($this->getTableFieldsCount(), $values);
+		}
+
 		$this->setBuffer($values);
 
         if ($this->isBufferFull()) {
-            $queryResult = $this->save();
+            $queryResult = $this->makeExec();
         }
         return $queryResult ?? new PDOQueryResult(null);
     }
@@ -78,42 +85,45 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
     public function save(): QueryResult
     {
         if ($this->isBufferNotEmpty()) {
-			try {
-				$tryGetState = $this->getState();
-			} catch (QueryTemplateNotFoundException) {
-				$tryGetState = $this->createNewStateWithCurrentGroupNumber();
-			}
-
-	        $queryResult = match($this->isBufferFull()) {
-				true => $tryGetState->exec($this->getBuffer()),
-		        false => $tryGetState->exec($this->getBufferSlice())
-	        };
-
-            $this->resetBufferCursor();
+			$queryResult = $this->makeExec();
         }
 
         return $queryResult ?? new PDOQueryResult(null);
     }
 
+	private function makeExec(): QueryResult
+	{
+		try {
+			$tryGetState = $this->getState();
+		} catch (QueryTemplateNotFoundException) {
+			$tryGetState = $this->createNewStateWithCurrentGroupNumber();
+		}
+
+		$queryResult = $tryGetState->exec();
+
+		$this->resetBufferCursor();
+
+		return $queryResult;
+	}
 
 	/**
 	 * Return state using cursor value
-	 * @return QueryTemplate|null
+	 * @return QueryTemplateBindAble
 	 * @throws QueryTemplateNotFoundException
 	 */
-    public function getState(): QueryTemplate|null
+    public function getState(): QueryTemplateBindAble
     {
-        $currentGroupNumber = $this->getCurrentNumberOfGroups();
-        if (!array_key_exists($currentGroupNumber, $this->states)) {
+        $currentBufferCursor = $this->getCurrentBufferCursor();
+        if (!array_key_exists($currentBufferCursor, $this->states)) {
           throw new QueryTemplateNotFoundException();
         }
-        return $this->states[$currentGroupNumber];
+        return $this->states[$currentBufferCursor];
     }
 
     /**
-     * @return QueryTemplate
+     * @return QueryTemplateBindAble
      */
-    public function createNewStateWithCurrentGroupNumber(): QueryTemplate
+    public function createNewStateWithCurrentGroupNumber(): QueryTemplateBindAble
     {
         $newStrTemplate = $this->genNewTemplate();
         return $this->setState($newStrTemplate);
@@ -121,13 +131,20 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 
     /**
      * @param string $newTemplate
-     * @return QueryTemplate - new template that was created
+     * @return QueryTemplateBindAble - new template that was created
      */
-    private function setState(string $newTemplate): QueryTemplate
+    private function setState(string $newTemplate): QueryTemplateBindAble
     {
       $newTemplate = $this->db->prepare($newTemplate);
-      $this->states[$this->getCurrentNumberOfGroups()] = $newTemplate;
+
+	  $this->bufferReshape();
+	  $newTemplate->bindParams(
+		  $this->buffer, true
+	  );
+
+	  $this->states[$this->getCurrentBufferCursor()] = $newTemplate;
 
       return $newTemplate;
     }
+
 }

@@ -2,7 +2,6 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\Select;
 
-use DB\ORM\QueryBuilder\Templates\SQL;
 
 class ImplSelect extends SelectQuery
 {
@@ -15,7 +14,7 @@ class ImplSelect extends SelectQuery
 	{
 		parent::__construct(
 			$this::createQueryBox(
-				template: SQL::SELECT, clearArgs: [$fields, $anotherTables]
+				clearArgs: [$fields, $anotherTables]
 			)
 		);
 	}

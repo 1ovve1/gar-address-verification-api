@@ -2,7 +2,6 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\ContinueWhere;
 
-use DB\ORM\QueryBuilder\Templates\SQL;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
 class ImplWhereOr extends ContinueWhereQuery
@@ -20,7 +19,6 @@ class ImplWhereOr extends ContinueWhereQuery
 	{
 		parent::__construct(
 			$this::createQueryBox(
-				template: SQL::WHERE_OR,
 				clearArgs: [$field, $sign],
 				dryArgs: [$value],
 				parentBox: $parent->getQueryBox()
