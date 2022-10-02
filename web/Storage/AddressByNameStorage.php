@@ -52,7 +52,7 @@ class AddressByNameStorage extends BaseStorage
 	 * Return full address by fragment of $halfAddress
 	 * @param array<string> $userAddress - exploded input address fragment
 	 * @param int $region - region context
-	 * @return array<int, array<string, array<int, array<string, string|int>>>> - full address
+	 * @return array<int, array<string, AddressElementContract>> - full address
 	 * @throws AddressNotFoundException - address was not found
 	 */
     function getFullAddress(array $userAddress, int $region): array

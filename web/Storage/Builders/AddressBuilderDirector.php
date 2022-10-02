@@ -173,7 +173,7 @@ class AddressBuilderDirector
 
 	/**
 	 * Return complete address structure
-	 * @return array<int, array<string, array<int, array<string, string|int>>>>
+	 * @return array<int, array<string, AddressElementContract>>
 	 */
 	function getAddress(): array
 	{

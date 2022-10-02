@@ -52,7 +52,6 @@ class AddressController
 	/**
 	 * @param Request $request
 	 * @param Response $response
-	 * @param array<string> $args
 	 * @return Response
 	 */
     public function getCodeByType(Request $request, Response $response): Response

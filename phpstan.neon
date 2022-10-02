@@ -4,7 +4,6 @@ parameters:
         - web
         - database
         - cli
-        - tests
         - config
         - gar
         - bootstrap.php
@@ -14,7 +13,7 @@ parameters:
 
     typeAliases:
         DatabaseContract: 'int|float|string|bool|null'
-        AddressElementContract: 'array<int, array<string, string|int>>'
+        AddressElementContract: 'array<int, array<int|string, mixed>>'
 
     exceptions:
         uncheckedExceptionRegexes:
