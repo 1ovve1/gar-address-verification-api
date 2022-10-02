@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace DB\ORM\QueryBuilder\QueryTypes\NestedCondition;
+namespace DB\ORM\QueryBuilder\QueryTypes\Condition;
 
 
-class ImplNestedCondition extends NestedConditionQuery
+class ImplCondition extends ConditionQuery
 {
 
 	/**

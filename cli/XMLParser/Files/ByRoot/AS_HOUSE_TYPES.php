@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files\ByRoot;
 
-use DB\Models\Housetype;
+use DB\Models\HousesType;
 use CLI\XMLParser\Files\XMLFile;
 
 class AS_HOUSE_TYPES extends XMLFile
 {
 	/**
 	 * @inheritDoc
-	 * @return Housetype
+	 * @return HousesType
 	 */
-	public static function getTable(): Housetype
+	public static function getTable(): HousesType
 	{
-		return new Housetype();
+		return new HousesType();
 	}
 
 	/**
 	 * @inheritDoc
-	 * @param Housetype $table
+	 * @param HousesType $table
 	 */
 	public static function callbackOperationWithTable(mixed $table): void
 	{
@@ -54,7 +54,7 @@ class AS_HOUSE_TYPES extends XMLFile
 	 *     SHORTNAME: string,
 	 *     NAME: string
 	 * } $values
-	 * @param Housetype $table
+	 * @param HousesType $table
 	 */
     public function execDoWork(array $values, mixed $table): void
     {

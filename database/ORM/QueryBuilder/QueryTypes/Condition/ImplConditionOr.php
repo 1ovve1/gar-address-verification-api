@@ -1,21 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace DB\ORM\QueryBuilder\QueryTypes\NestedCondition;
+namespace DB\ORM\QueryBuilder\QueryTypes\Condition;
 
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
-class ImplNestedConditionAnd extends NestedContinueConditionQuery
+class ImplConditionOr extends ContinueConditionQuery
 {
-	/**
-	 * @param ActiveRecord $parent
-	 * @param string $field
-	 * @param string $sign
-	 * @param DatabaseContract $value
-	 */
 	public function __construct(ActiveRecord $parent,
 	                            string $field,
 	                            string $sign,
-	                            int|float|bool|string|null $value)
+	                            float|int|bool|string|null $value)
 	{
 		parent::__construct(
 			$this::createQueryBox(
@@ -24,5 +18,6 @@ class ImplNestedConditionAnd extends NestedContinueConditionQuery
 				parentBox: $parent->getQueryBox()
 			)
 		);
+
 	}
 }

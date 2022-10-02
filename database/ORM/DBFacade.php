@@ -6,7 +6,7 @@ use DB\Exceptions\Checked\ConditionNotFoundException;
 use DB\Exceptions\Unchecked\DriverImplementationNotFoundException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\PDO\PDOObject;
-use DB\ORM\QueryBuilder\Templates\DBResolver;
+use DB\ORM\Resolver\DBResolver;
 use RuntimeException;
 
 /**
@@ -183,7 +183,7 @@ class DBFacade
 			$sign = DBResolver::cond((string)$sign_or_value);
 		} catch (ConditionNotFoundException) {
 			try {
-				$sign = DBResolver::cond('=');
+				$sign = DBResolver::cond_eq();
 			} catch (ConditionNotFoundException $e) {
 				throw new DriverImplementationNotFoundException($e->dbType, $e->getMessage(), $e);
 			}

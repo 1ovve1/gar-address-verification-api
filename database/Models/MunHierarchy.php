@@ -39,7 +39,7 @@ class MunHierarchy extends QueryBuilder implements MigrateAble
 			'fields' => [
 				'parentobjid_addr'      => 'INT UNSIGNED NOT NULL',
 				'chiledobjid_addr'      => 'INT UNSIGNED',
-				'chiledobjid_houses'    => 'BIGINT UNSIGNED',
+				'chiledobjid_houses'    => 'INT UNSIGNED',
 				'region'                => 'TINYINT UNSIGNED NOT NULL',
 			],
 			'foreign' => [

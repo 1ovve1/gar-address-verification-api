@@ -6,25 +6,29 @@ namespace CLI\XMLParser\Files\ByRegions;
 
 use DB\Models\AddrObj;
 use CLI\XMLParser\Files\XMLFile;
+use DB\Models\AddrObjTypename;
 
 class AS_ADDR_OBJ extends XMLFile
 {
 	/**
 	 * {@inheritDoc}
-	 * @return AddrObj
+	 * @return array{addrObj: AddrObj, addrObjTypename: AddrObjTypename}
 	 */
-	public static function getTable(): AddrObj
+	public static function getTable(): array
 	{
-		return new AddrObj();
+		return [
+			'addrObj' => new AddrObj(),
+			'addrObjTypename' => new AddrObjTypename()
+		];
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @param AddrObj $table
+	 * @param array{addrObj: AddrObj, addrObjTypename: AddrObjTypename} $table
 	 */
 	public static function callbackOperationWithTable(mixed $table): void
 	{
-		$table->saveForceInsert();
+		$table['addrObj']->saveForceInsert();
 	}
 
 	/**
@@ -54,7 +58,7 @@ class AS_ADDR_OBJ extends XMLFile
 
 	/**
 	 * {@inheritDoc}
-	 * @param AddrObj $table
+	 * @param array{addrObj: AddrObj, addrObjTypename: AddrObjTypename} $table
 	 * @param array{
 	 *     ISACTUAL: bool, ISACTIVE: bool,
 	 *     OBJECTID: int, LEVEL: int,
@@ -64,14 +68,16 @@ class AS_ADDR_OBJ extends XMLFile
     public function execDoWork(array $values, mixed $table): void
     {
         $region = $this->getIntRegion();
+		['addrObj' => $addrObj, 'addrObjTypename' => $addrObjTypename] = $table;
 
-        if ($table->checkIfAddrObjNotExists($region, $values['OBJECTID'])) {
+        if ($addrObj->checkIfAddrObjNotExists($region, $values['OBJECTID'])) {
+			$typeNameId = $addrObjTypename->getTypenameOrCreate($values['TYPENAME']);
 
-            $table->forceInsert([
+            $addrObj->forceInsert([
 				$values['OBJECTID'],
 	            $values['LEVEL'],
 	            $values['NAME'],
-	            $values['TYPENAME'],
+	            $typeNameId,
 	            $region
             ]);
         }

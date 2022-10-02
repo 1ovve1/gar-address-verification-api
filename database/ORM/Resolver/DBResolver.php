@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace DB\ORM\QueryBuilder\Templates;
+namespace DB\ORM\Resolver;
 
 use DB\Exceptions\Checked\ConditionNotFoundException;
 use DB\Exceptions\Unchecked\DriverImplementationNotFoundException;
@@ -8,14 +8,6 @@ use DB\Exceptions\Unchecked\UnknownDBDriverException;
 
 class DBResolver
 {
-	const CONDITIONS = 'conditions';
-	const SQL = 'sql';
-	const FMT = 'fmt';
-
-	const SEPARATOR = ' ';
-	const PSEUDONYMS_FIELDS = '.';
-	const PSEUDONYMS_TABLES = ' as ';
-
 	/** @var string */
 	static private string $dbType;
 	/** @var array<string, string> */
@@ -36,11 +28,11 @@ class DBResolver
 		};
 
 		self::$dbType = $dbType;
-		self::$dbSQL = $driver[self::SQL] ??
+		self::$dbSQL = $driver[AST::SQL] ??
 			throw new UnknownDBDriverException($dbType, $driver, 'invalidContract');
-		self::$dbConditions = $driver[self::CONDITIONS] ??
+		self::$dbConditions = $driver[AST::COND] ??
 			throw new UnknownDBDriverException($dbType, $driver, 'invalidContract');
-		self::$dbFmt = $driver[self::FMT] ?? null;
+		self::$dbFmt = $driver[AST::FMT] ?? null;
 	}
 
 	/**
@@ -102,12 +94,23 @@ class DBResolver
 	}
 
 	/**
+	 * Return default condition
+	 * @return string
+	 * @throws ConditionNotFoundException
+	 */
+	public static function cond_eq(): string
+	{
+		return self::getDbConditions()[AST::COND_EQ] ??
+			throw new ConditionNotFoundException(self::$dbType, AST::COND_EQ);
+	}
+
+	/**
 	 * return separator for current driver (or default)
 	 * @return string
 	 */
 	public static function fmtSep(): string
 	{
-		return self::getDbFmt()[self::SEPARATOR] ?? self::SEPARATOR;
+		return self::getDbFmt()[AST::FMT_SEP] ?? AST::FMT_SEP;
 	}
 
 	/**
@@ -116,7 +119,7 @@ class DBResolver
 	 */
 	public static function fmtPseudoFields(): string
 	{
-		return self::getDbFmt()[self::PSEUDONYMS_FIELDS] ?? self::PSEUDONYMS_FIELDS;
+		return self::getDbFmt()[AST::FMT_PS_FIELDS] ?? AST::FMT_PS_FIELDS;
 	}
 
 	/**
@@ -125,6 +128,6 @@ class DBResolver
 	 */
 	public static function fmtPseudoTables(): string
 	{
-		return self::getDbFmt()[self::PSEUDONYMS_TABLES] ?? self::PSEUDONYMS_TABLES;
+		return self::getDbFmt()[AST::FMT_PS_TABLES] ?? AST::FMT_PS_TABLES;
 	}
 }

@@ -12,6 +12,8 @@ return [
 		\CLI\XMLParser\Files\ByRegions\AS_HOUSES::class,
 		\CLI\XMLParser\Files\ByRegions\AS_ADDR_OBJ_PARAMS::class,
 		\CLI\XMLParser\Files\ByRegions\AS_MUN_HIERARCHY::class,
+
+		// these can slowed uploader but its important if you need ALL addresses chains
 		\CLI\XMLParser\Files\ByRegions\AS_ADM_HIERARCHY::class
 	],
 ];

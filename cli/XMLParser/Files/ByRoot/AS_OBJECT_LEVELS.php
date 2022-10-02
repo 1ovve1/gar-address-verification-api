@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files\ByRoot;
 
-use DB\Models\ObjLevels;
+use DB\Models\AddrObjLevels;
 use CLI\XMLParser\Files\XMLFile;
 
 class AS_OBJECT_LEVELS extends XMLFile
 {
 	/**
 	 * @inheritDoc
-	 * @return ObjLevels
+	 * @return AddrObjLevels
 	 */
-	public static function getTable(): ObjLevels
+	public static function getTable(): AddrObjLevels
 	{
-		return new ObjLevels();
+		return new AddrObjLevels();
 	}
 
 	/**
 	 * @inheritDoc
-	 * @param ObjLevels $table
+	 * @param AddrObjLevels $table
 	 */
 	public static function callbackOperationWithTable(mixed $table): void
 	{
@@ -55,7 +55,7 @@ class AS_OBJECT_LEVELS extends XMLFile
 	 *     NAME: string,
 	 *     ISACTIVE: string
 	 * } $values
-	 * @param ObjLevels $table
+	 * @param AddrObjLevels $table
 	 */
     public function execDoWork(array $values, mixed $table): void
     {

@@ -2,7 +2,7 @@
 
 namespace DB\ORM\QueryBuilder\ActiveRecord;
 
-use DB\ORM\QueryBuilder\Templates\DBResolver;
+use DB\ORM\Resolver\DBResolver;
 
 /**
  * Query immutable box class

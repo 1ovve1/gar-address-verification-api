@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace DB\ORM\QueryBuilder\QueryTypes\NestedCondition;
+namespace DB\ORM\QueryBuilder\QueryTypes\Condition;
 
 use DB\Exceptions\Unchecked\BadQueryBuilderCallbackReturnExcpetion;
 use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 
-class ImplNestedInNestedOr extends NestedContinueConditionQuery
+class ImplNestedConditionOr extends ContinueConditionQuery
 {
 	public function __construct(ActiveRecord $parent, callable $callback)
 	{
-		$record = $callback(new ClientNestedCondition());
+		$record = $callback(new ClientCondition());
 		if (!($record instanceof ActiveRecord)) {
 			throw new BadQueryBuilderCallbackReturnExcpetion($record);
 		}

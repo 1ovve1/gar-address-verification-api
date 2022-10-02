@@ -143,6 +143,8 @@ class QueryGenerator implements QueryFactory
 		$result = '';
 
 		foreach ($params as $index => $param) {
+			$param = strtoupper($param);
+
 			switch ($_ENV['DB_TYPE']) {
 				case 'mysql':
 					$param = str_replace('SMALLINT', 'TINYINT', $param);
@@ -150,6 +152,12 @@ class QueryGenerator implements QueryFactory
 				case 'pgsql':
 					$param = str_replace('TINYINT', 'SMALLINT', $param);
 					$param = str_replace('UNSIGNED', '', $param);
+					if (str_contains($param, 'AUTO_INCREMENT')) {
+						$param = str_replace('AUTO_INCREMENT', '', $param);
+						$param = str_replace('SMALLINT', 'SERIAL', $param);
+						$param = str_replace('INT', 'SERIAL', $param);
+						$param = str_replace('BIGINT', 'SERIAL', $param);
+					}
 					break;
 			}
 			$result .= sprintf(

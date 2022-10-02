@@ -5,7 +5,7 @@ namespace DB\ORM\QueryBuilder\ActiveRecord;
 use DB\ORM\DBAdapter\QueryResult;
 use DB\ORM\DBAdapter\QueryTemplate;
 use DB\ORM\DBFacade;
-use DB\ORM\QueryBuilder\Templates\DBResolver;
+use DB\ORM\Resolver\DBResolver;
 
 abstract class ActiveRecordImpl implements ActiveRecord
 {

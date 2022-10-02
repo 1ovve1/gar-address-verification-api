@@ -50,15 +50,15 @@ class Houses extends QueryBuilder implements MigrateAble
 				'housenum'      => 'VARCHAR(50)',
 				'addnum1'       => 'VARCHAR(50)',
 				'addnum2'       => 'VARCHAR(50)',
-				'id_housetype'  => 'TINYINT UNSIGNED',
+				'id_type'       => 'TINYINT UNSIGNED',
 				'id_addtype1'   => 'TINYINT UNSIGNED',
 				'id_addtype2'   => 'TINYINT UNSIGNED',
 				'region'        => 'TINYINT UNSIGNED NOT NULL',
 			],
 			'foreign' => [
-				'id_housetype'  => [Housetype::class, 'id'],
-				'id_addtype1'   => [Addhousetype::class, 'id'],
-				'id_addtype2'   => [Addhousetype::class, 'id'],
+				'id_type'       => [HousesType::class, 'id'],
+				'id_addtype1'   => [HousesAddtype::class, 'id'],
+				'id_addtype2'   => [HousesAddtype::class, 'id'],
 			]
 		];
 	}
