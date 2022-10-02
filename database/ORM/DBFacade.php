@@ -59,7 +59,7 @@ class DBFacade
 
     /**
      * Generate table name in snake_case
-     * @param  class-string $className - full class name namespace
+     * @param  string $className - full class name namespace
      * @return string
      */
     public static function genTableNameByClassName(string $className): string

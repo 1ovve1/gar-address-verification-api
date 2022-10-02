@@ -44,6 +44,7 @@ class GarCLI extends CLI
 	 */
 	protected function main(Options $options)
 	{
+		/** @var array<string> $params */
 		$params = $options->getOpt();
 
 		switch ($options->getCmd()) {
@@ -72,7 +73,7 @@ class GarCLI extends CLI
 		}
 
 		if (isset($params['region'])) {
-			$regions = $this->convertInputRegionsToArray($params['region']);
+			$regions = $this->convertInputRegionsToArray((string)$params['region']);
 		}
 
 		if (isset($params['migrate-recreate'])) {

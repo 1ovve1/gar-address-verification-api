@@ -22,7 +22,7 @@ trait InsertTrait
 
 	/**
 	 * @param array<int|string, DatabaseContract|array<DatabaseContract>> $fields_values
-	 * @return array{fields: array<string>, values: array<DatabaseContract>}
+	 * @return array{fields: array<int, int|string>, values: array<int|string, DatabaseContract>}
 	 */
 	private static function prepareArgsIntoFieldsAndValues(array $fields_values) : array
 	{
@@ -62,7 +62,7 @@ trait InsertTrait
 
 		$stepSize = count($values);
 
-		foreach ($values as $coll => $row) {
+		foreach (array_values($values) as $coll => $row) {
 			if (!is_array($row)) {
 				$row = [$row];
 			}

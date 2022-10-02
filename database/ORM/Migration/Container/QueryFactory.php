@@ -30,7 +30,7 @@ interface QueryFactory
 	 * Generate create table if exists query
 	 *
 	 * @param string $tableName - name of table
-	 * @param array<string, array<string, string>> $params
+	 * @param MigrationParams $params
 	 * @return Query - query object
 	 */
     public static function genCreateTableQuery(string $tableName, array $params): Query;

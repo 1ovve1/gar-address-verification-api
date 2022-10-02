@@ -14,17 +14,17 @@ trait SelectTrait
 	public static function select(array|string $fields,
 	                              null|array|string $anotherTables = null): SelectQuery
 	{
-
-		$fields = match($type = gettype($fields)) {
-			"string" => $fields,
-			"array" => DBFacade::fieldsWithPseudonymsToString($fields),
-			default => throw new InvalidArgumentException("Type '{$type}' are unknown")
+		$fields = match(is_string($fields)) {
+			true =>	$fields,
+			false => DBFacade::fieldsWithPseudonymsToString($fields),
 		};
-		$anotherTables = match($type = gettype($anotherTables)) {
-			"NULL" => QueryBuilder::table(static::class),
-			"string" => $anotherTables,
-			"array" => DBFacade::tableNamesWithPseudonymsToString($anotherTables),
-			default => throw new InvalidArgumentException("Type '{$type}' are unknown")
+
+		$anotherTables = match(is_null($anotherTables)) {
+			true => QueryBuilder::table(static::class),
+			default => match (is_array($anotherTables)) {
+				true => DBFacade::tableNamesWithPseudonymsToString($anotherTables),
+				default => $anotherTables
+			}
 		};
 
 		return new ImplSelect($fields, $anotherTables);

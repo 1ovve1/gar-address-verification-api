@@ -10,11 +10,11 @@ interface MigrateImmutable
 	 * Immutable migrate function
 	 *
 	 * @param string $tableName
-	 * @param array<string, array<string, string>> $paramsToCreate
+	 * @param MigrationParams $paramsToCreate
 	 * @return void
 	 */
 	function doMigrate(string $tableName,
-	                   array $paramsToCreate = []): void;
+	                   array $paramsToCreate): void;
 
 	/**
 	 * Immutable migrate function using object that implement MigrateAble interface

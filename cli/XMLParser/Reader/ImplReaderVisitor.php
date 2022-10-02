@@ -265,6 +265,9 @@ class ImplReaderVisitor implements
 	private static function isDirEmpty(string $dir): bool
 	{
 		$handle = opendir($dir);
+		if (false === $handle) {
+			throw new RuntimeException("Cannot open dir by name {$dir}");
+		}
 		while (false !== ($entry = readdir($handle))) {
 			if ($entry != "." && $entry != "..") {
 				closedir($handle);

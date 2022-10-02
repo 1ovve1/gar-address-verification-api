@@ -12,7 +12,7 @@ class MigrateImpl extends BaseOptionFacade implements Migrate
 	/**
 	 * @inheritDoc
 	 */
-	static function migrate(DBAdapter $db, string $tableName, array $paramsToCreate = []): void
+	static function migrate(DBAdapter $db, string $tableName, array $paramsToCreate): void
 	{
 		if (true === parent::isTableExists($db, $tableName)) {
 			echo sprintf('Table %s already exists' . PHP_EOL, $tableName);
@@ -39,7 +39,13 @@ class MigrateImpl extends BaseOptionFacade implements Migrate
 		parent::checkMigrateAble($className);
 
 		$tableName = parent::genTableNameFromClassName($className);
-		$paramsToCreate = call_user_func($className . '::migrationParams');
+		$callable = $className . '::migrationParams';
+
+		if (is_callable($callable)) {
+			$paramsToCreate = $callable();
+		} else {
+			throw new RuntimeException("Params not found (function '{$callable}' not found");
+		}
 
 		self::migrate($db, $tableName, $paramsToCreate);
 	}

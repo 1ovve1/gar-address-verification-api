@@ -38,7 +38,8 @@ interface BuilderOptions
 	function saveForceInsert(): QueryResult;
 
 	/**
+	 * @param string|null $className
 	 * @return string - table name of current pseudo-model
 	 */
-	static function table(): string;
+	static function table(?string $className = null): string;
 }

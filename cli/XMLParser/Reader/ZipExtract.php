@@ -100,7 +100,7 @@ class ZipExtract
 
         for ($iter = 0; $iter < $this->zipArchive->numFiles; ++$iter) {
             $tryPath = $this->zipArchive->getNameIndex($iter);
-            if (preg_match("/" . implode("\/", explode("/", $fileName)) . "_\d+/", $tryPath)) {
+            if (false !== $tryPath && preg_match("/" . implode("\/", explode("/", $fileName)) . "_\d+/", $tryPath)) {
                 $realPath = $tryPath;
                 break;
             }
@@ -109,7 +109,7 @@ class ZipExtract
         if (null === $realPath) {
 	        return false;
         } else {
-			//TODO: add logger here to show whar type of $realPath we extract now
+			//TODO: add logger here to show what type of $realPath we extract now
 	        $this->tryExtract($realPath);
             return $this->cachePath . "/" . $realPath;
         }

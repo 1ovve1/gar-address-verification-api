@@ -14,6 +14,7 @@ parameters:
     typeAliases:
         DatabaseContract: 'int|float|string|bool|null'
         AddressElementContract: 'array<int, array<int|string, mixed>>'
+        MigrationParams: 'array{fields: array<string, string>, foreign?: array<string, string|array<string>>}'
 
     exceptions:
         uncheckedExceptionRegexes:
