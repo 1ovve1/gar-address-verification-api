@@ -33,6 +33,7 @@ class HandlersConfigParser
 	 */
 	static function validateAndParse(mixed $config): array
 	{
+		$copy = [];
 
 		if (!is_array($config)) {
 			throw new InvalidConfigParsingException(
@@ -47,16 +48,19 @@ class HandlersConfigParser
 					$handlerType, CONFIG_NAME
 				));
 			}
-			foreach ($config[$handlerType] as $handler) {
-				if (!is_string($handler)) {
-					throw new InvalidConfigParsingException(
-						"handler should be a string name of concrete class, ''" . gettype($handler) . "' given"
-					);
+			if (is_array($config[$handlerType])) {
+				foreach ($config[$handlerType] as $handler) {
+					if (!is_string($handler)) {
+						throw new InvalidConfigParsingException(
+							"handler should be a string name of concrete class, ''" . gettype($handler) . "' given"
+						);
+					}
+					$copy[$handlerType][] = $handler;
 				}
 			}
 		}
 
-		return $config;
+		return $copy;
 	}
 
 	/**

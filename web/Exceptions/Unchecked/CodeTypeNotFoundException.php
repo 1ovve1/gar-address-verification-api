@@ -10,10 +10,10 @@ class CodeTypeNotFoundException extends RuntimeException
 	const MESSAGE_TEMPLATE = "Code '%s' type not found, use these types: '%s'";
 
 	/**
-	 * @param string $actualType
+	 * @param mixed $actualType
 	 * @param array<Codes> $codeTypes
 	 */
-	public function __construct(string $actualType, array $codeTypes)
+	public function __construct(mixed $actualType, array $codeTypes)
 	{
 		/** @var array<string> $codeTypesList */
 		$codeTypesList = [];
@@ -21,7 +21,11 @@ class CodeTypeNotFoundException extends RuntimeException
 			$codeTypesList[] = $codeType->value;
 		}
 
-		$message = sprintf(self::MESSAGE_TEMPLATE, $actualType, implode(', ', $codeTypesList));
+		$message = sprintf(
+			self::MESSAGE_TEMPLATE,
+			print_r($actualType, true),
+			implode(', ', $codeTypesList)
+		);
 
 		parent::__construct($message, 64);
 	}

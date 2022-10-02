@@ -28,7 +28,10 @@ class AddrObjTypename extends QueryBuilder implements MigrateAble
 				->save();
 		}
 
-		return $tryFindInTable->fetchAllNum()[0][0];
+		/** @var int $index */
+		[[$index]] = $tryFindInTable->fetchAllNum();
+
+		return $index;
 	}
 
 	/**

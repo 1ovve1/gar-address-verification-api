@@ -17,7 +17,7 @@ class CodeByObjectIdStorage extends BaseStorage
 	 * @param int $objectId - concrete objectid address
 	 * @param Codes $type - type of code
 	 * @param int $region
-	 * @return array<int, array<string, string>>
+	 * @return array<int, array<string, mixed>>
 	 * @throws CodeNotFoundException|ParamNotFoundException - if codes was not found
 	 */
     public function getCode(int $objectId, Codes $type, int $region): ?array
@@ -41,7 +41,7 @@ class CodeByObjectIdStorage extends BaseStorage
 	 * Return code by $type using specific objectid address
 	 * @param int $objectId - objectid address
 	 * @param Codes $type - type of code
-	 * @return array<string, string>
+	 * @return array<string, mixed>
 	 * @throws ParamNotFoundException
 	 */
     public function getCodeByObjectId(int $objectId, Codes $type): array
@@ -54,7 +54,10 @@ class CodeByObjectIdStorage extends BaseStorage
 
 			foreach ($fetchData as $dataElem) {
 				$code = $dataElem['value'] ??
-					throw new ParamNotFoundException("value from addrObjParams was not found", "objectid = {$objectId}, type = {$type->value}");
+					throw new ParamNotFoundException(
+						"value from addrObjParams was not found",
+						"objectid = {$objectId}, type = {$type->value}"
+					);
 
 				$result = [$type->value => $code];
 			}
@@ -67,7 +70,7 @@ class CodeByObjectIdStorage extends BaseStorage
 	/**
 	 * Return all codes using concrete objectid address
 	 * @param int $objectId - concrete objectid address
-	 * @return array<int, array<string, string>>
+	 * @return array<int, array<string, mixed>>
 	 * @throws ParamNotFoundException
 	 */
     public function getAllCodesByObjectId(int $objectId): array

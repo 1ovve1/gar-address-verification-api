@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Reader;
 
+use CLI\Exceptions\Checked\EmptyXMLElementException;
+use CLI\Exceptions\Unchecked\CastException;
+use CLI\Exceptions\Unchecked\EmptyDataException;
 use CLI\XMLParser\Files\XMLFile;
 use RuntimeException;
 use XMLReader;
@@ -101,19 +104,24 @@ class ImplReaderVisitor implements
         $elemName = $file::getElement();
 
         do {
-            $data = self::parseElement($attributesOfElement, $readerFocusedOnCurrElem);
 
-            if (null !== $data) {
-                self::tryUploadDataInTable($file, $table, $data);
-            }
+	        try {
+				/** @var array<string, DatabaseContract> $data */
+		        $data = self::parseElement($attributesOfElement, $readerFocusedOnCurrElem);
+		        self::tryUploadDataInTable($file, $table, $data);
+	        } catch (EmptyXMLElementException) {
+				continue;
+	        }
+
         } while ($readerFocusedOnCurrElem->next($elemName));
     }
 
-    /**
-     * @param String[] $attributesList
-     * @param XMLReader $readerFocusedOnCurrElem
-     * @return Mixed[]|null
-     */
+	/**
+	 * @param String[] $attributesList
+	 * @param XMLReader $readerFocusedOnCurrElem
+	 * @return Mixed[]
+	 * @throws EmptyXMLElementException
+	 */
     private static function parseElement(array &$attributesList, XMLReader &$readerFocusedOnCurrElem): array|null
     {
         $data = [];
@@ -131,11 +139,11 @@ class ImplReaderVisitor implements
                 }
             }
         } else {
-            return null;
+            throw new EmptyXMLElementException();
         }
 
         if (empty($data)) {
-            self::warningEmptyData($attributesList, $readerFocusedOnCurrElem);
+            throw new EmptyDataException($readerFocusedOnCurrElem, $attributesList);
         }
         return $data;
     }
@@ -146,35 +154,15 @@ class ImplReaderVisitor implements
      * @return void
      */
     private static function tryCast(mixed &$value, string $cast): void {
-        try {
-            settype($value, $cast);
-        } catch (\Throwable $error) {
-            throw new RuntimeException(
-                "Incorrect type: " . PHP_EOL .
-                "Given type '{$cast}' for cast attribute value '{$value}'" . PHP_EOL
-            );
+        if(false === settype($value, $cast)) {
+	        throw new CastException($cast, $value);
         }
-    }
-
-    /**
-     * @param String[] $attributesList
-     * @param XMLReader $readerFocusedOnCurrElem
-     * @return void
-     */
-    private static function warningEmptyData(array &$attributesList, XMLReader &$readerFocusedOnCurrElem): void
-    {
-        trigger_error("WARNING: reader not found attributes: '"
-            . implode(', ', $attributesList)
-            . "'" . PHP_EOL
-            . "XML String: " . $readerFocusedOnCurrElem->readInnerXml() . PHP_EOL
-            . "Local Name " . $readerFocusedOnCurrElem->localName,
-            E_USER_WARNING);
     }
 
 	/**
 	 * @param XMLFile $file
 	 * @param mixed $table
-	 * @param Mixed[] $data
+	 * @param array<string, DatabaseContract> &$data
 	 * @return void
 	 */
     private static function tryUploadDataInTable(XMLFile &$file, mixed &$table, array &$data): void

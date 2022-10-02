@@ -29,9 +29,13 @@ class ChainPoint
 	 */
 	static function fromQueryResult(QueryResult $queryResult, int $parentPosition, int $chiledPosition): self
 	{
+		/**
+		 * @var int $parentObjectId
+		 * @var int $chiledObjectId
+		 */
 		[[$parentObjectId, $chiledObjectId]] = $queryResult->fetchAllNum();
 
-		return new self((int)$parentObjectId, $parentPosition, (int)$chiledObjectId, $chiledPosition);
+		return new self($parentObjectId, $parentPosition, $chiledObjectId, $chiledPosition);
 	}
 
 }
