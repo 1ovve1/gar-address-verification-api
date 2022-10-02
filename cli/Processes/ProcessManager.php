@@ -82,8 +82,8 @@ class ProcessManager
 	function waitQueue(): void
 	{
 		$shiftProcess = array_shift($this->processBuffer);
-		$shiftProcess->wait();
-		$this->history[] = $shiftProcess;
+		$shiftProcess?->wait();
+//		$this->history[] = $shiftProcess;
 	}
 
 	/**

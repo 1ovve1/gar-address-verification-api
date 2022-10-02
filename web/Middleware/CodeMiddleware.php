@@ -10,19 +10,20 @@ use GAR\Storage\Codes;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
-use Slim\Routing\RouteContext;
 
 class CodeMiddleware
 {
     public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
     {
-        ['type' => $typeStr, 'region' => $region]
-	        = RouteContext::fromRequest($request)->getRoute()->getArguments();
+		$context = RequestHelper::getRouteContextFromRequest($request);
+
+		$typeStr = $context->getArgument('type');
+		$region = $context->getArgument('region');
         $params = $request->getQueryParams();
         $formattedAddress = null;
         $objectId = null;
 
-		// try find code from enum-contract
+		// try to find code from enum-contract
 	    try {
 		    $type = Codes::tryFindWithException($typeStr);
 	    } catch (CodeTypeNotFoundException $e) {

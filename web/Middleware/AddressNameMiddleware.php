@@ -17,7 +17,9 @@ class AddressNameMiddleware
 {
     public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
     {
-		['region' => $region] = RouteContext::fromRequest($request)->getRoute()->getArguments();
+		$context = RequestHelper::getRouteContextFromRequest($request);
+
+		$region = $context->getArgument('region');
         $params = $request->getQueryParams();
 
 		// check if set address param

@@ -64,17 +64,14 @@ class GarCLI extends CLI
 	 */
 	function uploadProcedure(array $params): void
 	{
-		$regions = null;
-
-		if (isset($params['thread'])) {
-			$uploader = new UploadFactory((int)$params['thread']);
-		} else {
-			$uploader = new UploadFactory((int)$_ENV['PROCESS_COUNT']);
-		}
-
-		if (isset($params['region'])) {
-			$regions = $this->convertInputRegionsToArray((string)$params['region']);
-		}
+		$uploader = match(isset($params['thread'])) {
+			true => new UploadFactory((int)$params['thread']),
+			default => new UploadFactory((int)$_ENV['PROCESS_COUNT'])
+		};
+		$regions = match(isset($params['region'])) {
+			true => $this->convertInputRegionsToArray((string)$params['region']),
+			default => $_SERVER['config']('regions')
+		};
 
 		if (isset($params['migrate-recreate'])) {
 			$this->dropTablesAndMigrate();

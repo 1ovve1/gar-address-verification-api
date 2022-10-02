@@ -17,16 +17,22 @@ enum Codes : string
     case ALL = 'ALL';
 
 	/**
-	 * @param string $type
-	 * @return  Codes
+	 * @param  mixed $type
+	 * @return Codes
 	 * @throws CodeTypeNotFoundException - if code type not found
 	 */
-	static function tryFindWithException(string $type): self
+	static function tryFindWithException(mixed $type): self
 	{
-		$try = self::tryFrom(strtoupper($type));
+		$try = null;
+
+		if (is_string($type)) {
+			$try = self::tryFrom(strtoupper($type));
+		}
+
 		if (null === $try) {
 			throw new CodeTypeNotFoundException($type, self::cases());
 		}
+
 		return $try;
 	}
 }

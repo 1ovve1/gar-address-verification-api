@@ -2,12 +2,13 @@
 
 namespace GAR\Helpers;
 
-use GAR\Exceptions\Unchecked\ServerSideProblemException;
-use http\Exception\RuntimeException;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Interfaces\RouteInterface;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
+use Slim\Routing\RouteContext;
 
 class RequestHelper
 {
@@ -62,16 +63,28 @@ class RequestHelper
 
 	/**
 	 * @param ResponseInterface &$response
-	 * @param array<mixed> $data
+	 * @param mixed $data
 	 * @param int $flag
 	 * @return void
 	 */
-	static function writeDataJson(ResponseInterface $response, array $data, int $flag = JSON_FORCE_OBJECT): void
+	static function writeDataJson(ResponseInterface $response, mixed $data, int $flag = JSON_FORCE_OBJECT): void
 	{
 		if ($data = json_encode($data, JSON_FORCE_OBJECT)) {
 			$response->getBody()->write($data);
 		} else {
-			throw new RuntimeException('Cannot convert data to JSON format');
+			throw new \RuntimeException('Cannot convert data to JSON format');
 		}
+	}
+
+	/**
+	 * Return route context from request
+	 * @param ServerRequestInterface $request
+	 * @return RouteInterface
+	 */
+	static function getRouteContextFromRequest(Request $request): RouteInterface
+	{
+		$context = RouteContext::fromRequest($request)->getRoute();
+
+		return $context ?? throw new \RuntimeException('Cannot get context from request: ' . print_r($request, true));
 	}
 }

@@ -3,9 +3,7 @@
 namespace DB\ORM\DBAdapter\PDO;
 
 
-use DB\Exceptions\Checked\NullableQueryResultException;
 use DB\Exceptions\Checked\QueryTemplateNotFoundException;
-use DB\Exceptions\Unchecked\BadQueryResultException;
 use DB\Exceptions\Unchecked\IncorrectBufferInputException;
 use DB\ORM\DBAdapter\{DBAdapter, InsertBuffer, QueryResult, QueryTemplate, QueryTemplateBindAble};
 

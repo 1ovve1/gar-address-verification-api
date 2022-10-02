@@ -21,15 +21,11 @@ class UploadFactory
 
 	/**
 	 * Upload full data from regions (single + regions)
-	 * @param array<int, string>|null $regions
+	 * @param array<int, string> $regions
 	 * @return void
 	 */
-	function upload(?array $regions = null): void
+	function upload(array $regions): void
 	{
-		if (null === $regions) {
-			$regions = $_SERVER['config']('regions');
-		}
-
 		$this->uploadSingle();
 
 		$this->uploadRegions($regions);

@@ -12,9 +12,9 @@ class IncorrectBufferInputException extends RuntimeException
 
 	/**
 	 * @param int $requireLengthOfInputArray
-	 * @param array<DatabaseContract> $givenValues
+	 * @param ?array<DatabaseContract> $givenValues
 	 */
-	public function __construct(int $requireLengthOfInputArray, array $givenValues)
+	public function __construct(int $requireLengthOfInputArray, ?array $givenValues)
 	{
 		$message = sprintf(self::MESSAGE_TEMPLATE, $requireLengthOfInputArray, print_r($givenValues, true));
 		parent::__construct(

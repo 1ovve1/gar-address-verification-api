@@ -68,7 +68,7 @@ class DBFacade
 	    $tableName = '';
 
 	    for ($index = -1, $char = $className[$index];
-	         $index >= $negStrLen && $char !== '\\';
+	         $index >= $negStrLen && $char !== '\\' && $char !== null;
 	         --$index, $char = $className[$index] ?? null) {
 
 		    if (ctype_upper($char)) {
