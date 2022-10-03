@@ -9,7 +9,7 @@ use Swoole\Http\Request;
 use Swoole\Http\Response;
 
 return function ($app) {
-    $http = new swoole_http_server($_ENV['SWOOLE_HOST'], intval($_ENV['SWOOLE_PORT']));
+    $http = new swoole_http_server($_ENV['SERVER_HOST'], intval($_ENV['SERVER_PORT']));
     $uriFactory = new Psr17Factory();
     $streamFactory = new Psr17Factory();
     $responseFactory = new Psr17Factory();
@@ -19,7 +19,7 @@ return function ($app) {
     $http->on('start', function (
         Swoole\Http\Server $swooleRequest
     ) {
-        echo 'server started at ' . $_ENV['SWOOLE_HOST'] . ':' . $_ENV['SWOOLE_PORT'] . PHP_EOL;
+        echo 'server started at ' . $_ENV['SERVER_HOST'] . ':' . $_ENV['SERVER_PORT'] . PHP_EOL;
     });
 
     $http->on(

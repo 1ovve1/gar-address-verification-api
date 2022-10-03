@@ -10,6 +10,10 @@ use DB\UserMigrations;
 
 class GarCLI extends CLI
 {
+	const UPLOAD = 'upload';
+	const MIGRATE = 'migrate';
+	const SERVE = 'serve';
+
 	/**
 	 * Remove default handler connection
 	 * @param bool $autocatch
@@ -26,17 +30,19 @@ class GarCLI extends CLI
 	{
 		$options->setHelp('GAR BD FIAS CLI tool');
 
-		$options->registerCommand('upload', 'upload gar archive to database');
-		$options->registerOption('migrate', 'upload with migration', 'm', false, 'upload');
-		$options->registerOption('migrate-recreate', 'upload with recreate migration', null, false, 'upload');
-		$options->registerOption('region', 'concrete region(s) for upload', 'r', 'region-list', 'upload');
-		$options->registerOption('only-regions', 'upload only regions information', null, false, 'upload');
-		$options->registerOption('only-single', 'upload only single indexes', null, false, 'upload');
-		$options->registerOption('thread', 'upload only single indexes', 't', true, 'upload');
+		$options->registerCommand(self::UPLOAD, 'upload gar archive to database');
+		$options->registerOption('migrate', 'upload with migration', 'm', false, self::UPLOAD);
+		$options->registerOption('migrate-recreate', 'upload with recreate migration', null, false, self::UPLOAD);
+		$options->registerOption('region', 'concrete region(s) for upload', 'r', 'region-list', self::UPLOAD);
+		$options->registerOption('only-regions', 'upload only regions information', null, false, self::UPLOAD);
+		$options->registerOption('only-single', 'upload only single indexes', null, false, self::UPLOAD);
+		$options->registerOption('thread', 'upload only single indexes', 't', true, self::UPLOAD);
 
-		$options->registerCommand('migrate', 'create actual database structure in your database');
-		$options->registerOption('drop', 'delete tables', 'd', false, 'migrate');
-		$options->registerOption('recreate', 'drop and create tables', 'r', false, 'migrate');
+		$options->registerCommand(self::MIGRATE, 'create actual database structure in your database');
+		$options->registerOption('drop', 'delete tables', 'd', false, self::MIGRATE);
+		$options->registerOption('recreate', 'drop and create tables', 'r', false, self::UPLOAD);
+
+		$options->registerCommand(self::SERVE, 'start server using special flag or .env conf');
 	}
 
 	/**
@@ -48,11 +54,14 @@ class GarCLI extends CLI
 		$params = $options->getOpt();
 
 		switch ($options->getCmd()) {
-			case 'upload':
+			case self::UPLOAD:
 				$this->uploadProcedure($params);
 				break;
-			case 'migrate':
+			case self::MIGRATE:
 				$this->migrateProcedure($params);
+				break;
+			case self::SERVE:
+				$this->startServer();
 				break;
 		}
 	}
@@ -146,5 +155,22 @@ class GarCLI extends CLI
 	{
 		$this->dropTables();
 		$this->migrate();
+	}
+
+	/**
+	 * @return void
+	 */
+	function startServer(): void
+	{
+		$link = $_ENV['SERVER_HOST'] . ':' . $_ENV['SERVER_PORT'];
+
+		echo "Trying to start server at '{$link}' ..." . PHP_EOL;
+
+		if (filter_var($_ENV['SERVER_SWOOLE_ENABLE'], FILTER_VALIDATE_BOOL)) {
+			shell_exec('php public/index.php');
+		} else {
+			shell_exec('cd public/ && php -S ' . $link);
+		}
+
 	}
 }

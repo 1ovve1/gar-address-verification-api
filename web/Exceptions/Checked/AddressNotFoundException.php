@@ -6,11 +6,11 @@ use Exception;
 
 class AddressNotFoundException extends Exception
 {
-	const MESSAGE_TEMPLATE = "Code not found by these param: %s (userAddress)";
+	const MESSAGE_TEMPLATE = "Address not found: %s";
 
 	public function __construct(?string $userAddress = null)
 	{
-		$message = sprintf(self::MESSAGE_TEMPLATE, $userAddress ?? "param not found");
+		$message = sprintf(self::MESSAGE_TEMPLATE, $userAddress ?? "input incorrect or address not exists");
 
 		parent::__construct(
 			$message,
