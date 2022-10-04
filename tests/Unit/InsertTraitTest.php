@@ -15,9 +15,9 @@ use InsertTrait;
 		'THREE' => [2]
 	];
 	const FIELDS = [
-		'ADD',
-		'TWO',
-		'THREE'
+		'`ADD`',
+		'`TWO`',
+		'`THREE`'
 	];
 	const TRUE_VALUES = [
 		2, 2, 2, null, 3, null, null, 4, null

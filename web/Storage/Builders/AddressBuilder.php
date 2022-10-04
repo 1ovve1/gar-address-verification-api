@@ -2,37 +2,40 @@
 
 namespace GAR\Storage\Builders;
 
+use DB\ORM\DBAdapter\QueryResult;
+
 interface AddressBuilder
 {
 	/**
-	 * @param string $identifier
-	 * @param AddressElementContract $data
+	 * @param QueryResult $data
+	 * @param ItemTypes $type
+	 * @param ?string $rawName
 	 * @return AddressBuilder
 	 */
-	function addParentAddr(string $identifier, array $data): self;
+	function addItemsUpper(QueryResult $data, ItemTypes $type, ?string $rawName = null): self;
 
 	/**
-	 * @param string $identifier
-	 * @param AddressElementContract $data
+	 * @param QueryResult $data
+	 * @param ItemTypes $type
+	 * @param ?string $rawName
 	 * @return AddressBuilder
 	 */
-	function addChiledAddr(string $identifier, array $data): self;
-
-	/**
-	 * @param AddressElementContract $data
-	 * @return AddressBuilder
-	 */
-	function addChiledHouses(array $data): self;
-
-	/**
-	 * @param AddressElementContract $data
-	 * @return AddressBuilder
-	 */
-	function addChiledVariant(array $data): self;
+	function addItemsDown(QueryResult $data, ItemTypes $type, ?string $rawName = null): self;
 
 	/**
 	 * Return complete address structure
-	 * @return array<int, array<string, AddressElementContract>>
+	 * @return array<int, array{
+	 *     raw: string|null,
+	 *     type: string,
+	 *     items: AddressElementContract,
+	 *  }>
 	 */
 	function getAddress(): array;
+
+	/**
+	 * @param int $downIndex
+	 * @param int $upperIndex
+	 * @return void
+	 */
+	function resetAndReshape(int $downIndex, int $upperIndex): void;
 }

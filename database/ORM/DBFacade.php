@@ -114,20 +114,20 @@ class DBFacade
 			if (is_array($fields)) {
 				if (is_string($pseudonym)) {
 					foreach ($fields as $f) {
-						$strBuffer .= $pseudonym . DBResolver::fmtPseudoFields() . $f . ", ";
+						$strBuffer .= "`{$pseudonym}`" . DBResolver::fmtPseudoFields() . "`{$f}`" . ", ";
 					}
 					$strBuffer = substr($strBuffer, 0, -2);
 				} else {
 					foreach ($fields as $f) {
-						$strBuffer .= "{$f}, ";
+						$strBuffer .= "`{$f}`, ";
 					}
 				}
 
 			} else {
 				if (is_string($pseudonym)) {
-					$strBuffer = $pseudonym . DBResolver::fmtPseudoFields() . $fields;
+					$strBuffer = "`{$pseudonym}`" . DBResolver::fmtPseudoFields() . "`{$fields}`";
 				} else {
-					$strBuffer = $fields;
+					$strBuffer = "`{$fields}`";
 				}
 			}
 
@@ -148,10 +148,10 @@ class DBFacade
 
 			if (is_string($tableName)) {
 				if (is_string($pseudonym)) {
-					$strBuffer .= $tableName . DBResolver::fmtPseudoTables() . $pseudonym . ", ";
+					$strBuffer .= "`{$tableName}`" . DBResolver::fmtPseudoTables() . "`{$pseudonym}`" . ", ";
 
 				} else {
-					$strBuffer .= $tableName . ", ";
+					$strBuffer .= "`{$tableName}`" . ", ";
 				}
 			} else {
 				throw new RuntimeException('Incorrect tableName format (tableName should be a string - ' . gettype($tableName) . 'given');
@@ -210,8 +210,11 @@ class DBFacade
 	public static function joinArgsHandler(array|string $tableName, array $condition): array
 	{
 		if (is_array($tableName)) {
-			$tableName = current($tableName) . DBResolver::fmtPseudoTables() . key($tableName);
+			$name = current($tableName);
+			$pseudonym = key($tableName);
+			$tableName = "`{$name}`" . DBResolver::fmtPseudoTables() . "`{$pseudonym}`";
 		}
+
 		$condition = match (count($condition)) {
 			1 => (is_string(key($condition)))
 				? [key($condition), current($condition)]
@@ -236,9 +239,9 @@ class DBFacade
 		foreach ($conditionWithPseudonym as $pseudonym => $field) {
 
 			if (is_string($pseudonym)) {
-				$converted[] = $pseudonym . DBResolver::fmtPseudoFields() . $field;
+				$converted[] = "`{$pseudonym}`" . DBResolver::fmtPseudoFields() . "`{$field}`";
 			} else {
-				$converted[] = $field;
+				$converted[] = "`{$field}`";
 			}
 		}
 

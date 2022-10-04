@@ -51,7 +51,7 @@ class AddrObj extends QueryBuilder implements MigrateAble
 //	            'objectguid'    => 'CHAR(36) NOT NULL',
 				'id_level'      => 'TINYINT UNSIGNED NOT NULL',
 				'name'          => 'VARCHAR(255) NOT NULL',
-				'id_typename'   => 'TINYINT UNSIGNED NOT NULL',
+				'id_typename'   => 'SMALLINT UNSIGNED NOT NULL',
 				'region'        => 'TINYINT UNSIGNED NOT NULL',
 			],
 			'foreign' => [

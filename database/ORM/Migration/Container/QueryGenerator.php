@@ -59,7 +59,7 @@ class QueryGenerator implements QueryFactory
     {
 		$query = match ($_ENV['DB_TYPE']) {
 			'mysql' => 'SHOW TABLES',
-			'pgsql' => "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;",
+			'pgsql' => "SELECT `table_name` FROM `information_schema`.`tables` WHERE `table_schema` = 'public' ORDER BY `table_name`;",
 			default => throw new BadQueryResultException("Unknown db type '{$_ENV['DB_TYPE']}'")
 		};
         return (new QueryObject())
@@ -126,7 +126,7 @@ class QueryGenerator implements QueryFactory
         }
 
         return sprintf(
-            'CREATE TABLE %1$s (%2$s%3$s)',
+            'CREATE TABLE `%1$s` (%2$s%3$s)',
             $tableName,
             $formattedFields['fields'],
 	        (empty($formattedFields['foreign'])) ? '': ', ' . $formattedFields['foreign']
@@ -146,7 +146,6 @@ class QueryGenerator implements QueryFactory
 
 			switch ($_ENV['DB_TYPE']) {
 				case 'mysql':
-					$param = str_replace('SMALLINT', 'TINYINT', $param);
 					break;
 				case 'pgsql':
 					$param = str_replace('TINYINT', 'SMALLINT', $param);
@@ -160,7 +159,7 @@ class QueryGenerator implements QueryFactory
 					break;
 			}
 			$result .= sprintf(
-				'%s %s, ',
+				"`%s` %s, ",
 				$index,
 				$param
 			);
@@ -183,7 +182,7 @@ class QueryGenerator implements QueryFactory
 			}
 
 			$result .= sprintf(
-				'FOREIGN KEY (%s) REFERENCES %s, ',
+				'FOREIGN KEY (`%s`) REFERENCES %s, ',
 				$index,
 				$param
 			);
@@ -204,7 +203,7 @@ class QueryGenerator implements QueryFactory
 
 			if (is_callable($callable)) {
 				return sprintf(
-					'%s (%s)',
+					'`%s` (`%s`)',
 					$callable(), $field
 				);
 			} else {

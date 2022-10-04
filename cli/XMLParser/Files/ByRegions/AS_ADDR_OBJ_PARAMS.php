@@ -6,25 +6,29 @@ namespace CLI\XMLParser\Files\ByRegions;
 
 use CLI\XMLParser\Files\XMLFile;
 use DB\Models\AddrObjParams;
+use DB\Models\AddrObjParamsTypes;
 
 class AS_ADDR_OBJ_PARAMS extends XMLFile
 {
 	/**
 	 * {@inheritDoc}
-	 * @return AddrObjParams
+	 * @return array{addrObjParams: AddrObjParams, addrObjParamsTypes: AddrObjParamsTypes}
 	 */
-	public static function getTable(): AddrObjParams
+	public static function getTable(): array
 	{
-		return new AddrObjParams();
+		return [
+			'addrObjParams' => new AddrObjParams(),
+			'addrObjParamsTypes' => new AddrObjParamsTypes(),
+		];
 	}
 
 	/**
 	 * @inheritDoc
-	 * @param AddrObjParams $table
+	 * @param array{addrObjParams: AddrObjParams, addrObjParamsTypes: AddrObjParamsTypes} $table
 	 */
 	public static function callbackOperationWithTable(mixed $table): void
 	{
-		$table->saveForceInsert();
+		$table['addrObjParams']->saveForceInsert();
 	}
 
 	/**
@@ -54,28 +58,23 @@ class AS_ADDR_OBJ_PARAMS extends XMLFile
 	 *     TYPEID: int,
 	 *     VALUE: string
 	 * } $values
-	 * @param AddrObjParams $table
+	 * @param array{addrObjParams: AddrObjParams, addrObjParamsTypes: AddrObjParamsTypes} $table
 	 */
     public function execDoWork(array $values, mixed $table): void
     {
+		['addrObjParams' => $addrObjParams, 'addrObjParamsTypes' => $addrObjParamsTypes] = $table;
         $region = $this->getIntRegion();
 
-	    $type = match ($values['TYPEID']) {
-		    6 => 'OKATO',
-		    7 => 'OKTMO',
-		    10 => 'KLADR',
-		    default => false
-	    };
+		if ($addrObjParamsTypes->checkIfExists($values['TYPEID']) &&
+			$addrObjParams->checkIfAddrObjExists($region, $values['OBJECTID'])) {
 
-        if ($type && $table->checkIfAddrObjExists($region, $values['OBJECTID'])) {
-
-            $table->forceInsert([
+			$addrObjParams->forceInsert([
 				$values['OBJECTID'],
-	            $type,
-	            $values['VALUE'],
-	            $region
-            ]);
-        }
+				$values['TYPEID'],
+				$values['VALUE'],
+				$region
+			]);
+		}
     }
 
 }

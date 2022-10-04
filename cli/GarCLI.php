@@ -40,7 +40,7 @@ class GarCLI extends CLI
 
 		$options->registerCommand(self::MIGRATE, 'create actual database structure in your database');
 		$options->registerOption('drop', 'delete tables', 'd', false, self::MIGRATE);
-		$options->registerOption('recreate', 'drop and create tables', 'r', false, self::UPLOAD);
+		$options->registerOption('recreate', 'drop and create tables', 'r', false, self::MIGRATE);
 
 		$options->registerCommand(self::SERVE, 'start server using special flag or .env conf');
 	}

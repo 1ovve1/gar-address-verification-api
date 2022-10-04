@@ -11,10 +11,23 @@ use GAR\Exceptions\Unchecked\CodeTypeNotFoundException;
  */
 enum Codes : string
 {
-    case OKATO = 'OKATO';
-    case OKTMO = 'OKTMO';
-    case KLADR = 'KLADR';
-    case ALL = 'ALL';
+	case IFNSFL = 'IFNSFL';
+	case IFNSUL = 'IFNSUL';
+	case TER_IFNSFL = 'territorialifnsflcode';
+	case TER_IFNSUL = 'territorialifnsulcode';
+	case POST = 'Postindex';
+	case OKATO = 'OKATO';
+	case OKTMO = 'OKTMO';
+	case CADASTR = 'CadastrNum';
+	case KLADR = 'KLADR';
+	case PLAINKLADR = 'PLAINKLADR';
+	case REGUIONCODE = 'REGIONCODE';
+	case REESTRNUM = 'ReestrNum';
+	case DIVISIONTYPE = 'DivisionType';
+	case COUNTER = 'Counter';
+	case OFFICIAL = 'Official';
+	case POSTSTATUS = 'PostStatus';
+	case ALL = 'ALL';
 
 	/**
 	 * @param  mixed $type

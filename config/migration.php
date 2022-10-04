@@ -5,6 +5,8 @@ return [
 	\DB\Models\HousesType::class,
 	\DB\Models\AddrObjLevels::class,
 	\DB\Models\AddrObjTypename::class,
+	\DB\Models\AddrObjParamsTypes::class,
+
 	\DB\Models\AddrObj::class,
 	\DB\Models\AddrObjParams::class,
 	\DB\Models\Houses::class,

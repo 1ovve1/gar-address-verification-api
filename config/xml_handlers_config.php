@@ -4,7 +4,9 @@ return [
 	'root' => [
 		\CLI\XMLParser\Files\ByRoot\AS_HOUSE_TYPES::class,
 		\CLI\XMLParser\Files\ByRoot\AS_ADDHOUSE_TYPES::class,
-		\CLI\XMLParser\Files\ByRoot\AS_OBJECT_LEVELS::class
+		\CLI\XMLParser\Files\ByRoot\AS_OBJECT_LEVELS::class,
+		\CLI\XMLParser\Files\ByRoot\AS_ADDR_OBJ_TYPES::class,
+		\CLI\XMLParser\Files\ByRoot\AS_PARAM_TYPES::class,
 	],
 
 	'regions' => [

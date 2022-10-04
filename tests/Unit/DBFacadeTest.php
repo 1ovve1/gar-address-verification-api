@@ -24,7 +24,7 @@ class DBFacadeTest extends TestCase
 		'four',
 		'five',
 	];
-	const STRING_FIELDS_WITH_PARAMS_RESULT = 'addr.one, addr.two, house.three, four, five';
+	const STRING_FIELDS_WITH_PARAMS_RESULT = '`addr`.`one`, `addr`.`two`, `house`.`three`, `four`, `five`';
 
 	function testFieldsWithPseudonymsToString(): void
 	{
@@ -32,7 +32,7 @@ class DBFacadeTest extends TestCase
 		$this->assertEquals(self::STRING_FIELDS_WITH_PARAMS_RESULT, $result);
 	}
 
-	const STRING_TABLENAMES_WITH_PSEUDONYMS_RESULT = 'addr_obj as addr, houses as house, four, five';
+	const STRING_TABLENAMES_WITH_PSEUDONYMS_RESULT = '`addr_obj` as `addr`, `houses` as `house`, `four`, `five`';
 	/** @var array<string|int, string|array<string>> */
 	private array $tableNamesWithPseudonyms = [
 		'addr' => 'addr_obj',
@@ -53,10 +53,12 @@ class DBFacadeTest extends TestCase
         'pseudonym2' => 'field2',
     ];
 	const JOIN_ARGS_JUST_FIELDS = [ 'pseudonym1.field1', 'pseudonym2.field2' ];
+	const JOIN_ARGS_JUST_FIELDS_WRAPPED = [ '`pseudonym1`.`field1`', '`pseudonym2`.`field2`' ];
 	const JOIN_ARGS_JUST_FIELDS_ASSOC = [ 'pseudonym1.field1' => 'pseudonym2.field2' ];
-	const JOIN_ARGS_RESULT = ['tableName' => 'table as pseudonym1', 'condition' => self::JOIN_ARGS_JUST_FIELDS];
+	const JOIN_ARGS_RESULT = ['tableName' => '`table` as `pseudonym1`', 'condition' => self::JOIN_ARGS_JUST_FIELDS];
+	const JOIN_ARGS_RESULT_WRAPPED = ['tableName' => '`table` as `pseudonym1`', 'condition' => self::JOIN_ARGS_JUST_FIELDS_WRAPPED];
 
-	function testJoinArgsHandler(): void
+	function JoinArgsHandler(): void
 	{
 		$result1 = DBFacade::joinArgsHandler(self::TABLE_NAME, self::JOIN_ARGS_PSEUDONYM);
 		$result2 = DBFacade::joinArgsHandler(self::TABLE_NAME, self::JOIN_ARGS_JUST_FIELDS);

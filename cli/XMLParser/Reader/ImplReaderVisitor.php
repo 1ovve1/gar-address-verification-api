@@ -8,6 +8,7 @@ use CLI\Exceptions\Checked\EmptyXMLElementException;
 use CLI\Exceptions\Unchecked\CastException;
 use CLI\Exceptions\Unchecked\EmptyDataException;
 use CLI\XMLParser\Files\XMLFile;
+use DB\Models\Database;
 use RuntimeException;
 use XMLReader;
 
@@ -119,10 +120,10 @@ class ImplReaderVisitor implements
 	/**
 	 * @param String[] $attributesList
 	 * @param XMLReader $readerFocusedOnCurrElem
-	 * @return Mixed[]
+	 * @return array<DatabaseContract>
 	 * @throws EmptyXMLElementException
 	 */
-    private static function parseElement(array &$attributesList, XMLReader &$readerFocusedOnCurrElem): array|null
+    private static function parseElement(array &$attributesList, XMLReader &$readerFocusedOnCurrElem): array
     {
         $data = [];
         if ($readerFocusedOnCurrElem->hasAttributes) {
@@ -132,8 +133,8 @@ class ImplReaderVisitor implements
                 if (null !== $value) {
                     self::tryCast($value, $cast);
 
-                    if (is_bool($value) && $value === false) {
-                        return null;
+                    if ($cast === 'bool' && is_bool($value) && $value === false) {
+	                    throw new EmptyXMLElementException();
                     }
                     $data[$index] = $value;
                 }
@@ -145,15 +146,16 @@ class ImplReaderVisitor implements
         if (empty($data)) {
             throw new EmptyDataException($readerFocusedOnCurrElem, $attributesList);
         }
+
         return $data;
     }
 
     /**
      * @param mixed $value
      * @param string $cast
-     * @return void
      */
-    private static function tryCast(mixed &$value, string $cast): void {
+    private static function tryCast(mixed &$value, string $cast): void
+    {
         if(false === settype($value, $cast)) {
 	        throw new CastException($cast, $value);
         }

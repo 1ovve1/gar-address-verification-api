@@ -33,7 +33,7 @@ class ChainPoint
 		 * @var int $parentObjectId
 		 * @var int $chiledObjectId
 		 */
-		[[$parentObjectId, $chiledObjectId]] = $queryResult->fetchAllNum();
+		[['parentobjid_addr' => $parentObjectId, 'chiledobjid_addr' => $chiledObjectId]] = $queryResult->fetchAllAssoc();
 
 		return new self($parentObjectId, $parentPosition, $chiledObjectId, $chiledPosition);
 	}

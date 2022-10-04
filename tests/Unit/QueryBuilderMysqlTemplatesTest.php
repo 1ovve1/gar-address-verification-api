@@ -18,7 +18,7 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 	 * SELECT TEST
 	 *
 	 */
-	const SELECT_RESULT = 'SELECT addr.one, addr.two, rose, house.free FROM AddrObj as addr, Houses as house' . SEPARATOR;
+	const SELECT_RESULT = 'SELECT `addr`.`one`, `addr`.`two`, `rose`, `house`.`free` FROM `AddrObj` as `addr`, `Houses` as `house`' . SEPARATOR;
 
 	function testSelect(): void
 	{
@@ -35,7 +35,7 @@ class QueryBuilderMysqlTemplatesTest extends TestCase
 	 * WHERE TEST
 	 *
 	 */
-	const WHERE_RESULT = 'WHERE (addr.one = (?) OR rose < (?)) AND (house.free > (?) AND addr.two <= (?)) OR (rose >= (?))' . SEPARATOR;
+	const WHERE_RESULT = 'WHERE (`addr`.`one` = (?) OR rose < (?)) AND (`house`.`free` > (?) AND `addr`.`two` <= (?)) OR (rose >= (?))' . SEPARATOR;
 	const WHERE_DRY_ARGS = [2, 3, 2, 3, 2];
 
 	function testWhereAndContinueWhereAndNestedWhere(): void

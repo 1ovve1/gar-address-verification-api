@@ -2,17 +2,49 @@
 
 namespace GAR\Storage\Builders;
 
+use DB\ORM\DBAdapter\QueryResult;
+
 class AddressBuilderImplement implements AddressBuilder
 {
-	/** @var array<int, array<string, AddressElementContract>> */
+	/** @var array<int, array{
+	 *     raw: string|null,
+	 *     type: string,
+	 *     items: AddressElementContract,
+	 *  }>  $address
+	 */
 	private array $address = [];
+	private int $downIndex = 1;
+	private int $upperIndex = 0;
+
+	/**
+	 * @param string|null $rawName
+	 * @param ItemTypes $type
+	 * @param QueryResult $data
+	 * @return array{
+	 *     raw: string|null,
+	 *     type: string,
+	 *     items: AddressElementContract,
+	 *  }
+	 */
+	private static function getDataWrap(?string $rawName, ItemTypes $type, QueryResult $data): array
+	{
+		return [
+			'raw' => $rawName,
+			'type' => $type->value,
+			'items' => $data->fetchAllAssoc()
+		];
+	}
 
 	/**
 	 * @inheritDoc
 	 */
-	function addParentAddr(string $identifier, array $data): AddressBuilder
+	function addItemsUpper(QueryResult $data, ItemTypes $type, ?string $rawName = null): AddressBuilder
 	{
-		array_unshift($this->address, [$identifier => $data]);
+		$data = self::getDataWrap($rawName, $type, $data);
+
+		$this->address[$this->upperIndex--] = $data;
+
+		ksort($this->address);
 
 		return $this;
 	}
@@ -20,29 +52,11 @@ class AddressBuilderImplement implements AddressBuilder
 	/**
 	 * @inheritDoc
 	 */
-	function addChiledAddr(string $identifier, array $data): AddressBuilder
+	function addItemsDown(QueryResult $data, ItemTypes $type, ?string $rawName = null): AddressBuilder
 	{
-		$this->address[] = [$identifier => $data];
+		$data = self::getDataWrap($rawName, $type, $data);
 
-		return $this;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	function addChiledHouses(array $data): AddressBuilder
-	{
-		$this->address[] = ['houses' => $data];
-
-		return $this;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	function addChiledVariant(array $data): AddressBuilder
-	{
-		$this->address[] = ['variants' => $data];
+		$this->address[$this->downIndex++] = $data;
 
 		return $this;
 	}
@@ -54,4 +68,16 @@ class AddressBuilderImplement implements AddressBuilder
 	{
 		return $this->address;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	function resetAndReshape(int $downIndex, int $upperIndex): void
+	{
+		$this->address = [];
+		$this->downIndex = $downIndex;
+		$this->upperIndex = $upperIndex;
+	}
+
+
 }

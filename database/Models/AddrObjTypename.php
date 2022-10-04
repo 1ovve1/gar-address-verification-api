@@ -10,22 +10,24 @@ class AddrObjTypename extends QueryBuilder implements MigrateAble
 	/**
 	 *
 	 * @param string $typename
+	 * @param int $level
 	 * @return int
 	 */
-	function getTypenameOrCreate(string $typename): int
+	function getTypenameOrCreate(string $typename, int $level): int
 	{
-		$tryFindInTable = AddrObjTypename::select('id')
-			->where('typename', $typename)
-			->limit(1)
-			->save();
+		$state = AddrObjTypename::select('id')
+			->where('short', $typename)
+			->andWhere('id_level', $level)
+			->limit(1);
+
+		$tryFindInTable = $state->save();
 
 		if ($tryFindInTable->isEmpty()) {
-			AddrObjTypename::insert(['typename' => $typename])->save();
+			AddrObjTypename::insert(
+				['name' => $typename, 'short' => $typename, 'desc' => $typename, 'id_level' => $level]
+			)->save();
 
-			$tryFindInTable = AddrObjTypename::select('id')
-				->where('typename', $typename)
-				->limit(1)
-				->save();
+			$tryFindInTable = $state->save();
 		}
 
 		/** @var int $index */
@@ -41,8 +43,14 @@ class AddrObjTypename extends QueryBuilder implements MigrateAble
 	{
 		return [
 			'fields' => [
-				'id' => 'TINYINT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT',
-				'typename' => 'VARCHAR(31) NOT NULL'
+				'id' => 'SMALLINT UNSIGNED NOT NULL PRIMARY KEY',
+				'name' => 'VARCHAR(100) NOT NULL',
+				'short' => 'VARCHAR(31) NOT NULL',
+				'desc' => 'VARCHAR(110) NOT NULL',
+				'id_level' => 'TINYINT UNSIGNED NOT NULL',
+			],
+			'foreign' => [
+				'id_level' => [AddrObjLevels::class, 'id'],
 			],
 		];
 	}
