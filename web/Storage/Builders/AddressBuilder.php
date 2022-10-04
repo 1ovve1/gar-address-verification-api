@@ -24,11 +24,7 @@ interface AddressBuilder
 
 	/**
 	 * Return complete address structure
-	 * @return array<int, array{
-	 *     raw: string|null,
-	 *     type: string,
-	 *     items: AddressElementContract,
-	 *  }>
+	 * @return AddressJSON
 	 */
 	function getAddress(): array;
 

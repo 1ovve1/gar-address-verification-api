@@ -44,8 +44,6 @@ class AddressBuilderImplement implements AddressBuilder
 
 		$this->address[$this->upperIndex--] = $data;
 
-		ksort($this->address);
-
 		return $this;
 	}
 

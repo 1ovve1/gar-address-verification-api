@@ -246,7 +246,6 @@ class Database extends QueryBuilder
 	/**
 	 * Return houses object id using parent address objectid
 	 * @param int $objectId - parent address objectid
-	 * @param string $houseNum
 	 * @param int $region
 	 * @return QueryResult
 	 */

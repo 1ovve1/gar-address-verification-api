@@ -57,11 +57,7 @@ class AddressByNameStorage extends BaseStorage
 	 * Return full address by fragment of $halfAddress
 	 * @param array<string> $userAddress - exploded input address fragment
 	 * @param int $region - region context
-	 * @return array<int, array{
-	 *     raw: string|null,
-	 *     type: string,
-	 *     items: AddressElementContract,
-	 *  }> - full address
+	 * @return AddressJSON - full address
 	 * @throws AddressNotFoundException - address was not found
 	 */
     function getFullAddress(array $userAddress, int $region): array
@@ -81,13 +77,13 @@ class AddressByNameStorage extends BaseStorage
 
 		}
 
-		$address = $this->addressBuilder->getAddress();
+		$address = $this->addressBuilderDirector->getAddress();
 
 		if (empty($address)) {
 			throw new AddressNotFoundException();
 		}
 
-        return array_values($address);
+        return $address;
     }
 
 	/**

@@ -254,4 +254,14 @@ class AddressBuilderDirector
 	{
 		return $this->finalFlag;
 	}
+
+	/**
+	 * @return AddressJSON
+	 */ 
+	function getAddress(): array
+	{
+		$address = $this->addressBuilder->getAddress();
+		ksort($address);
+		return array_values($address);
+	}
 }
