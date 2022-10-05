@@ -42,4 +42,10 @@ interface BuilderOptions
 	 * @return string - table name of current pseudo-model
 	 */
 	static function table(?string $className = null): string;
+
+	/**
+	 * @param string|null $className
+	 * @return string - table name of current pseudo-model in quoted wrap
+	 */
+	static function tableQuoted(?string $className = null): string;
 }

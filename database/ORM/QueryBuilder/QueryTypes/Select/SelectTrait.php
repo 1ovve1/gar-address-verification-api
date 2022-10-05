@@ -20,7 +20,7 @@ trait SelectTrait
 		};
 
 		$anotherTables = match(is_null($anotherTables)) {
-			true => QueryBuilder::table(static::class),
+			true => QueryBuilder::tableQuoted(static::class) ,
 			default => match (is_array($anotherTables)) {
 				true => DBFacade::tableNamesWithPseudonymsToString($anotherTables),
 				default => $anotherTables

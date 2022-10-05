@@ -9,15 +9,19 @@ trait InsertTrait
 {
 	/**
 	 * @inheritDoc
-	 * @param array<int|string, DatabaseContract|array<DatabaseContract>> $fields_values
+	 * @param array<string, DatabaseContract|array<DatabaseContract>> $fields_values
 	 */
 	public static function insert(array $fields_values,
 	                              ?string $tableName = null): InsertQuery
 	{
-		['fields' => $fields, 'values' => $values] = self::prepareArgsIntoFieldsAndValues($fields_values);
-		$tableName ??= QueryBuilder::table(static::class);
+		$tableName = match(null !== $tableName) {
+			true => $tableName,
+			default => self::tableQuoted()
+		};
 
-		return new ImplInsert($fields, $values, "`{$tableName}`");
+		['fields' => $fields, 'values' => $values] = self::prepareArgsIntoFieldsAndValues($fields_values);
+
+		return new ImplInsert($fields, $values, $tableName);
 	}
 
 	/**
