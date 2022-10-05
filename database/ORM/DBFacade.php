@@ -213,19 +213,29 @@ class DBFacade
 	public static function joinArgsHandler(array|string $tableName, array $condition): array
 	{
 		if (is_array($tableName)) {
-			$name = current($tableName);
+			if (count($tableName) > 1) {
+				throw new \RuntimeException("Too many tablenames (require 1)");
+			}
+			
 			$pseudonym = key($tableName);
-			$tableName = "`{$name}`" . DBResolver::fmtPseudoTables() . "`{$pseudonym}`";
+			[$pseudonym => $name] = $tableName;
+			
+			$tableName = "`{$name}`";
+
+			if (is_string($pseudonym)) {
+				 $tableName .= DBResolver::fmtPseudoTables() . "`{$pseudonym}`";
+
+			}
 		}
 
 		$condition = match (count($condition)) {
 			1 => (is_string(key($condition)))
 				? [key($condition), current($condition)]
-				: throw new RuntimeException('Condition count are incorrect (use [field1 => field2] or [field1, field2] notation]'),
+				: throw new RuntimeException('Condition count are incorrect (use [name1 => field1, name2 => field2] or [field1, field2] notation]'),
 
 			2 => self::convertFieldsWithPseudonym($condition),
 
-			default => throw new RuntimeException('Condition count are incorrect (use [field1 => field2] or [field1, field2] notation]')
+			default => throw new RuntimeException('Condition count are incorrect (use [name1 => field1, name2 => field2] or [field1, field2] notation]')
 		};
 
 		return ['tableName' => $tableName, 'condition' => $condition];

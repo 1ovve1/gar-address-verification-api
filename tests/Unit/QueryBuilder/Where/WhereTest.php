@@ -17,7 +17,7 @@ defined('CALLBACK_EMPTY_ACTIVE_RECORD') ?:
 	define('CALLBACK_EMPTY_ACTIVE_RECORD', fn() => new FakeActiveRecordImpl("data in callback"));
 
 
-class TestDeleteTable extends WhereMock {}
+class TestWhereTable extends WhereMock {}
 
 class WhereTest extends TestCase
 {
@@ -25,7 +25,7 @@ class WhereTest extends TestCase
 
 	function setUp(): void
 	{
-		$this->builder = new TestDeleteTable();
+		$this->builder = new TestWhereTable();
 	}
 
 	const INPUT_FIELD_DRY = 'field';
