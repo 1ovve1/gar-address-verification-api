@@ -6,12 +6,7 @@ use DB\ORM\DBAdapter\QueryResult;
 
 class AddressBuilderImplement implements AddressBuilder
 {
-	/** @var array<int, array{
-	 *     raw: string|null,
-	 *     type: string,
-	 *     items: AddressElementContract,
-	 *  }>  $address
-	 */
+	/** @var AddressJSON  $address */
 	private array $address = [];
 	private int $downIndex = 1;
 	private int $upperIndex = 0;
@@ -20,11 +15,7 @@ class AddressBuilderImplement implements AddressBuilder
 	 * @param string|null $rawName
 	 * @param ItemTypes $type
 	 * @param QueryResult $data
-	 * @return array{
-	 *     raw: string|null,
-	 *     type: string,
-	 *     items: AddressElementContract,
-	 *  }
+	 * @return AddressJSON
 	 */
 	private static function getDataWrap(?string $rawName, ItemTypes $type, QueryResult $data): array
 	{

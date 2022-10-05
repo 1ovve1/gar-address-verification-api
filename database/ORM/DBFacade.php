@@ -181,8 +181,11 @@ class DBFacade
 
 		try {
 			$sign = DBResolver::cond((string)$sign_or_value);
-		} catch (ConditionNotFoundException) {
+		} catch (ConditionNotFoundException $e) {
 			try {
+				if (null !== $value) {
+					throw new DriverImplementationNotFoundException($e->dbType, $e->getMessage(), $e);
+				}
 				$sign = DBResolver::cond_eq();
 			} catch (ConditionNotFoundException $e) {
 				throw new DriverImplementationNotFoundException($e->dbType, $e->getMessage(), $e);
