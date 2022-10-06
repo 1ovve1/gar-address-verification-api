@@ -7,12 +7,12 @@ use PHPUnit\Framework\TestCase;
 
 class QueryGeneratorTest extends TestCase
 {
-	private const CREATE_QUERY = 'CREATE TABLE table_name (id INT, disc CHAR(50) NOT NULL, id_addr INT, FOREIGN KEY (id_addr) REFERENCES addr_obj (id))';
+	private const CREATE_QUERY = 'CREATE TABLE `table_name` (`id` INT, `desc` CHAR(50) NOT NULL, `id_addr` INT, FOREIGN KEY (`id_addr`) REFERENCES `addr_obj` (`id`))';
 	private const TABLE_NAME = 'table_name';
 	private const TABLE_PARAMS = [
 		'fields' => [
 			'id' => 'INT',
-			'disc' => 'CHAR(50) NOT NULL',
+			'desc' => 'CHAR(50) NOT NULL',
 			'id_addr' => 'INT'
 		],
 		'foreign' => [
