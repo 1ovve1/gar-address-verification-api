@@ -1,10 +1,9 @@
 <?php declare(strict_types=1);
 
-use PHPUnit\Framework\TestCase;
-use DB\ORM\QueryBuilder\QueryBuilder;
-use DB\ORM\Resolver\DBResolver;
+namespace Tests\Unit\QueryBuilder\Update;
 
-class TestUpdateTable extends QueryBuilder {}
+use PHPUnit\Framework\TestCase;
+use DB\ORM\Resolver\DBResolver;
 
 class UpdateTest extends TestCase
 {
@@ -12,7 +11,7 @@ class UpdateTest extends TestCase
 	
 	const INPUT_DATA = "sample_data";
 	
-	const INPUT_TABLE_DRY = "test_update_table";
+	const INPUT_TABLE_DRY = "update_mock";
 	const INPUT_TABLE_NONE = null;
 
 	const INPUT = [
@@ -21,8 +20,8 @@ class UpdateTest extends TestCase
 	];
 
 	const MYSQL_EXPECTED = [
-		"UPDATE test_update_table SET `first` = (?)",
-		"UPDATE `test_update_table` SET `first` = (?)",
+		"UPDATE update_mock SET `first` = (?)",
+		"UPDATE `update_mock` SET `first` = (?)",
 	];
 
 	const ARGS_EXPECTED = [
@@ -33,7 +32,7 @@ class UpdateTest extends TestCase
 	function testUpdate(): void
 	{
 		foreach (self::INPUT as $case => [$fields, $data, $table]) {
-			$queryBox = TestUpdateTable::update($fields, $data, $table)->queryBox;
+			$queryBox = UpdateMock::update($fields, $data, $table)->queryBox;
 
 			$this->assertEquals(self::MYSQL_EXPECTED[$case] . DBResolver::fmtSep(), $queryBox->getQuerySnapshot(), "Error in case {$case}");
 			$this->assertEquals(self::ARGS_EXPECTED[$case], $queryBox->getDryArgs(), "Error in case {$case}");

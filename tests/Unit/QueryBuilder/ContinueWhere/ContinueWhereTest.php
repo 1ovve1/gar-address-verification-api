@@ -17,16 +17,13 @@ defined('COND_EQ') ?:
 defined('CALLBACK_EMPTY_ACTIVE_RECORD') ?:
 	define('CALLBACK_EMPTY_ACTIVE_RECORD', fn() => new FakeActiveRecordImpl("data in callback"));
 
-
-class TestContinueWhereTable extends ContinueWhereMock {}
-
 class ContinueWhereTest extends TestCase
 {
 	public ContinueWhereAble $builder;
 
 	function setUp(): void
 	{
-		$this->builder = new TestContinueWhereTable();
+		$this->builder = new ContinueWhereMock();
 	}
 
 	const INPUT_FIELD_DRY = 'field';

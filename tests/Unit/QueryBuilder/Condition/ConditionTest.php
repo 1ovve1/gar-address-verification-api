@@ -1,31 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace Tests\Unit\QueryBuilder\Where;
+namespace Tests\Unit\QueryBuilder\Condition;
 
-use PHPUnit\Framework\TestCase;
-
-use DB\ORM\Resolver\DBResolver;
-use DB\ORM\Resolver\AST;
-use DB\ORM\QueryBuilder\QueryTypes\Where\WhereAble;
 use DB\Exceptions\Unchecked\DriverImplementationNotFoundException;
+use DB\ORM\Resolver\DBResolver;
+use PHPUnit\Framework\TestCase;
 use Tests\Mock\FakeActiveRecordImpl;
 
 defined('COND_EQ') ?:
 	define('COND_EQ', DBResolver::cond_eq());
-
 defined('CALLBACK_EMPTY_ACTIVE_RECORD') ?:
 	define('CALLBACK_EMPTY_ACTIVE_RECORD', fn() => new FakeActiveRecordImpl("data in callback"));
 
-
-class WhereTest extends TestCase
+class ConditionTest extends TestCase
 {
-	public WhereAble $builder;
-
-	function setUp(): void
-	{
-		$this->builder = new WhereMock();
-	}
-
 	const INPUT_FIELD_DRY = 'field';
 	const INPUT_FIELD_CLEAR = ['field'];
 	const INPUT_FIELD_MAPPED = ['test' => 'field'];
@@ -52,16 +40,16 @@ class WhereTest extends TestCase
 	];
 
 	const MYSQL_EXPECTED = [
-		"WHERE field = (?)",
-		"WHERE field = (?)",
+		"field = (?)",
+		"field = (?)",
 
-		"WHERE `field` = (?)",
-		"WHERE `field` = (?)",
+		"`field` = (?)",
+		"`field` = (?)",
 
-		"WHERE `test`.`field` = (?)",
-		"WHERE `test`.`field` = (?)",
+		"`test`.`field` = (?)",
+		"`test`.`field` = (?)",
 
-		"WHERE (data in callback)",
+		"(data in callback)",
 	];
 
 	const ARGS_EXPECTED = [
@@ -81,9 +69,9 @@ class WhereTest extends TestCase
 	function testWhere(): void
 	{
 		foreach (self::INPUT as $case => [$field, $cond, $value]) {
-			$queryBox = $this->builder->where($field, $cond, $value)->queryBox;
+			$queryBox = ConditionMock::where($field, $cond, $value)->queryBox;
 
-			$this->assertEquals(DBResolver::fmtSep() . self::MYSQL_EXPECTED[$case] . DBResolver::fmtSep(), $queryBox->getQuerySnapshot(), "Error in case {$case}");
+			$this->assertEquals(self::MYSQL_EXPECTED[$case] . DBResolver::fmtSep(), $queryBox->getQuerySnapshot(), "Error in case {$case}");
 
 			$this->assertEquals(self::ARGS_EXPECTED[$case], $queryBox->getDryArgs(), "Error in case {$case}");
 
@@ -93,6 +81,6 @@ class WhereTest extends TestCase
 	function testIncorrectWhereCondition(): void
 	{
 		$this->expectException(DriverImplementationNotFoundException::class);
-		$queryBox = $this->builder->where("field", null, "value")->queryBox;
+		ConditionMock::where("field", null, "value")->queryBox;
 	}
 }

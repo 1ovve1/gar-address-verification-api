@@ -7,15 +7,13 @@ use PHPUnit\Framework\TestCase;
 use DB\ORM\Resolver\DBResolver;
 use DB\ORM\QueryBuilder\QueryTypes\Join\JoinAble;
 
-class TestJoinTable extends JoinMock {}
-
 class JoinTest extends TestCase
 {
 	public JoinAble $builder;
 
 	function setUp(): void
 	{
-		$this->builder = new TestJoinTable();
+		$this->builder = new JoinMock();
 	}
 
 	const INPUT_TABLE_DRY = 'table';

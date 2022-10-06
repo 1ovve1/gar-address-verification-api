@@ -7,16 +7,13 @@ use PHPUnit\Framework\TestCase;
 use DB\ORM\Resolver\DBResolver;
 use DB\ORM\QueryBuilder\QueryTypes\Limit\LimitAble;
 
-
-class TestLimitTable extends LimitMock {}
-
 class LimitTest extends TestCase
 {
 	public LimitAble $builder;
 
 	function setUp(): void
 	{
-		$this->builder = new TestLimitTable();
+		$this->builder = new LimitMock();
 	}
 
 	function testNegativeValueExceptionTest(): void
