@@ -28,7 +28,7 @@ class DBFacadeTest extends TestCase
 
 	function testFieldsWithPseudonymsToString(): void
 	{
-		$result = DBFacade::fieldsWithPseudonymsToString($this->fieldsWithPseudonyms);
+		$result = DBFacade::mappedFieldsToString($this->fieldsWithPseudonyms);
 		$this->assertEquals(self::STRING_FIELDS_WITH_PARAMS_RESULT, $result);
 	}
 
@@ -43,7 +43,7 @@ class DBFacadeTest extends TestCase
 
 	function testTableNamesWithPseudonymsToString(): void
 	{
-		$result = DBFacade::tableNamesWithPseudonymsToString($this->tableNamesWithPseudonyms);
+		$result = DBFacade::mappedTableNamesToString($this->tableNamesWithPseudonyms);
 		$this->assertEquals(self::STRING_TABLENAMES_WITH_PSEUDONYMS_RESULT, $result);
 	}
 

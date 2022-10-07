@@ -9,7 +9,7 @@ trait OrderByTrait
 	public function orderBy(string|array $field, bool $asc = true): OrderByQuery
 	{
 		if (is_array($field)) {
-			$field = DBFacade::fieldsWithPseudonymsToString($field);
+			$field = DBFacade::mappedFieldsToString($field);
 		}
 		return new ImplOrderBy($this, $field, $asc);
 	}

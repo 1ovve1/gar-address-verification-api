@@ -20,7 +20,6 @@ use DB\ORM\QueryBuilder\QueryTypes\{ContinueWhere\ImplNestedWhereAnd,
 	Condition\ImplNestedConditionOr,
 	OrderBy\ImplOrderBy,
 	Select\ImplSelect,
-	Select\ImplSubSelect,
 	Update\ImplUpdate,
 	Where\ImplNestedWhere,
 	Where\ImplWhere};
@@ -39,7 +38,6 @@ class AST
 
 	const SQL = 'sql';
 	const SQL_SELECT = ImplSelect::class;
-	const SQL_SUB_SELECT = ImplSubSelect::class;
 
 	const SQL_INSERT = ImplInsert::class;
 	const SQL_UPDATE = ImplUpdate::class;

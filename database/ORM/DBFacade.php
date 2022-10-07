@@ -3,9 +3,11 @@
 namespace DB\ORM;
 
 use DB\Exceptions\Checked\ConditionNotFoundException;
+use DB\Exceptions\Unchecked\BadQueryBuilderCallbackReturnExcpetion;
 use DB\Exceptions\Unchecked\DriverImplementationNotFoundException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\PDO\PDOObject;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 use DB\ORM\Resolver\DBResolver;
 use RuntimeException;
 
@@ -104,7 +106,7 @@ class DBFacade
 	 * @param array<int|string, string|String[]> $fieldsWithPseudonyms
 	 * @return string
 	 */
-	public static function fieldsWithPseudonymsToString(array $fieldsWithPseudonyms): string
+	public static function mappedFieldsToString(array $fieldsWithPseudonyms): string
 	{
 		$strResult = '';
 
@@ -138,23 +140,23 @@ class DBFacade
 	}
 
 	/**
-	 * @param array<int|string, int|string> $tableNamesWithPseudonyms
+	 * @param array<int|string, string> $mappedTableNames
 	 * @return string
 	 */
-	public static function tableNamesWithPseudonymsToString(array $tableNamesWithPseudonyms): string
+	public static function mappedTableNamesToString(array $mappedTableNames): string
 	{
 		$strBuffer = '';
-		foreach ($tableNamesWithPseudonyms as $pseudonym => $tableName) {
+		foreach ($mappedTableNames as $map => $tableName) {
 
-			if (is_string($tableName)) {
-				if (is_string($pseudonym)) {
-					$strBuffer .= "`{$tableName}`" . DBResolver::fmtPseudoTables() . "`{$pseudonym}`" . ", ";
-
+			if (is_string($map)) {
+				if ($tableName[0] === '(') {
+					$strBuffer .= "{$tableName}" . DBResolver::fmtPseudoTables() . "`{$map}`" . ", ";
 				} else {
-					$strBuffer .= "`{$tableName}`" . ", ";
+					$strBuffer .= "`{$tableName}`" . DBResolver::fmtPseudoTables() . "`{$map}`" . ", ";
 				}
+
 			} else {
-				throw new RuntimeException('Incorrect tableName format (tableName should be a string - ' . gettype($tableName) . 'given');
+				$strBuffer .= "`{$tableName}`" . ", ";
 			}
 		}
 
@@ -173,7 +175,7 @@ class DBFacade
 	{
 		if (is_array($field)) {
 			if (count($field) === 1) {
-				$field = DBFacade::fieldsWithPseudonymsToString($field);
+				$field = DBFacade::mappedFieldsToString($field);
 			} else {
 				throw new RuntimeException('You can use WHERE state only with single field element');
 			}
