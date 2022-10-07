@@ -2,10 +2,9 @@
 
 namespace Tests\Unit\QueryBuilder\Select;
 
-use PHPUnit\Framework\TestCase;
-use DB\ORM\Resolver\DBResolver;
+use Tests\Unit\QueryBuilder\QueryTypesTestCase;
 
-class SelectTest extends TestCase
+class SelectTest extends QueryTypesTestCase
 {
 	const INPUT_FIELDS_DRY = "first.data, second.data, data3";
 	const INPUT_FIELDS_CLEAR = ["first" => "data1", "second" => "data2", "data3"];
@@ -38,7 +37,7 @@ class SelectTest extends TestCase
 		foreach (self::INPUT as $case => [$fields, $table]) {
 			$queryBox = SelectMock::select($fields, $table)->queryBox;
 
-			$this->assertEquals(self::MYSQL_EXPECTED[$case] . DBResolver::fmtSep(), $queryBox->getQuerySnapshot(), "Error in case {$case}");
+			$this->compare(self::MYSQL_EXPECTED[$case], $queryBox);
 			
 		}
 	}

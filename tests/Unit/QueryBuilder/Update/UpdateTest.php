@@ -2,10 +2,9 @@
 
 namespace Tests\Unit\QueryBuilder\Update;
 
-use PHPUnit\Framework\TestCase;
-use DB\ORM\Resolver\DBResolver;
+use Tests\Unit\QueryBuilder\QueryTypesTestCase;
 
-class UpdateTest extends TestCase
+class UpdateTest extends QueryTypesTestCase
 {
 	const INPUT_FIELD = "first";
 	
@@ -34,8 +33,7 @@ class UpdateTest extends TestCase
 		foreach (self::INPUT as $case => [$fields, $data, $table]) {
 			$queryBox = UpdateMock::update($fields, $data, $table)->queryBox;
 
-			$this->assertEquals(self::MYSQL_EXPECTED[$case] . DBResolver::fmtSep(), $queryBox->getQuerySnapshot(), "Error in case {$case}");
-			$this->assertEquals(self::ARGS_EXPECTED[$case], $queryBox->getDryArgs(), "Error in case {$case}");
+			$this->compare(self::MYSQL_EXPECTED[$case], $queryBox, self::ARGS_EXPECTED[$case]);
 		}
 	}
 }

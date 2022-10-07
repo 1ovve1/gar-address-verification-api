@@ -2,22 +2,13 @@
 
 namespace Tests\Unit\QueryBuilder\Where;
 
-use PHPUnit\Framework\TestCase;
-
-use DB\ORM\Resolver\DBResolver;
-use DB\ORM\Resolver\AST;
 use DB\ORM\QueryBuilder\QueryTypes\Where\WhereAble;
 use DB\Exceptions\Unchecked\DriverImplementationNotFoundException;
 use Tests\Mock\FakeActiveRecordImpl;
-
-defined('COND_EQ') ?:
-	define('COND_EQ', DBResolver::cond_eq());
-
-defined('CALLBACK_EMPTY_ACTIVE_RECORD') ?:
-	define('CALLBACK_EMPTY_ACTIVE_RECORD', fn() => new FakeActiveRecordImpl("data in callback"));
+use Tests\Unit\QueryBuilder\QueryTypesTestCase;
 
 
-class WhereTest extends TestCase
+class WhereTest extends QueryTypesTestCase
 {
 	public WhereAble $builder;
 
@@ -29,7 +20,6 @@ class WhereTest extends TestCase
 	const INPUT_FIELD_DRY = 'field';
 	const INPUT_FIELD_CLEAR = ['field'];
 	const INPUT_FIELD_MAPPED = ['test' => 'field'];
-	const INPUT_CALLBACK = CALLBACK_EMPTY_ACTIVE_RECORD;
 
 	const INPUT_CONDITION_DEFAULT = COND_EQ;
 	const INPUT_CONDITION_VALUE = "value in cond";
@@ -47,8 +37,6 @@ class WhereTest extends TestCase
 
 		[self::INPUT_FIELD_MAPPED, self::INPUT_CONDITION_DEFAULT, self::INPUT_VALUE_DEFAULT],
 		[self::INPUT_FIELD_MAPPED, self::INPUT_CONDITION_VALUE, self::INPUT_VALUE_NULL],
-
-		[self::INPUT_CALLBACK, null, null]
 	];
 
 	const MYSQL_EXPECTED = [
@@ -60,8 +48,6 @@ class WhereTest extends TestCase
 
 		"WHERE `test`.`field` = (?)",
 		"WHERE `test`.`field` = (?)",
-
-		"WHERE (data in callback)",
 	];
 
 	const ARGS_EXPECTED = [
@@ -73,8 +59,6 @@ class WhereTest extends TestCase
 
 		["value"],
 		["value in cond"],
-
-		[],
 	];
 
 
@@ -83,16 +67,20 @@ class WhereTest extends TestCase
 		foreach (self::INPUT as $case => [$field, $cond, $value]) {
 			$queryBox = $this->builder->where($field, $cond, $value)->queryBox;
 
-			$this->assertEquals(DBResolver::fmtSep() . self::MYSQL_EXPECTED[$case] . DBResolver::fmtSep(), $queryBox->getQuerySnapshot(), "Error in case {$case}");
-
-			$this->assertEquals(self::ARGS_EXPECTED[$case], $queryBox->getDryArgs(), "Error in case {$case}");
-
+			$this->compare(self::MYSQL_EXPECTED[$case], $queryBox, self::ARGS_EXPECTED[$case]);
 		}
+	}
+
+	function testCallbackWhere(): void
+	{
+		$queryBox = $this->builder->where(fn() => new FakeActiveRecordImpl("value in callback"))->queryBox;
+
+		$this->compare("WHERE (value in callback)", $queryBox, []);
 	}
 
 	function testIncorrectWhereCondition(): void
 	{
 		$this->expectException(DriverImplementationNotFoundException::class);
-		$queryBox = $this->builder->where("field", null, "value")->queryBox;
+		$this->builder->where("field", null, "value");
 	}
 }

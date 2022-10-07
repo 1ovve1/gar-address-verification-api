@@ -3,21 +3,14 @@
 namespace Tests\Unit\QueryBuilder\Condition;
 
 use DB\Exceptions\Unchecked\DriverImplementationNotFoundException;
-use DB\ORM\Resolver\DBResolver;
-use PHPUnit\Framework\TestCase;
 use Tests\Mock\FakeActiveRecordImpl;
+use Tests\Unit\QueryBuilder\QueryTypesTestCase;
 
-defined('COND_EQ') ?:
-	define('COND_EQ', DBResolver::cond_eq());
-defined('CALLBACK_EMPTY_ACTIVE_RECORD') ?:
-	define('CALLBACK_EMPTY_ACTIVE_RECORD', fn() => new FakeActiveRecordImpl("data in callback"));
-
-class ConditionTest extends TestCase
+class ConditionTest extends QueryTypesTestCase
 {
 	const INPUT_FIELD_DRY = 'field';
 	const INPUT_FIELD_CLEAR = ['field'];
 	const INPUT_FIELD_MAPPED = ['test' => 'field'];
-	const INPUT_CALLBACK = CALLBACK_EMPTY_ACTIVE_RECORD;
 
 	const INPUT_CONDITION_DEFAULT = COND_EQ;
 	const INPUT_CONDITION_VALUE = "value in cond";
@@ -35,8 +28,6 @@ class ConditionTest extends TestCase
 
 		[self::INPUT_FIELD_MAPPED, self::INPUT_CONDITION_DEFAULT, self::INPUT_VALUE_DEFAULT],
 		[self::INPUT_FIELD_MAPPED, self::INPUT_CONDITION_VALUE, self::INPUT_VALUE_NULL],
-
-		[self::INPUT_CALLBACK, null, null]
 	];
 
 	const MYSQL_EXPECTED = [
@@ -48,8 +39,6 @@ class ConditionTest extends TestCase
 
 		"`test`.`field` = (?)",
 		"`test`.`field` = (?)",
-
-		"(data in callback)",
 	];
 
 	const ARGS_EXPECTED = [
@@ -61,8 +50,6 @@ class ConditionTest extends TestCase
 
 		["value"],
 		["value in cond"],
-
-		[],
 	];
 
 
@@ -71,16 +58,20 @@ class ConditionTest extends TestCase
 		foreach (self::INPUT as $case => [$field, $cond, $value]) {
 			$queryBox = ConditionMock::where($field, $cond, $value)->queryBox;
 
-			$this->assertEquals(self::MYSQL_EXPECTED[$case] . DBResolver::fmtSep(), $queryBox->getQuerySnapshot(), "Error in case {$case}");
-
-			$this->assertEquals(self::ARGS_EXPECTED[$case], $queryBox->getDryArgs(), "Error in case {$case}");
-
+			$this->compare(self::MYSQL_EXPECTED[$case], $queryBox, self::ARGS_EXPECTED[$case]);
 		}
+	}
+
+	function testCallbackWhere(): void
+	{
+		$queryBox = ConditionMock::where(fn() => new FakeActiveRecordImpl("value in callback"))->queryBox;
+
+		$this->compare("(value in callback)", $queryBox, []);
 	}
 
 	function testIncorrectWhereCondition(): void
 	{
 		$this->expectException(DriverImplementationNotFoundException::class);
-		ConditionMock::where("field", null, "value")->queryBox;
+		ConditionMock::where("field", null, "value");
 	}
 }

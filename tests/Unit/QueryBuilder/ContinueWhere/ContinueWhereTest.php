@@ -2,22 +2,13 @@
 
 namespace Tests\Unit\QueryBuilder\ContinueWhere;
 
-use PHPUnit\Framework\TestCase;
-
-use DB\ORM\Resolver\DBResolver;
-use DB\ORM\Resolver\AST;
 use DB\ORM\QueryBuilder\QueryTypes\ContinueWhere\ContinueWhereAble;
 use DB\Exceptions\Unchecked\DriverImplementationNotFoundException;
 use Tests\Mock\FakeActiveRecordImpl;
+use Tests\Unit\QueryBuilder\QueryTypesTestCase;
 
 
-defined('COND_EQ') ?:
-	define('COND_EQ', DBResolver::cond_eq());
-
-defined('CALLBACK_EMPTY_ACTIVE_RECORD') ?:
-	define('CALLBACK_EMPTY_ACTIVE_RECORD', fn() => new FakeActiveRecordImpl("data in callback"));
-
-class ContinueWhereTest extends TestCase
+class ContinueWhereTest extends QueryTypesTestCase
 {
 	public ContinueWhereAble $builder;
 
@@ -29,7 +20,6 @@ class ContinueWhereTest extends TestCase
 	const INPUT_FIELD_DRY = 'field';
 	const INPUT_FIELD_CLEAR = ['field'];
 	const INPUT_FIELD_MAPPED = ['test' => 'field'];
-	const INPUT_CALLBACK = CALLBACK_EMPTY_ACTIVE_RECORD;
 
 	const INPUT_CONDITION_DEFAULT = COND_EQ;
 	const INPUT_CONDITION_VALUE = "value in cond";
@@ -47,8 +37,6 @@ class ContinueWhereTest extends TestCase
 
 		[self::INPUT_FIELD_MAPPED, self::INPUT_CONDITION_DEFAULT, self::INPUT_VALUE_DEFAULT],
 		[self::INPUT_FIELD_MAPPED, self::INPUT_CONDITION_VALUE, self::INPUT_VALUE_NULL],
-
-		[self::INPUT_CALLBACK, null, null]
 	];
 
 	const ARGS_EXPECTED = [
@@ -61,7 +49,6 @@ class ContinueWhereTest extends TestCase
 		["value"],
 		["value in cond"],
 
-		[],
 	];
 
 	const MYSQL_EXPECTED_AND = [
@@ -73,8 +60,6 @@ class ContinueWhereTest extends TestCase
 
 		"AND `test`.`field` = (?)",
 		"AND `test`.`field` = (?)",
-
-		"AND (data in callback)",
 	];
 
 
@@ -83,17 +68,21 @@ class ContinueWhereTest extends TestCase
 		foreach (self::INPUT as $case => [$field, $cond, $value]) {
 			$queryBox = $this->builder->andWhere($field, $cond, $value)->queryBox;
 
-			$this->assertEquals(DBResolver::fmtSep() . self::MYSQL_EXPECTED_AND[$case] . DBResolver::fmtSep(), $queryBox->getQuerySnapshot(), "Error in case {$case}");
-
-			$this->assertEquals(self::ARGS_EXPECTED[$case], $queryBox->getDryArgs(), "Error in case {$case}");
-
+			$this->compare(self::MYSQL_EXPECTED_AND[$case], $queryBox, self::ARGS_EXPECTED[$case]);
 		}
+	}
+
+	function testCallbackAndWhere(): void
+	{
+		$queryBox = $this->builder->andWhere(fn() => new FakeActiveRecordImpl("value in callback"))->queryBox;
+
+		$this->compare("AND (value in callback)", $queryBox, []);
 	}
 
 	function testIncorrectAndWhereCondition(): void
 	{
 		$this->expectException(DriverImplementationNotFoundException::class);
-		$queryBox = $this->builder->andWhere("field", null, "value")->queryBox;
+		$this->builder->andWhere("field", null, "value");
 	}
 
 	const MYSQL_EXPECTED_OR = [
@@ -105,8 +94,6 @@ class ContinueWhereTest extends TestCase
 
 		"OR `test`.`field` = (?)",
 		"OR `test`.`field` = (?)",
-
-		"OR (data in callback)",
 	];
 
 
@@ -115,16 +102,20 @@ class ContinueWhereTest extends TestCase
 		foreach (self::INPUT as $case => [$field, $cond, $value]) {
 			$queryBox = $this->builder->orWhere($field, $cond, $value)->queryBox;
 
-			$this->assertEquals(DBResolver::fmtSep() . self::MYSQL_EXPECTED_OR[$case] . DBResolver::fmtSep(), $queryBox->getQuerySnapshot(), "Error in case {$case}");
-
-			$this->assertEquals(self::ARGS_EXPECTED[$case], $queryBox->getDryArgs(), "Error in case {$case}");
-
+			$this->compare(self::MYSQL_EXPECTED_OR[$case], $queryBox, self::ARGS_EXPECTED[$case]);
 		}
+	}
+
+	function testCallbackOrWhere(): void
+	{
+		$queryBox = $this->builder->orWhere(fn() => new FakeActiveRecordImpl("value in callback"))->queryBox;
+
+		$this->compare("OR (value in callback)", $queryBox, []);
 	}
 
 	function testIncorrectOrWhereCondition(): void
 	{
 		$this->expectException(DriverImplementationNotFoundException::class);
-		$queryBox = $this->builder->orWhere("field", null, "value")->queryBox;
+		$this->builder->orWhere("field", null, "value");
 	}
 }

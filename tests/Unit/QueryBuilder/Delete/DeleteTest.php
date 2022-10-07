@@ -2,11 +2,10 @@
 
 namespace Tests\Unit\QueryBuilder\Delete;
 
-use PHPUnit\Framework\TestCase;
-use DB\ORM\QueryBuilder\QueryBuilder;
 use DB\ORM\Resolver\DBResolver;
+use Tests\Unit\QueryBuilder\QueryTypesTestCase;
 
-class DeleteTest extends TestCase
+class DeleteTest extends QueryTypesTestCase
 {
 	const INPUT_TABLE_DRY = "delete_mock";
 	const INPUT_TABLE_NONE = null;
@@ -26,7 +25,7 @@ class DeleteTest extends TestCase
 		foreach (self::INPUT as $case => [$table]) {
 			$queryBox = DeleteMock::delete($table)->queryBox;
 
-			$this->assertEquals(self::MYSQL_EXPECTED[$case] . DBResolver::fmtSep(), $queryBox->getQuerySnapshot(), "Error in case {$case}");
+			$this->compare(self::MYSQL_EXPECTED[$case], $queryBox);
 		}
 	}
 }

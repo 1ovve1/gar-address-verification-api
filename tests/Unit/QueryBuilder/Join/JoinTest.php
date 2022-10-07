@@ -2,12 +2,10 @@
 
 namespace Tests\Unit\QueryBuilder\Join;
 
-use PHPUnit\Framework\TestCase;
-
-use DB\ORM\Resolver\DBResolver;
 use DB\ORM\QueryBuilder\QueryTypes\Join\JoinAble;
+use Tests\Unit\QueryBuilder\QueryTypesTestCase;
 
-class JoinTest extends TestCase
+class JoinTest extends QueryTypesTestCase
 {
 	public JoinAble $builder;
 
@@ -51,7 +49,7 @@ class JoinTest extends TestCase
 		foreach (self::INPUT as $case => [$table, $fields]) {
 			$queryBox = $this->builder->innerJoin($table, $fields)->queryBox;
 
-			$this->assertEquals(DBResolver::fmtSep() . self::MYSQL_EXPECTED_INNER[$case] . DBResolver::fmtSep(), $queryBox->getQuerySnapshot(), "Error in case {$case}");
+			$this->compare(self::MYSQL_EXPECTED_INNER[$case], $queryBox);
 		}	
 	}
 
@@ -71,7 +69,7 @@ class JoinTest extends TestCase
 		foreach (self::INPUT as $case => [$table, $fields]) {
 			$queryBox = $this->builder->leftJoin($table, $fields)->queryBox;
 
-			$this->assertEquals(DBResolver::fmtSep() . self::MYSQL_EXPECTED_LEFT[$case] . DBResolver::fmtSep(), $queryBox->getQuerySnapshot(), "Error in case {$case}");
+			$this->compare(self::MYSQL_EXPECTED_LEFT[$case], $queryBox);
 		}	
 	}
 
@@ -91,21 +89,49 @@ class JoinTest extends TestCase
 		foreach (self::INPUT as $case => [$table, $fields]) {
 			$queryBox = $this->builder->rightJoin($table, $fields)->queryBox;
 
-			$this->assertEquals(DBResolver::fmtSep() . self::MYSQL_EXPECTED_RIGHT[$case] . DBResolver::fmtSep(), $queryBox->getQuerySnapshot(), "Error in case {$case}");
+			$this->compare(self::MYSQL_EXPECTED_RIGHT[$case], $queryBox);
 		}	
 	}
 
-	function testTooManyTables(): void
+	function testTooManyTablesInnerJoin(): void
 	{
 		$this->expectException(\RuntimeException::class);
 		$this->builder->innerJoin(['test', 'wewe'], ['field1', 'field2']);
 
 	}
 
-	function testTooManyFields(): void
+	function testTooManyFieldsInnerJoin(): void
 	{
 		$this->expectException(\RuntimeException::class);
 		$this->builder->innerJoin('test', ['field1', 'field2', 'field3']);
+
+	}
+
+	function testTooManyTablesLeftJoin(): void
+	{
+		$this->expectException(\RuntimeException::class);
+		$this->builder->leftJoin(['test', 'wewe'], ['field1', 'field2']);
+
+	}
+
+	function testTooManyFieldsLeftJoin(): void
+	{
+		$this->expectException(\RuntimeException::class);
+		$this->builder->leftJoin('test', ['field1', 'field2', 'field3']);
+
+	}
+
+	function testTooManyTablesRightJoin(): void
+	{
+		$this->expectException(\RuntimeException::class);
+		$this->builder->rightJoin(['test', 'wewe'], ['field1', 'field2']);
+
+	}
+
+	function testTooManyFieldsRightJoin(): void
+	{
+		$this->expectException(\RuntimeException::class);
+		$this->builder->rightJoin('test', ['field1', 'field2', 'field3']);
 
 	}
 }

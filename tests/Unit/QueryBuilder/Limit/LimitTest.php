@@ -4,10 +4,10 @@ namespace Tests\Unit\QueryBuilder\Limit;
 
 use PHPUnit\Framework\TestCase;
 
-use DB\ORM\Resolver\DBResolver;
 use DB\ORM\QueryBuilder\QueryTypes\Limit\LimitAble;
+use Tests\Unit\QueryBuilder\QueryTypesTestCase;
 
-class LimitTest extends TestCase
+class LimitTest extends QueryTypesTestCase
 {
 	public LimitAble $builder;
 

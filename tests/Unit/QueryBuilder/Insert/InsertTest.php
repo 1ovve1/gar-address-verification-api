@@ -2,11 +2,10 @@
 
 namespace Tests\Unit\QueryBuilder\Insert;
 
-use PHPUnit\Framework\TestCase;
-use DB\ORM\QueryBuilder\QueryBuilder;
 use DB\ORM\Resolver\DBResolver;
+use Tests\Unit\QueryBuilder\QueryTypesTestCase;
 
-class InsertTest extends TestCase
+class InsertTest extends QueryTypesTestCase
 {
 	const INPUT_FIELDS_MAPPED = ["first" => "data1", "second" => "data2"];
 	const INPUT_FIELDS_MAPPED_MANY = ["first" => ["data1", "data2"], "second" => ["data3", "data4"]];
@@ -40,8 +39,7 @@ class InsertTest extends TestCase
 		foreach (self::INPUT as $case => [$fields, $table]) {
 			$queryBox = InsertMock::insert($fields, $table)->queryBox;
 
-			$this->assertEquals(self::MYSQL_EXCPECTED[$case] . DBResolver::fmtSep(), $queryBox->getQuerySnapshot(), "Error in case {$case}");
-			$this->assertEquals(self::ARGS_EXPECTED[$case], $queryBox->getDryArgs(), "Error in case {$case}");
+			$this->compare(self::MYSQL_EXCPECTED[$case], $queryBox, self::ARGS_EXPECTED[$case]);
 		}
 	}
 }
