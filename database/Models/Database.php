@@ -107,32 +107,37 @@ class Database extends QueryBuilder
 	 * Return houses object id using parent address objectid
 	 * @param int $objectId - parent address objectid
 	 * @param int $region
+	 * @param string $houseName
 	 * @return QueryResult
 	 */
-	public function getHousesByParentObjectId(int $objectId, int $region): QueryResult
+	public function getHousesByParentObjectId(int $objectId, int $region, string $houseName = ''): QueryResult
 	{
+		$houseName = "%$houseName%";
+
 		return Database::select(['houses' => 'house'], [
 			'houses' => fn() => Database::select(
-					"TRIM(' ' FROM CONCAT(COALESCE(ht.short, ''), ' ', COALESCE(chiled.housenum, ''), ' ', COALESCE(addht1.short, ''), ' ', COALESCE(chiled.addnum1, ''), ' ', COALESCE(addht2.short, ''), ' ', COALESCE(chiled.addnum2, ''))) as house",
-					['map' => HousesByAddrObjHierarchy::table()]
-				)->innerJoin(
-					['chiled' => Houses::table()],
-					['chiled' => 'objectid', 'map' => 'chiledobjid_houses']
-				)->leftJoin(
-					['ht' => HousesType::table()],
-					['ht' => 'id', 'chiled' => 'id_type']
-				)->leftJoin(
-					['addht1' => HousesAddtype::table()],
-					['addht1' => 'id', 'chiled' => 'id_addtype1']
-				)->leftJoin(
-					['addht2' => HousesAddtype::table()],
-					['addht2' => 'id', 'chiled' => 'id_addtype2']
-				)->where(
-					['map' => 'region'], $region
-				)->andWhere(
-					['map' => 'parentobjid_addr'], $objectId
-				)
-		])->save();
+				"TRIM(' ' FROM CONCAT(COALESCE(ht.short, ''), ' ', COALESCE(chiled.housenum, ''), ' ', COALESCE(addht1.short, ''), ' ', COALESCE(chiled.addnum1, ''), ' ', COALESCE(addht2.short, ''), ' ', COALESCE(chiled.addnum2, ''))) as house",
+				['map' => HousesByAddrObjHierarchy::table()]
+			)->innerJoin(
+				['chiled' => Houses::table()],
+				['chiled' => 'objectid', 'map' => 'chiledobjid_houses']
+			)->leftJoin(
+				['ht' => HousesType::table()],
+				['ht' => 'id', 'chiled' => 'id_type']
+			)->leftJoin(
+				['addht1' => HousesAddtype::table()],
+				['addht1' => 'id', 'chiled' => 'id_addtype1']
+			)->leftJoin(
+				['addht2' => HousesAddtype::table()],
+				['addht2' => 'id', 'chiled' => 'id_addtype2']
+			)->where(
+				['map' => 'region'], $region
+			)->andWhere(
+				['map' => 'parentobjid_addr'], $objectId
+			)
+		])->where(
+			['houses' => 'house'], 'LIKE', $houseName
+		)->save();
 
 	}
 

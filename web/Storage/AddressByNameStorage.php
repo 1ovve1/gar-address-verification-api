@@ -234,7 +234,12 @@ class AddressByNameStorage extends BaseStorage
 		if ($chiledAddress->hasManyRows()) {
 			$this->addressBuilderDirector->addVariant($chiledAddress);
 		} elseif(isset($parentObjectId)) {
-			$houseAddress = $this->db->getHousesByParentObjectId($parentObjectId, $this->getRegionContext());
+			try {
+				$houseName = $this->addressBuilderDirector->getCurrentRawChiledName();
+				$houseAddress = $this->db->getHousesByParentObjectId($parentObjectId, $this->getRegionContext(), $houseName);
+			} catch (ParamNotFoundException) {
+				$houseAddress = $this->db->getHousesByParentObjectId($parentObjectId, $this->getRegionContext());
+			}
 
 			if ($houseAddress->isNotEmpty()) {
 				$this->addressBuilderDirector->addHouses($houseAddress);
