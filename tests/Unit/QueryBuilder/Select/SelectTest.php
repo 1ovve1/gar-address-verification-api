@@ -64,4 +64,13 @@ class SelectTest extends QueryTypesTestCase
 			$this->compare(self::MYSQL_EXPECTED_SUB_SELECT[$case], $queryBox, []);
 		}
 	}
+
+	function testNotMappedCallbackException(): void
+	{
+		$this->expectException(\RuntimeException::class);
+		SelectMock::select('field', [
+			fn() => new FakeActiveRecordImpl("data in sub-query"),
+			'another_table'
+		]);
+	}
 }
