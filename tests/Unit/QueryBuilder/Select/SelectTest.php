@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\QueryBuilder\Select;
 
+use Tests\Mock\FakeActiveRecordImpl;
 use Tests\Unit\QueryBuilder\QueryTypesTestCase;
 
 class SelectTest extends QueryTypesTestCase
@@ -39,6 +40,25 @@ class SelectTest extends QueryTypesTestCase
 
 			$this->compare(self::MYSQL_EXPECTED[$case], $queryBox);
 			
+		}
+	}
+
+	const INPUT_SUB_SELECT = [
+		[self::INPUT_FIELDS_DRY],
+		[self::INPUT_FIELDS_CLEAR]
+	];
+
+	const MYSQL_EXPECTED_SUB_SELECT = [
+		"SELECT first.data, second.data, data3 FROM (data in sub-select)",
+		"SELECT `first`.`data1`, `second`.`data2`, `data3` FROM (data in sub-select)",
+	];
+
+	function testSubSelect(): void
+	{
+		foreach (self::INPUT_SUB_SELECT as $case => [$fields]) {
+			$queryBox = SelectMock::select($fields, fn() => new FakeActiveRecordImpl("data in sub-select"))->queryBox;
+
+			$this->compare(self::MYSQL_EXPECTED_SUB_SELECT[$case], $queryBox, []);
 		}
 	}
 }

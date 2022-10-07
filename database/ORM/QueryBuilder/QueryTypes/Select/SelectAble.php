@@ -8,9 +8,9 @@ interface SelectAble
 	 * Creating select template
 	 *
 	 * @param  array<string>|array<string, array<int, string>>|string $fields - fields to select
-	 * @param  array<string>|array<int, string>|string|null $anotherTables - name of another table
+	 * @param  callable|array<string>|array<int, string>|string|null $anotherTables - name of another table(s) or callback return ActiveRecord for sub-select
 	 * @return SelectQuery
 	 */
 	public static function select(string|array $fields,
-	                              null|array|string $anotherTables = null): SelectQuery;
+	                              callable|array|string|null $anotherTables = null): SelectQuery;
 }

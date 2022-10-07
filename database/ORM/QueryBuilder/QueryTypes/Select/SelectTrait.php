@@ -12,7 +12,7 @@ trait SelectTrait
 	 * {@inheritDoc}
 	 */
 	public static function select(array|string $fields,
-	                              null|array|string $anotherTables = null): SelectQuery
+	                              callable|array|string|null $anotherTables = null): SelectQuery
 	{
 		$fields = match(is_string($fields)) {
 			true =>	$fields,
@@ -27,6 +27,9 @@ trait SelectTrait
 			}
 		};
 
-		return new ImplSelect($fields, $anotherTables);
+		return match(is_callable($callback = $anotherTables)) {
+			true => new ImplSubSelect($fields, $callback),
+			default => new ImplSelect($fields, $anotherTables)
+		};
 	}
 }

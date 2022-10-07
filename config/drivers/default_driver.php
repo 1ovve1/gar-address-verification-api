@@ -18,6 +18,7 @@ return [
 
 	AST::SQL => [
 		AST::SQL_SELECT => 'SELECT %s FROM %s',
+		AST::SQL_SUB_SELECT => 'SELECT %s FROM (%s)',
 
 		AST::SQL_WHERE => 'WHERE %s %s (?)',
 		AST::SQL_WHERE_AND => 'AND %s %s (?)',
