@@ -71,7 +71,7 @@ class AS_ADDR_OBJ extends XMLFile
 		['addrObj' => $addrObj, 'addrObjTypename' => $addrObjTypename] = $table;
 
         if ($addrObj->checkIfAddrObjNotExists($region, $values['OBJECTID'])) {
-			$typeNameId = $addrObjTypename->getTypenameOrCreate($values['TYPENAME']);
+			$typeNameId = $addrObjTypename->getTypenameOrCreate($values['TYPENAME'], $values['LEVEL']);
 
             $addrObj->forceInsert([
 				$values['OBJECTID'],

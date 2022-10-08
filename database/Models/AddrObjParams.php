@@ -40,12 +40,13 @@ class AddrObjParams extends QueryBuilder implements MigrateAble
 		return [
 			'fields' => [
 				'objectid_addr'     => 'INT UNSIGNED NOT NULL',
-				'type'              => 'CHAR(5) NOT NULL',
+				'id_types'          => 'TINYINT UNSIGNED NOT NULL',
 				'value'             => 'CHAR(31) NOT NULL',
 				'region'            => 'TINYINT UNSIGNED NOT NULL',
 			],
 			'foreign' => [
-				'objectid_addr'     => [AddrObj::class, 'objectid']
+				'objectid_addr'     => [AddrObj::class, 'objectid'],
+				'id_types'          => [AddrObjParamsTypes::class, 'id']
 			]
 		];
 	}

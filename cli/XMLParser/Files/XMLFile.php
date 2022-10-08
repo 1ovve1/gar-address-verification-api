@@ -109,8 +109,7 @@ abstract class XMLFile
 	 * @param mixed $table - db table accessor from getTable()
 	 * @return void
 	 */
-	public static function callbackOperationWithTable(mixed $table): void
-	{}
+	public abstract static function callbackOperationWithTable(mixed $table): void;
 
 	/**
 	 * procedure that contains main operations from exec method

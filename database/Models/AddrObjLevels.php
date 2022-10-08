@@ -18,7 +18,7 @@ class AddrObjLevels extends QueryBuilder implements MigrateAble
 		return [
 			'fields' => [
 				'id'    => 'TINYINT UNSIGNED NOT NULL PRIMARY KEY',
-				'disc'  => 'CHAR(70)',
+				'desc'  => 'CHAR(70)',
 			],
 		];
 	}

@@ -10,7 +10,7 @@ use GAR\Storage\Collections\HouseCollection;
 use PHPUnit\Framework\TestCase;
 use Tests\Mock\FakeQueryResult;
 
-class AddressBuilderImplementTest extends TestCase
+class AddressBuilderImplementTODO extends TestCase
 {
 
 	const FIRST_NAME = 'Калмыкия';

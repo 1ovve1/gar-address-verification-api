@@ -79,46 +79,51 @@ $tableFormatter = function(array $captions, array $data) {
 /**
  * @return Logger
  */
-$monolog = function() {
+$monolog = function(bool $cli = true) {
 	// init monolog
 	$logger = new Logger('runtime');
 	$fileHandler = new RotatingFileHandler($_ENV['LOG_PATH'] . '/dump', 2, Level::Notice);
-	$systemHandler = new ErrorLogHandler(expandNewlines: true);
-	$formatter = new LineFormatter(null, "Y-m-d H-m-s", true, true);
-
-	$fileHandler->setFormatter($formatter);
-	$systemHandler->setFormatter($formatter);
-
 	$logger->pushHandler($fileHandler);
-	$logger->pushHandler($systemHandler);
+
+	$formatter = new LineFormatter(null, "Y-m-d H-m-s", true, true);
+	$fileHandler->setFormatter($formatter);
+
+	if ($cli) {
+		$systemHandler = new ErrorLogHandler(expandNewlines: true);
+		$systemHandler->setFormatter($formatter);
+		$logger->pushHandler($systemHandler);
+	}
 
 	return $logger;
 };
 
-set_error_handler(
-	function(int $code, string $message, string $errorFileName, int $errorLine)
-	use ($monolog, $tableFormatter) {
-		$monolog()->error(
-			'ERROR WAS FOUND!' .
-			$tableFormatter(
-				['<<Code>>', '<<Message>>', '<<Error file>>', '<<Error line>>'],
-				[(string) $code, $message, $errorFileName, (string) $errorLine]
-			)
-		);
+if (!defined('PHPUNIT_TEST_RUNTIME')) {
+	set_error_handler(
+		function(int $code, string $message, string $errorFileName, int $errorLine)
+		use ($monolog, $tableFormatter) {
+			$monolog()->error(
+				'ERROR WAS FOUND!' .
+				$tableFormatter(
+					['<<Code>>', '<<Message>>', '<<Error file>>', '<<Error line>>'],
+					[(string) $code, $message, $errorFileName, (string) $errorLine]
+				)
+			);
 
 		return true;
 	});
 
-set_exception_handler(
-	function(Throwable $ex)
-	use ($monolog, $tableFormatter) {
-		$monolog()->emergency(
-			'UNCHECKED EXCEPTION!' .
-			$tableFormatter(
-				['<<Message>>', '<<Code>>', '<<Stacktrace>>', '<<Full>>'],
-				[$ex->getMessage(), (string)$ex->getCode(), $ex->getTraceAsString(), (string)$ex]
-			)
-		);
-	}
-);
+	set_exception_handler(
+		function(Throwable $ex)
+		use ($monolog, $tableFormatter) {
+			$monolog()->emergency(
+				'UNCHECKED EXCEPTION!' .
+				$tableFormatter(
+					['<<Message>>', '<<Code>>', '<<Stacktrace>>', '<<Full>>'],
+					[$ex->getMessage(), (string)$ex->getCode(), $ex->getTraceAsString(), (string)$ex]
+				)
+			);
+		}
+	);
+}
+
 $_SERVER['MONOLOG'] = $monolog;

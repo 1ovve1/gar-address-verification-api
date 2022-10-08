@@ -3,9 +3,11 @@
 namespace DB\ORM;
 
 use DB\Exceptions\Checked\ConditionNotFoundException;
+use DB\Exceptions\Unchecked\BadQueryBuilderCallbackReturnExcpetion;
 use DB\Exceptions\Unchecked\DriverImplementationNotFoundException;
 use DB\ORM\DBAdapter\DBAdapter;
 use DB\ORM\DBAdapter\PDO\PDOObject;
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
 use DB\ORM\Resolver\DBResolver;
 use RuntimeException;
 
@@ -104,7 +106,7 @@ class DBFacade
 	 * @param array<int|string, string|String[]> $fieldsWithPseudonyms
 	 * @return string
 	 */
-	public static function fieldsWithPseudonymsToString(array $fieldsWithPseudonyms): string
+	public static function mappedFieldsToString(array $fieldsWithPseudonyms): string
 	{
 		$strResult = '';
 
@@ -114,20 +116,20 @@ class DBFacade
 			if (is_array($fields)) {
 				if (is_string($pseudonym)) {
 					foreach ($fields as $f) {
-						$strBuffer .= $pseudonym . DBResolver::fmtPseudoFields() . $f . ", ";
+						$strBuffer .= "`{$pseudonym}`" . DBResolver::fmtPseudoFields() . "`{$f}`" . ", ";
 					}
 					$strBuffer = substr($strBuffer, 0, -2);
 				} else {
 					foreach ($fields as $f) {
-						$strBuffer .= "{$f}, ";
+						$strBuffer .= "`{$f}`, ";
 					}
 				}
 
 			} else {
 				if (is_string($pseudonym)) {
-					$strBuffer = $pseudonym . DBResolver::fmtPseudoFields() . $fields;
+					$strBuffer = "`{$pseudonym}`" . DBResolver::fmtPseudoFields() . "`{$fields}`";
 				} else {
-					$strBuffer = $fields;
+					$strBuffer = "`{$fields}`";
 				}
 			}
 
@@ -138,23 +140,23 @@ class DBFacade
 	}
 
 	/**
-	 * @param array<int|string, int|string> $tableNamesWithPseudonyms
+	 * @param array<int|string, string> $mappedTableNames
 	 * @return string
 	 */
-	public static function tableNamesWithPseudonymsToString(array $tableNamesWithPseudonyms): string
+	public static function mappedTableNamesToString(array $mappedTableNames): string
 	{
 		$strBuffer = '';
-		foreach ($tableNamesWithPseudonyms as $pseudonym => $tableName) {
+		foreach ($mappedTableNames as $map => $tableName) {
 
-			if (is_string($tableName)) {
-				if (is_string($pseudonym)) {
-					$strBuffer .= $tableName . DBResolver::fmtPseudoTables() . $pseudonym . ", ";
-
+			if (is_string($map)) {
+				if ($tableName[0] === '(') {
+					$strBuffer .= "{$tableName}" . DBResolver::fmtPseudoTables() . "`{$map}`" . ", ";
 				} else {
-					$strBuffer .= $tableName . ", ";
+					$strBuffer .= "`{$tableName}`" . DBResolver::fmtPseudoTables() . "`{$map}`" . ", ";
 				}
+
 			} else {
-				throw new RuntimeException('Incorrect tableName format (tableName should be a string - ' . gettype($tableName) . 'given');
+				$strBuffer .= "`{$tableName}`" . ", ";
 			}
 		}
 
@@ -173,7 +175,7 @@ class DBFacade
 	{
 		if (is_array($field)) {
 			if (count($field) === 1) {
-				$field = DBFacade::fieldsWithPseudonymsToString($field);
+				$field = DBFacade::mappedFieldsToString($field);
 			} else {
 				throw new RuntimeException('You can use WHERE state only with single field element');
 			}
@@ -181,8 +183,11 @@ class DBFacade
 
 		try {
 			$sign = DBResolver::cond((string)$sign_or_value);
-		} catch (ConditionNotFoundException) {
+		} catch (ConditionNotFoundException $e) {
 			try {
+				if (null !== $value) {
+					throw new DriverImplementationNotFoundException($e->dbType, $e->getMessage(), $e);
+				}
 				$sign = DBResolver::cond_eq();
 			} catch (ConditionNotFoundException $e) {
 				throw new DriverImplementationNotFoundException($e->dbType, $e->getMessage(), $e);
@@ -210,16 +215,29 @@ class DBFacade
 	public static function joinArgsHandler(array|string $tableName, array $condition): array
 	{
 		if (is_array($tableName)) {
-			$tableName = current($tableName) . DBResolver::fmtPseudoTables() . key($tableName);
+			if (count($tableName) > 1) {
+				throw new \RuntimeException("Too many tablenames (require 1)");
+			}
+			
+			$pseudonym = key($tableName);
+			[$pseudonym => $name] = $tableName;
+			
+			$tableName = "`{$name}`";
+
+			if (is_string($pseudonym)) {
+				 $tableName .= DBResolver::fmtPseudoTables() . "`{$pseudonym}`";
+
+			}
 		}
+
 		$condition = match (count($condition)) {
 			1 => (is_string(key($condition)))
 				? [key($condition), current($condition)]
-				: throw new RuntimeException('Condition count are incorrect (use [field1 => field2] or [field1, field2] notation]'),
+				: throw new RuntimeException('Condition count are incorrect (use [name1 => field1, name2 => field2] or [field1, field2] notation]'),
 
 			2 => self::convertFieldsWithPseudonym($condition),
 
-			default => throw new RuntimeException('Condition count are incorrect (use [field1 => field2] or [field1, field2] notation]')
+			default => throw new RuntimeException('Condition count are incorrect (use [name1 => field1, name2 => field2] or [field1, field2] notation]')
 		};
 
 		return ['tableName' => $tableName, 'condition' => $condition];
@@ -236,9 +254,9 @@ class DBFacade
 		foreach ($conditionWithPseudonym as $pseudonym => $field) {
 
 			if (is_string($pseudonym)) {
-				$converted[] = $pseudonym . DBResolver::fmtPseudoFields() . $field;
+				$converted[] = "`{$pseudonym}`" . DBResolver::fmtPseudoFields() . "`{$field}`";
 			} else {
-				$converted[] = $field;
+				$converted[] = "`{$field}`";
 			}
 		}
 

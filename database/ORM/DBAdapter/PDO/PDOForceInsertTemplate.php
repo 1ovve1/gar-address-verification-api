@@ -54,7 +54,7 @@ class PDOForceInsertTemplate extends InsertBuffer implements QueryTemplate
 	    return sprintf(
 	        'INSERT INTO %s (%s) VALUES %s',
 	        $this->getTableName(),
-	        implode(', ', $this->getTableFields()),
+	        implode(', ', array_map(fn($x) => "`{$x}`", $this->getTableFields())),
 	        $this->genVarsFromCurrentBufferCursor(),
 	    );
     }

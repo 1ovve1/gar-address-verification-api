@@ -12,19 +12,16 @@ trait SelectTrait
 	 * {@inheritDoc}
 	 */
 	public static function select(array|string $fields,
-	                              null|array|string $anotherTables = null): SelectQuery
+	                              array|string|null $anotherTables = null): SelectQuery
 	{
 		$fields = match(is_string($fields)) {
 			true =>	$fields,
-			false => DBFacade::fieldsWithPseudonymsToString($fields),
+			false => DBFacade::mappedFieldsToString($fields),
 		};
 
-		$anotherTables = match(is_null($anotherTables)) {
-			true => QueryBuilder::table(static::class),
-			default => match (is_array($anotherTables)) {
-				true => DBFacade::tableNamesWithPseudonymsToString($anotherTables),
-				default => $anotherTables
-			}
+		$anotherTables = match(null === $anotherTables) {
+			true => self::tableQuoted(static::class),
+			default => $anotherTables
 		};
 
 		return new ImplSelect($fields, $anotherTables);

@@ -38,6 +38,7 @@ class AST
 
 	const SQL = 'sql';
 	const SQL_SELECT = ImplSelect::class;
+
 	const SQL_INSERT = ImplInsert::class;
 	const SQL_UPDATE = ImplUpdate::class;
 	const SQL_DELETE = ImplDelete::class;

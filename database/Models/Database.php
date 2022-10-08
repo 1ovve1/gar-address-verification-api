@@ -22,139 +22,6 @@ class Database extends QueryBuilder
 		return $state ?? $state = new self();
 	}
 
-	//TODO: now that isn't work
-//	/**
-//	 * @inheritDoc
-//	 */
-//	protected function prepareStates(): array
-//	{
-//		return [
-//			'getAddressByObjectId' =>
-//				Database::select(
-//					['addr' => ['name', 'typename', 'objectid']],
-//					['addr' => AddrObj::table()]
-//				)->where(
-//					['addr' => 'objectid']
-//				),
-//
-//
-//			'getChiledAddressByParentObjectIdAndChiledAddressName' =>
-//				Database::select(
-//					['chiled' => ['name', 'typename', 'objectid']],
-//					['map' => AddrObjByAddrObjHierarchy::table()]
-//				)->innerJoin(
-//					['chiled' => AddrObj::table()],
-//					['chiled' => 'objectid', 'map' => 'chiledobjid_addr']
-//				)->where(
-//					['map' => 'parentobjid_addr']
-//				)->andWhere(fn($builder) =>
-//					$builder->where(
-//						"CONCAT(chiled.name, ' ', chiled.typename)", 'LIKE', '?'
-//					)->orWhere(
-//						"CONCAT(chiled.typename, ' ', chiled.name)", 'LIKE', '?'
-//					)
-//				),
-//
-//			'getParentAddressByChiledObjectId' =>
-//				Database::select(
-//					['parent' => ['name', 'typename', 'objectid']],
-//					['map' => AddrObjByAddrObjHierarchy::table()]
-//				)->innerJoin(
-//					['parent' => AddrObj::table()],
-//					['parent' => 'objectid', 'map' => 'parentobjid_addr']
-//				)->where(
-//					['map' => 'chiledobjid_addr'],
-//				),
-//
-//			'getHousesByParentObjectId' =>
-//				Database::select(
-//					"TRIM(' ' FROM " .
-//					"CONCAT(" .
-//					"COALESCE(ht.short, ''), ' ', COALESCE(chiled.housenum, ''), ' ', " .
-//					"COALESCE(addht1.short, ''), ' ', COALESCE(chiled.addnum1, ''), ' ', " .
-//					"COALESCE(addht2.short, ''), ' ', COALESCE(chiled.addnum2, '')" .
-//					")" .
-//					") as house",
-//					['map' => HousesByAddrObjHierarchy::table()]
-//				)->innerJoin(
-//					['chiled' => Houses::table()],
-//					['chiled' => 'objectid', 'map' => 'chiledobjid_houses']
-//				)->leftJoin(
-//					['ht' => HousesType::table()],
-//					['ht' => 'id', 'chiled' => 'id_type']
-//				)->leftJoin(
-//					['addht1' => HousesAddtype::table()],
-//					['addht1' => 'id', 'chiled' => 'id_addtype1']
-//				)->leftJoin(
-//					['addht2' => HousesAddtype::table()],
-//					['addht2' => 'id', 'chiled' => 'id_addtype2']
-//				)->where(
-//					['map' => 'parentobjid_addr']
-//				),
-//
-//			'findChainByParentAndChiledAddressName' =>
-//				Database::select(
-//					'DISTINCT map.parentobjid_addr, map.chiledobjid_addr',
-//					['map' => AddrObjByAddrObjHierarchy::table()]
-//				)->innerJoin(
-//					['parent' => AddrObj::table()],
-//					['parent' => 'objectid', 'map' => 'parentobjid_addr']
-//				)->leftJoin(
-//					['chiled' => AddrObj::table()],
-//					['chiled' => 'objectid', 'map' => 'chiledobjid_addr']
-//				)->where(
-//					['parent' => 'id_level'],
-//					'<=',
-//				)->andWhere(
-//					fn($builder) =>
-//					$builder->where(fn($builder) =>
-//						$builder->where(
-//							"CONCAT(parent.name, ' ', parent.typename)",
-//							'LIKE',
-//						)->orWhere(
-//							"CONCAT(parent.typename, ' ',parent.name)",
-//							'LIKE',
-//						)
-//					)->andWhere(fn($builder) =>
-//						$builder->where(
-//							"CONCAT(chiled.name, ' ', chiled.typename)",
-//							'LIKE',
-//						)->orWhere(
-//							"CONCAT(chiled.typename, ' ', chiled.name)",
-//							'LIKE',
-//						)
-//					)
-//				)->limit(2),
-//
-//			'getLikeAddress' =>
-//				Database::select(
-//					['addr' => ['name', 'typename', 'objectid']],
-//					['addr' => AddrObj::table()]
-//				)->where(
-//					['addr' => 'id_level'],
-//					'<='
-//				)->andWhere(fn($builder) =>
-//					$builder->where(
-//						"CONCAT(addr.name, ' ', addr.typename)",
-//						'LIKE',
-//					)->orWhere(
-//						"CONCAT(addr.typename, ' ', addr.name)",
-//						'LIKE',
-//					)
-//				)->limit(100),
-//
-//			'findAddrObjParamByObjectIdAndType' =>
-//				Database::select(
-//					['params' => 'value'],
-//					['params' => AddrObjParams::table()]
-//				)->where(
-//					['params' => 'objectid_addr'],
-//				)->andWhere(
-//					['params' => 'type'],
-//				)->limit(1)
-//		];
-//	}
-
 	/**
 	 * Return single name address name by objectid param of concrete address
 	 * @param int $objectId - object id concrete address
@@ -164,7 +31,7 @@ class Database extends QueryBuilder
 	public function getAddressByObjectId(int $objectId, int $region): QueryResult
 	{
 		return Database::select(
-					['addr' => ['objectid', 'name'], 'typename' => ['typename']],
+					['addr' => ['objectid', 'name'], 'typename' => ['short', 'desc']],
 					['addr' => AddrObj::table()]
 				)->innerJoin(
 					['typename' => AddrObjTypename::table()],
@@ -175,9 +42,6 @@ class Database extends QueryBuilder
 					['addr' => 'objectid'], $objectId
 				)->save();
 
-//		 for using cache system
-//		return $this->userStates['getAddressByObjectId']
-//			->execute([$objectId]);
 	}
 
 	/**
@@ -192,7 +56,7 @@ class Database extends QueryBuilder
 		$chiledName .= '%';
 
 		return Database::select(
-					['chiled' => ['objectid', 'name'], 'typename' => ['typename']],
+					['chiled' => ['objectid', 'name'], 'typename' => ['short', 'desc']],
 					['map' => AddrObjByAddrObjHierarchy::table()]
 				)->innerJoin(
 					['chiled' => AddrObj::table()],
@@ -206,14 +70,12 @@ class Database extends QueryBuilder
 					['map' => 'parentobjid_addr'], $parentObjectId
 				)->andWhere(fn($builder) =>
 					$builder->where(
-						"CONCAT(chiled.name, ' ', typename.typename)", 'LIKE', $chiledName
+						"CONCAT(chiled.name, ' ', typename.short)", 'LIKE', $chiledName
 					)->orWhere(
-						"CONCAT(typename.typename, ' ', chiled.name)", 'LIKE', $chiledName
+						"CONCAT(typename.short, ' ', chiled.name)", 'LIKE', $chiledName
 					)
 				)->save();
 
-//		return $this->userStates['getChiledAddressByParentObjectIdAndChiledAddressName']
-//			->execute([$parentObjectId, $chiledName, $chiledName]);
 	}
 
 	/**
@@ -225,7 +87,7 @@ class Database extends QueryBuilder
 	public function getParentAddressByChiledObjectId(int $chiledObjectId, int $region): QueryResult
 	{
 		return Database::select(
-					['parent' => ['objectid', 'name'], 'typename' => ['typename']],
+					['parent' => ['objectid', 'name'], 'typename' => ['short', 'desc']],
 					['map' => AddrObjByAddrObjHierarchy::table()]
 				)->innerJoin(
 					['parent' => AddrObj::table()],
@@ -239,47 +101,44 @@ class Database extends QueryBuilder
 					['map' => 'chiledobjid_addr'], $chiledObjectId
 				)->save();
 
-//		return $this->userStates['getParentAddressByChiledObjectId']
-//			->execute([$chiledObjectId]);
 	}
 
 	/**
 	 * Return houses object id using parent address objectid
 	 * @param int $objectId - parent address objectid
 	 * @param int $region
+	 * @param string $houseName
 	 * @return QueryResult
 	 */
-	public function getHousesByParentObjectId(int $objectId, int $region): QueryResult
+	public function getHousesByParentObjectId(int $objectId, int $region, string $houseName = ''): QueryResult
 	{
-		return Database::select(
-					"TRIM(' ' FROM " .
-					"CONCAT(" .
-					"COALESCE(ht.short, ''), ' ', COALESCE(chiled.housenum, ''), ' ', " .
-					"COALESCE(addht1.short, ''), ' ', COALESCE(chiled.addnum1, ''), ' ', " .
-					"COALESCE(addht2.short, ''), ' ', COALESCE(chiled.addnum2, '')" .
-					")" .
-					") as house",
-					['map' => HousesByAddrObjHierarchy::table()]
-				)->innerJoin(
-					['chiled' => Houses::table()],
-					['chiled' => 'objectid', 'map' => 'chiledobjid_houses']
-				)->leftJoin(
-					['ht' => HousesType::table()],
-					['ht' => 'id', 'chiled' => 'id_type']
-				)->leftJoin(
-					['addht1' => HousesAddtype::table()],
-					['addht1' => 'id', 'chiled' => 'id_addtype1']
-				)->leftJoin(
-					['addht2' => HousesAddtype::table()],
-					['addht2' => 'id', 'chiled' => 'id_addtype2']
-				)->where(
-					['map' => 'region'], $region
-				)->andWhere(
-					['map' => 'parentobjid_addr'], $objectId
-				)->save();
+		$houseName = "%$houseName%";
 
-//		return $this->userStates['getHousesByParentObjectId']
-//			->execute([$objectId]);
+		return Database::select(['houses' => 'house'], [
+			'houses' => fn() => Database::select(
+				"TRIM(' ' FROM CONCAT(COALESCE(ht.short, ''), ' ', COALESCE(chiled.housenum, ''), ' ', COALESCE(addht1.short, ''), ' ', COALESCE(chiled.addnum1, ''), ' ', COALESCE(addht2.short, ''), ' ', COALESCE(chiled.addnum2, ''))) as house",
+				['map' => HousesByAddrObjHierarchy::table()]
+			)->innerJoin(
+				['chiled' => Houses::table()],
+				['chiled' => 'objectid', 'map' => 'chiledobjid_houses']
+			)->leftJoin(
+				['ht' => HousesType::table()],
+				['ht' => 'id', 'chiled' => 'id_type']
+			)->leftJoin(
+				['addht1' => HousesAddtype::table()],
+				['addht1' => 'id', 'chiled' => 'id_addtype1']
+			)->leftJoin(
+				['addht2' => HousesAddtype::table()],
+				['addht2' => 'id', 'chiled' => 'id_addtype2']
+			)->where(
+				['map' => 'region'], $region
+			)->andWhere(
+				['map' => 'parentobjid_addr'], $objectId
+			)
+		])->where(
+			['houses' => 'house'], 'LIKE', $houseName
+		)->save();
+
 	}
 
 	/**
@@ -319,29 +178,27 @@ class Database extends QueryBuilder
 					fn($builder) =>
 					$builder->where(fn($builder) =>
 						$builder->where(
-							"CONCAT(parent.name, ' ', parent_typename.typename)",
+							"CONCAT(parent.name, ' ', parent_typename.short)",
 							'LIKE',
 							$parentName
 						)->orWhere(
-							"CONCAT(parent_typename.typename, ' ', parent.name)",
+							"CONCAT(parent_typename.short, ' ', parent.name)",
 							'LIKE',
 		                    $parentName
 						)
 					)->andWhere(fn($builder) =>
 						$builder->where(
-							"CONCAT(chiled.name, ' ', chiled_typename.typename)",
+							"CONCAT(chiled.name, ' ', chiled_typename.short)",
 							'LIKE',
 		                    $chiledName
 						)->orWhere(
-							"CONCAT(chiled_typename.typename, ' ', chiled.name)",
+							"CONCAT(chiled_typename.short, ' ', chiled.name)",
 							'LIKE',
 							$chiledName
 						)
 					)
 				)->limit(2)->save();
 
-//		return $this->userStates['findChainByParentAndChiledAddressName']
-//			->execute([LEVEL, $parentName, $parentName, $chiledName, $chiledName]);
 	}
 
 	/**
@@ -355,7 +212,7 @@ class Database extends QueryBuilder
 		$halfAddress .= '%';
 
 		return Database::select(
-					['addr' => ['objectid', 'name'], 'typename' => ['typename']],
+					['addr' => ['objectid', 'name'], 'typename' => ['short', 'desc']],
 					['addr' => AddrObj::table()]
 				)->innerJoin(
 					['typename' => AddrObjTypename::table()],
@@ -368,42 +225,64 @@ class Database extends QueryBuilder
 		            LEVEL
 				)->andWhere(fn($builder) =>
 					$builder->where(
-						"CONCAT(addr.name, ' ', typename.typename)",
+						"CONCAT(addr.name, ' ', typename.short)",
 						'LIKE',
 						$halfAddress
 					)->orWhere(
-						"CONCAT(typename.typename, ' ', addr.name)",
+						"CONCAT(typename.short, ' ', addr.name)",
 						'LIKE',
 						$halfAddress
 					)
 				)->limit(100)->save();
 
-//		return $this->userStates['getLikeAddress']->execute([LEVEL, $halfAddress, $halfAddress]);
 	}
 
 	/**
 	 * @param int $objectId
-	 * @param string $type
+	 * @param string $code
 	 * @param int $region
 	 * @return QueryResult
 	 */
-	function findAddrObjParamByObjectIdAndType(int $objectId, string $type, int $region): QueryResult
+	function findAddrObjParamByObjectIdAndType(int $objectId, string $code, int $region): QueryResult
 	{
 		return Database::select(
 			['params' => 'value'],
 			['params' => AddrObjParams::table()]
+		)->innerJoin(
+			['types' => AddrObjParamsTypes::table()],
+			['types' => 'id', 'params' => 'id_types']
 		)->where(
 			['params' => 'region'], $region
 		)->andWhere(
 			['params' => 'objectid_addr'],
 			$objectId
 		)->andWhere(
-			['params' => 'type'],
-			'LIKE',
-			$type
+			['types' => 'code'],
+			'=',
+			$code
 		)->limit(1)->save();
 
-//		return $this->userStates['findAddrObjParamByObjectIdAndType']->execute([$objectId, $type]);
+	}
+
+	/**
+	 * @param int $objectId
+	 * @param int $region
+	 * @return QueryResult
+	 */
+	function findAllAddrObjParamByObjectId(int $objectId, int $region): QueryResult
+	{
+		return Database::select(
+			['params' => 'value', 'types' => 'code'],
+			['params' => AddrObjParams::table()]
+		)->innerJoin(
+			['types' => AddrObjParamsTypes::table()],
+			['types' => 'id', 'params' => 'id_types']
+		)->where(
+			['params' => 'region'], $region
+		)->andWhere(
+			['params' => 'objectid_addr'],
+			$objectId
+		)->save();
 
 	}
 

@@ -11,7 +11,7 @@ trait ContinueConditionTrait
 	 */
 	public function andWhere(callable|array|string $field_or_nested_clbk,
 	                         int|float|bool|string|null $sign_or_value = null,
-	                         float|int|bool|string|null $value = null): ContinueConditionQuery
+	                         int|float|bool|string|null $value = null): ContinueConditionQuery
 	{
 		if (is_callable($field_or_nested_clbk)) {
 			return new ImplNestedConditionAnd($this, $field_or_nested_clbk);
@@ -28,7 +28,7 @@ trait ContinueConditionTrait
 	 */
 	public function orWhere(callable|array|string $field_or_nested_clbk,
 	                        int|float|bool|string|null $sign_or_value = null,
-	                        float|int|bool|string|null $value = null): ContinueConditionQuery
+	                        int|float|bool|string|null $value = null): ContinueConditionQuery
 	{
 		if (is_callable($field_or_nested_clbk)) {
 			return new ImplNestedConditionOr($this, $field_or_nested_clbk);

@@ -10,7 +10,7 @@ interface InsertAble
 	/**
 	 * Create insert template
 	 *
-	 * @param array<int|string, DatabaseContract|array<DatabaseContract>> $fields_values
+	 * @param array<string, DatabaseContract|array<DatabaseContract>> $fields_values
 	 * @param string|null $tableName - name of table
 	 * @return InsertQuery
 	 */

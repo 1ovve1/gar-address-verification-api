@@ -10,7 +10,10 @@ trait UpdateTrait
 	                              float|int|bool|string|null $value,
 	                              ?string $tableName = null): UpdateQuery
 	{
-		$tableName ??= QueryBuilder::table(static::class);
+		$tableName ??= QueryBuilder::tableQuoted(static::class);
+
+		$field = "`{$field}`";
+
 		return new ImplUpdate($field, $value, $tableName);
 	}
 }

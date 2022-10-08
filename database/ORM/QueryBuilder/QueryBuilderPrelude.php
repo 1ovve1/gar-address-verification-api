@@ -119,5 +119,11 @@ use SelectTrait, InsertTrait, UpdateTrait, DeleteTrait;
 		return DBFacade::genTableNameByClassName($className ?? static::class);
 	}
 
-
+	/**
+	 * @inheritDoc
+	 */ 
+	static function tableQuoted(?string $className = null): string
+	{
+		return '`' . self::table($className) . '`';
+	}
 }
