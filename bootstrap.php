@@ -8,7 +8,7 @@ use Dotenv\Dotenv;
 require_once __DIR__ . '/default_handler_and_logger.php';
 
 // check phpunit context
-if (!defined('PHPUNIT_TEST_RUNTIME')) {
+if (!defined('PHPUNIT_TEST_RUNTIME') || !file_exists(__DIR__ . '/tests/.env.test')) {
 	// load env
 	$envName = '.env';
 	$basePath = __DIR__ . '/';
