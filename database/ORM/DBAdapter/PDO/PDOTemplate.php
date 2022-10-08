@@ -36,7 +36,12 @@ class PDOTemplate implements QueryTemplateBindAble
             $res = $this->template->execute($values);
         } catch (PDOException $pdoException) {
             throw new BadQueryResultException($this->template->queryString, $pdoException);
+        } finally {
+			if (filter_var($_ENV['LOG_QUERY_RESULTS'], FILTER_VALIDATE_BOOL)) {
+				$this->logLastQueryExecute();
+			}
         }
+
         if ($res === false) {
 	        throw new BadQueryResultException($this->template->queryString);
         }
@@ -114,5 +119,18 @@ class PDOTemplate implements QueryTemplateBindAble
 		return $this;
 	}
 
+	public function logLastQueryExecute(): void
+	{
+		ob_start();
+		$this->template->debugDumpParams();
+		$r = ob_get_contents();
+		ob_end_clean();
+
+		if (false !== $r) {
+			/** @var \Monolog\Logger $logger */
+			$logger = $_SERVER['MONOLOG']();
+			$logger->notice(PHP_EOL . $r);
+		}
+	}
 
 }

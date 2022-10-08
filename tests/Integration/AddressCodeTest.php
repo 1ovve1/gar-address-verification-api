@@ -19,7 +19,7 @@ class AddressCodeTest extends BaseTestSetup
 	    $this->assertResponse(
 		    response: $response,
 		    code: ResponseCodes::OK_200,
-		    contains: ['"OKATO"', '"OKTMO"', '"KLADR"'],
+		    contains: ['"OKATO"', '"OKTMO"', '"CODE"'],
 	    );
     }
 
@@ -32,7 +32,7 @@ class AddressCodeTest extends BaseTestSetup
 	    $this->assertResponse(
 		    response: $response,
 		    code: ResponseCodes::OK_200,
-		    contains: ['"OKATO"', '"OKTMO"', '"KLADR"'],
+		    contains: ['"OKATO"', '"OKTMO"', '"CODE"'],
 	    );
     }
 
@@ -46,7 +46,7 @@ class AddressCodeTest extends BaseTestSetup
 		    response: $response,
 		    code: ResponseCodes::OK_200,
 		    contains: ['"OKATO"'],
-		    notContains: ['"OKTMO"', '"KLADR"']
+		    notContains: ['"OKTMO"', '"CODE"']
 	    );
     }
 
@@ -60,7 +60,7 @@ class AddressCodeTest extends BaseTestSetup
 		    response: $response,
 		    code: ResponseCodes::OK_200,
 		    contains: ['"OKATO"'],
-		    notContains: ['"OKTMO"', '"KLADR"']
+		    notContains: ['"OKTMO"', '"CODE"']
 	    );
     }
 
@@ -74,7 +74,7 @@ class AddressCodeTest extends BaseTestSetup
 		    response: $response,
 		    code: ResponseCodes::OK_200,
 		    contains: ['"OKTMO"'],
-		    notContains: ['"OKATO"', '"KLADR"']
+		    notContains: ['"OKATO"', '"CODE"']
 	    );
     }
 
@@ -88,7 +88,7 @@ class AddressCodeTest extends BaseTestSetup
 		    response: $response,
 		    code: ResponseCodes::OK_200,
 		    contains: ['"OKTMO"'],
-		    notContains: ['"OKATO"', '"KLADR"']
+		    notContains: ['"OKATO"', '"CODE"']
 	    );
     }
 
@@ -96,12 +96,12 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = 'калм,лаган,кр,кра,школьная';
 	    $paramWithProp = 'address=' . $param;
-	    $response = $this->runApp('GET', '/' . self::REGION . '/code/kladr', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/code', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
 		    code: ResponseCodes::OK_200,
-		    contains: ['"KLADR"'],
+		    contains: ['"CODE"'],
 		    notContains: ['"OKATO"', '"OKTMO"']
 	    );
     }
@@ -110,12 +110,12 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = '109874';
 	    $paramWithProp = 'objectid=' . $param;
-	    $response = $this->runApp('GET', '/' . self::REGION . '/code/kladr', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/code', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
 		    code: ResponseCodes::OK_200,
-		    contains: ['"KLADR"'],
+		    contains: ['"CODE"'],
 		    notContains: ['"OKATO"', '"OKTMO"']
 	    );
     }
@@ -124,12 +124,12 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = 'Пушкино,Колотушкино';
 	    $paramWithProp = 'address=' . $param;
-	    $response = $this->runApp('GET', '/' . self::REGION . '/code/kladr', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/code', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
 		    code: ResponseCodes::NOT_FOUND_404,
-		    notContains: ['"KLADR"', '"OKATO"', '"OKTMO"'],
+		    notContains: ['"CODE"', '"OKATO"', '"OKTMO"'],
 		    errorFlag: true
 	    );
     }
@@ -138,12 +138,12 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = '0';
 	    $paramWithProp = 'objectid=' . $param;
-	    $response = $this->runApp('GET', '/' . self::REGION . '/code/kladr', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/code', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
 		    code: ResponseCodes::NOT_FOUND_404,
-		    notContains: ['"KLADR"', '"OKATO"', '"OKTMO"'],
+		    notContains: ['"CODE"', '"OKATO"', '"OKTMO"'],
 		    errorFlag: true
 	    );
     }
@@ -152,12 +152,12 @@ class AddressCodeTest extends BaseTestSetup
     {
 	    $param = 'asdas';
 	    $paramWithProp = 'sdsdsd=' . $param;
-	    $response = $this->runApp('GET', '/' . self::REGION . '/code/kladr', $paramWithProp);
+	    $response = $this->runApp('GET', '/' . self::REGION . '/code/code', $paramWithProp);
 
 	    $this->assertResponse(
 		    response: $response,
 		    code: ResponseCodes::PRECONDITION_FAILED_412,
-		    notContains: ['"KLADR"', '"OKATO"', '"OKTMO"'],
+		    notContains: ['"CODE"', '"OKATO"', '"OKTMO"'],
 		    errorFlag: true
 	    );
     }

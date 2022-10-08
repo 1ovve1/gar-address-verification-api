@@ -2,6 +2,8 @@
 
 namespace DB\ORM\QueryBuilder\QueryTypes\ContinueWhere;
 
+use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecord;
+
 /**
  * Continue where interface
  */
@@ -10,7 +12,7 @@ interface ContinueWhereAble
 	/**
 	 * Create AND WHERE template
 	 *
-	 * @param callable|array<string, string>|string $field_or_nested_clbk - name of field or callback for nested-or-where [OR (...)]
+	 * @param callable():ActiveRecord|array<string, string>|string $field_or_nested_clbk - name of field or callback for nested-or-where [OR (...)]
 	 * @param DatabaseContract $sign_or_value - sign for compare or value for default '=' compare
 	 * @param DatabaseContract $value - value to compare
 	 * @return ContinueWhereQuery
@@ -22,7 +24,7 @@ interface ContinueWhereAble
 	/**
 	 * Create OR WHERE template
 	 *
-	 * @param callable|array<string, string>|string $field_or_nested_clbk - name of field or callback for nested-or-where [OR (...)]
+	 * @param callable():ActiveRecord|array<string, string>|string $field_or_nested_clbk - name of field or callback for nested-or-where [OR (...)]
 	 * @param DatabaseContract $sign_or_value - sign for compare or value for default '=' compare
 	 * @param DatabaseContract $value - value to compare
 	 * @return ContinueWhereQuery

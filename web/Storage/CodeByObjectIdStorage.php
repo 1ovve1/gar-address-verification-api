@@ -17,7 +17,7 @@ class CodeByObjectIdStorage extends BaseStorage
 	 * @param int $objectId - concrete objectid address
 	 * @param Codes $type - type of code
 	 * @param int $region
-	 * @return array<int, array<string, mixed>>
+	 * @return array<string, mixed>
 	 * @throws CodeNotFoundException|ParamNotFoundException - if codes was not found
 	 */
     public function getCode(int $objectId, Codes $type, int $region): ?array
@@ -27,7 +27,7 @@ class CodeByObjectIdStorage extends BaseStorage
 		if ($type === Codes::ALL) {
 			$code = $this->getAllCodesByObjectId($objectId);
 		} else {
-			$code = [$this->getCodeByObjectId($objectId, $type)];
+			$code = $this->getCodeByObjectId($objectId, $type);
 		}
 
 		if (empty(current($code))) {
@@ -70,19 +70,19 @@ class CodeByObjectIdStorage extends BaseStorage
 	/**
 	 * Return all codes using concrete objectid address
 	 * @param int $objectId - concrete objectid address
-	 * @return array<int, array<string, mixed>>
-	 * @throws ParamNotFoundException
+	 * @return array<string, mixed>
 	 */
     public function getAllCodesByObjectId(int $objectId): array
     {
 		$resultData = [];
-		foreach (Codes::cases() as $type) {
-			$data = $this->getCodeByObjectId($objectId, $type);
+		$rawData = $this->db->findAllAddrObjParamByObjectId($objectId, $this->getRegionContext());
 
-			if (empty($data)) {
-				continue;
-			}
-			$resultData[] = $data;
+	    /**
+	     * @var mixed $value
+	     * @var string $code
+	     */
+		foreach ($rawData->fetchAllAssoc() as ['value' => $value, 'code' => $code]) {
+			$resultData[$code] = $value;
 		}
 
         return $resultData;

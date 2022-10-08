@@ -19,7 +19,7 @@ enum Codes : string
 	case OKATO = 'OKATO';
 	case OKTMO = 'OKTMO';
 	case CADASTR = 'CadastrNum';
-	case KLADR = 'KLADR';
+	case KLADR = 'CODE';
 	case PLAINKLADR = 'PLAINKLADR';
 	case REGUIONCODE = 'REGIONCODE';
 	case REESTRNUM = 'ReestrNum';

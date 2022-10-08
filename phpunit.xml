@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<phpunit
-        bootstrap = "bootstrap.php"
-        backupGlobals               = "false"
-        backupStaticAttributes      = "false"
-        colors                      = "true"
-        convertErrorsToExceptions   = "true"
-        convertNoticesToExceptions  = "true"
-        convertWarningsToExceptions = "true"
-        processIsolation            = "false"
-        stopOnFailure               = "true">
-
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         bootstrap="bootstrap.php"
+         cacheResultFile=".phpunit.cache/test-results"
+         executionOrder="depends,defects"
+         forceCoversAnnotation="false"
+         beStrictAboutCoversAnnotation="true"
+         beStrictAboutOutputDuringTests="true"
+         beStrictAboutTodoAnnotatedTests="true"
+         convertDeprecationsToExceptions="true"
+         failOnRisky="true"
+         failOnWarning="true"
+         verbose="true">
     <testsuites>
-        <testsuite name="Integration tests">
-            <directory>tests/Integration/</directory>
-        </testsuite>
-        <testsuite name="Unit tests">
-            <directory>tests/Unit/</directory>
+        <testsuite name="default">
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
 
@@ -24,4 +22,12 @@
         <const name="PHPUNIT_TEST_RUNTIME" value="true"/>
     </php>
 
+    <coverage cacheDirectory=".phpunit.cache/code-coverage"
+              processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">database</directory>
+            <directory suffix=".php">database</directory>
+            <directory suffix=".php">wev</directory>
+        </include>
+    </coverage>
 </phpunit>

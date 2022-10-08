@@ -258,9 +258,31 @@ class Database extends QueryBuilder
 			$objectId
 		)->andWhere(
 			['types' => 'code'],
-			'LIKE',
+			'=',
 			$code
 		)->limit(1)->save();
+
+	}
+
+	/**
+	 * @param int $objectId
+	 * @param int $region
+	 * @return QueryResult
+	 */
+	function findAllAddrObjParamByObjectId(int $objectId, int $region): QueryResult
+	{
+		return Database::select(
+			['params' => 'value', 'types' => 'code'],
+			['params' => AddrObjParams::table()]
+		)->innerJoin(
+			['types' => AddrObjParamsTypes::table()],
+			['types' => 'id', 'params' => 'id_types']
+		)->where(
+			['params' => 'region'], $region
+		)->andWhere(
+			['params' => 'objectid_addr'],
+			$objectId
+		)->save();
 
 	}
 
