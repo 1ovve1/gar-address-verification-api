@@ -2,8 +2,8 @@
 
 namespace Tests\Mock;
 
-use DB\ORM\QueryBuilder\ActiveRecord\ActiveRecordImpl;
-use DB\ORM\QueryBuilder\ActiveRecord\QueryBox;
+use QueryBox\QueryBuilder\ActiveRecord\ActiveRecordImpl;
+use QueryBox\QueryBuilder\ActiveRecord\QueryBox;
 
 class FakeActiveRecordImpl extends ActiveRecordImpl
 {

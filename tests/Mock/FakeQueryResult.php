@@ -2,7 +2,7 @@
 
 namespace Tests\Mock;
 
-use DB\ORM\DBAdapter\QueryResult;
+use QueryBox\DBAdapter\QueryResult;
 use RuntimeException;
 
 class FakeQueryResult implements QueryResult

@@ -2,7 +2,7 @@
 
 namespace GAR\Storage\Builders;
 
-use DB\ORM\DBAdapter\QueryResult;
+use QueryBox\DBAdapter\QueryResult;
 use GAR\Exceptions\Checked\ParamNotFoundException;
 use GAR\Storage\Elements\ChainPoint;
 use RuntimeException;

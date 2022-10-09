@@ -2,7 +2,7 @@
 
 namespace GAR\Storage\Builders;
 
-use DB\ORM\DBAdapter\QueryResult;
+use QueryBox\DBAdapter\QueryResult;
 
 class AddressBuilderImplement implements AddressBuilder
 {

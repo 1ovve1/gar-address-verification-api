@@ -2,7 +2,7 @@
 
 namespace GAR\Storage\Elements;
 
-use DB\ORM\DBAdapter\QueryResult;
+use QueryBox\DBAdapter\QueryResult;
 
 class ChainPoint
 {

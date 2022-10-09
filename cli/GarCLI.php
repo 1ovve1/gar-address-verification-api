@@ -2,11 +2,8 @@
 
 namespace CLI;
 
-use splitbrain\phpcli\{
-	CLI,
-	Options
-};
-use DB\UserMigrations;
+use GAR\Migration\UserMigrations;
+use splitbrain\phpcli\{CLI, Options};
 
 class GarCLI extends CLI
 {
