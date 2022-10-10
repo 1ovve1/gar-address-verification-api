@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace CLI\Models;
+namespace DB\Models;
 
 use QueryBox\Migration\MigrateAble;
 use QueryBox\QueryBuilder\QueryBuilder;
 
 
-class HousesType extends QueryBuilder implements MigrateAble
+class AddrObjLevels extends QueryBuilder implements MigrateAble
 {
 	/**
 	 * @inheritDoc
@@ -18,8 +18,7 @@ class HousesType extends QueryBuilder implements MigrateAble
 		return [
 			'fields' => [
 				'id'    => 'TINYINT UNSIGNED NOT NULL PRIMARY KEY',
-				'short' => 'CHAR(15) NOT NULL',
-				'disc'  => 'CHAR(50) NOT NULL',
+				'desc'  => 'CHAR(70)',
 			],
 		];
 	}

@@ -6,7 +6,6 @@ namespace CLI\XMLParser\Files\ByRoot;
 
 use DB\Models\HousesAddtype;
 use CLI\XMLParser\Files\XMLFile;
-use DB\ORM\QueryBuilder\QueryBuilder;
 
 class AS_ADDHOUSE_TYPES extends XMLFile
 {

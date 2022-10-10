@@ -1,12 +1,14 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace CLI\Models;
+declare(strict_types=1);
+
+namespace DB\Models;
 
 use QueryBox\Migration\MigrateAble;
 use QueryBox\QueryBuilder\QueryBuilder;
 
 
-class HousesAddtype extends QueryBuilder implements MigrateAble
+class HousesType extends QueryBuilder implements MigrateAble
 {
 	/**
 	 * @inheritDoc
@@ -16,10 +18,9 @@ class HousesAddtype extends QueryBuilder implements MigrateAble
 		return [
 			'fields' => [
 				'id'    => 'TINYINT UNSIGNED NOT NULL PRIMARY KEY',
-	            'short' => 'CHAR(15)',
-	            'disc'  => 'CHAR(50)',
+				'short' => 'CHAR(15) NOT NULL',
+				'disc'  => 'CHAR(50) NOT NULL',
 			],
 		];
 	}
-
 }

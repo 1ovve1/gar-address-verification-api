@@ -1,5 +1,5 @@
 {
-    "name": "tpo/lab2",
+    "name": "lovel/gar-address-verification-api",
     "type": "project",
     "autoload": {
         "psr-4": {

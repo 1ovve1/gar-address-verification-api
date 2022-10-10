@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GAR\Storage;
 
-use GAR\Models\Database;
+use DB\Models\Database;
 
 /**
  * Basic repository class, contains production database
