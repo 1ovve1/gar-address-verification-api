@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files\ByRoot;
 
-use DB\Models\AddrObjLevels;
+use CLI\Models\AddrObjLevels;
 use CLI\XMLParser\Files\XMLFile;
 
 class AS_OBJECT_LEVELS extends XMLFile

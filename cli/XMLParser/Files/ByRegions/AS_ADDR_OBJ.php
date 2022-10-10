@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files\ByRegions;
 
-use DB\Models\AddrObj;
+use CLI\Models\AddrObj;
 use CLI\XMLParser\Files\XMLFile;
-use DB\Models\AddrObjTypename;
+use CLI\Models\AddrObjTypename;
 
 class AS_ADDR_OBJ extends XMLFile
 {

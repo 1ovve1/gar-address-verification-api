@@ -3,7 +3,7 @@
 namespace CLI\XMLParser\Files\ByRoot;
 
 use CLI\XMLParser\Files\XMLFile;
-use DB\Models\AddrObjParamsTypes;
+use CLI\Models\AddrObjParamsTypes;
 
 class AS_PARAM_TYPES extends XMLFile
 {

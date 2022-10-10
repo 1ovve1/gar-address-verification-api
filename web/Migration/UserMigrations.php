@@ -2,9 +2,9 @@
 
 namespace GAR\Migration;
 
-use DB\ORM\DBFacade;
-use DB\ORM\Migration\MetaTable;
-use DB\ORM\Migration\MigrateAble;
+use QueryBox\DBFacade;
+use QueryBox\Migration\MetaTable;
+use QueryBox\Migration\MigrateAble;
 
 class UserMigrations
 {
