@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace CLI\XMLParser\Files\ByRegions;
 
 use CLI\XMLParser\Files\XMLFile;
-use CLI\Models\AddrObjParams;
-use CLI\Models\AddrObjParamsTypes;
+use DB\Models\AddrObjParams;
+use DB\Models\AddrObjParamsTypes;
 
 class AS_ADDR_OBJ_PARAMS extends XMLFile
 {

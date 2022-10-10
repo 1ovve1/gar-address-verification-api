@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace GAR\Migration;
+namespace DB\Migration;
 
 use QueryBox\DBFacade;
 use QueryBox\Migration\MetaTable;

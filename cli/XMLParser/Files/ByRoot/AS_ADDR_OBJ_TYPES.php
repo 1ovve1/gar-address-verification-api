@@ -3,7 +3,7 @@
 namespace CLI\XMLParser\Files\ByRoot;
 
 use CLI\XMLParser\Files\XMLFile;
-use CLI\Models\AddrObjTypename;
+use DB\Models\AddrObjTypename;
 
 class AS_ADDR_OBJ_TYPES extends XMLFile
 {

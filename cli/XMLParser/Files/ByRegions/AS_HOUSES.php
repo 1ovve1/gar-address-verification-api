@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CLI\XMLParser\Files\ByRegions;
 
-use CLI\Models\Houses;
+use DB\Models\Houses;
 use CLI\XMLParser\Files\XMLFile;
 
 class AS_HOUSES extends XMLFile

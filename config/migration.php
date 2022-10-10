@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
 return [
-	\GAR\Models\HousesAddtype::class,
-	\GAR\Models\HousesType::class,
-	\GAR\Models\AddrObjLevels::class,
-	\GAR\Models\AddrObjTypename::class,
-	\GAR\Models\AddrObjParamsTypes::class,
+	\DB\Models\HousesAddtype::class,
+	\DB\Models\HousesType::class,
+	\DB\Models\AddrObjLevels::class,
+	\DB\Models\AddrObjTypename::class,
+	\DB\Models\AddrObjParamsTypes::class,
 
-	\GAR\Models\AddrObj::class,
-	\GAR\Models\AddrObjParams::class,
-	\GAR\Models\Houses::class,
-	\GAR\Models\AddrObjByAddrObjHierarchy::class,
-	\GAR\Models\HousesByAddrObjHierarchy::class,
+	\DB\Models\AddrObj::class,
+	\DB\Models\AddrObjParams::class,
+	\DB\Models\Houses::class,
+	\DB\Models\AddrObjByAddrObjHierarchy::class,
+	\DB\Models\HousesByAddrObjHierarchy::class,
 ];

@@ -2,8 +2,8 @@
 
 namespace CLI\XMLParser\Files\ByRegions;
 
-use CLI\Models\AddrObjByAddrObjHierarchy;
-use CLI\Models\HousesByAddrObjHierarchy;
+use DB\Models\AddrObjByAddrObjHierarchy;
+use DB\Models\HousesByAddrObjHierarchy;
 
 class AS_ADM_HIERARCHY extends AS_MUN_HIERARCHY
 {

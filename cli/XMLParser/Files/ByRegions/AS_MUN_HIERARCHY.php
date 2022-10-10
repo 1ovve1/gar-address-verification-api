@@ -2,8 +2,8 @@
 
 namespace CLI\XMLParser\Files\ByRegions;
 
-use CLI\Models\AddrObjByAddrObjHierarchy;
-use CLI\Models\HousesByAddrObjHierarchy;
+use DB\Models\AddrObjByAddrObjHierarchy;
+use DB\Models\HousesByAddrObjHierarchy;
 use CLI\XMLParser\Files\XMLFile;
 
 class AS_MUN_HIERARCHY extends XMLFile

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace CLI\Models;
+namespace DB\Models;
 
 use QueryBox\Migration\MigrateAble;
 use QueryBox\Migration\MigrationParams;

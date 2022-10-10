@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace CLI\Models;
+namespace DB\Models;
 
 use QueryBox\DBAdapter\QueryResult;
 use QueryBox\QueryBuilder\QueryBuilder;
