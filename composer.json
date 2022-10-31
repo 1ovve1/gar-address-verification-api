@@ -1,5 +1,5 @@
 {
-    "name": "lovel/gar-address-verification-api",
+    "name": "lowel/gar-address-verification-api",
     "type": "project",
     "description": "GAR BD FIAS uploader and real web api example for address verification",
     "keyword": ["GAR BD FIAS", "Russian Addresses Verification", "KLADR", "OKATO", "OKTMO", "SLIM"],
