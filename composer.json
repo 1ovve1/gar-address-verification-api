@@ -1,6 +1,19 @@
 {
     "name": "lovel/gar-address-verification-api",
     "type": "project",
+    "description": "GAR BD FIAS uploader and real web api example for address verification",
+    "keyword": ["GAR BD FIAS", "Russian Addresses Verification", "KLADR", "OKATO", "OKTMO", "SLIM"],
+    "homepage": "https://github.com/1ove1/gar-address-verification-api",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andrey Bulavskiy",
+            "email": "10vvvvvv31@gmail.com",
+            "homepage": "https://github.com/1ove1",
+            "role": "developer"
+        }
+    ],
+
     "autoload": {
         "psr-4": {
             "GAR\\": "web/",
@@ -9,19 +22,16 @@
             "Tests\\": "tests/"
         }
     },
-    "authors": [
-        {
-            "name": "Andrey Bulavskiy",
-            "email": "iandrey00@mail.ru"
-        }
-    ],
+
     "require-dev": {
         "phpunit/phpunit": "^9.5",
         "phpstan/phpstan": "^1.7",
         "symplify/easy-coding-standard": "^11.0",
         "friendsofphp/php-cs-fixer": "^3.9"
     },
+    
     "require": {
+        "php": ">=8.1",
         "ext-xmlreader": "*",
         "ext-readline": "*",
         "ext-zip": "*",
